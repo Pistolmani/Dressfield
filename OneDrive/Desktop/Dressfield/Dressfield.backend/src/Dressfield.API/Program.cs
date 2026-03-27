@@ -1,7 +1,11 @@
 using System.Text;
 using Dressfield.Core.Entities;
+using Dressfield.Application.Interfaces;
 using Dressfield.Core.Interfaces;
 using Dressfield.Infrastructure.Data;
+using Dressfield.Infrastructure.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -79,6 +83,12 @@ builder.Services.AddCors(options =>
 
 // Email
 builder.Services.AddScoped<IEmailService, DevEmailService>();
+
+// Auth service
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Validation
+builder.Services.AddValidatorsFromAssemblyContaining<Dressfield.Application.DTOs.RegisterRequest>();
 
 // Controllers
 builder.Services.AddControllers();
