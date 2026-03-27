@@ -145,17 +145,70 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated during roadmap creation) | | |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| UX-01 | Phase 1 | Pending |
+| UX-02 | Phase 1 | Pending |
+| UX-03 | Phase 1 | Pending |
+| UX-04 | Phase 1 | Pending |
+| ADMIN-03 | Phase 1 | Pending |
+| PROD-01 | Phase 2 | Pending |
+| PROD-02 | Phase 2 | Pending |
+| PROD-03 | Phase 2 | Pending |
+| PROD-04 | Phase 2 | Pending |
+| PROD-05 | Phase 2 | Pending |
+| PROD-06 | Phase 2 | Pending |
+| PROD-07 | Phase 2 | Pending |
+| PROD-08 | Phase 2 | Pending |
+| PROD-09 | Phase 2 | Pending |
+| SEO-01 | Phase 2 | Pending |
+| SEO-02 | Phase 2 | Pending |
+| SEO-03 | Phase 2 | Pending |
+| SEO-04 | Phase 2 | Pending |
+| SEO-05 | Phase 2 | Pending |
+| CUST-01 | Phase 3 | Pending |
+| CUST-02 | Phase 3 | Pending |
+| CUST-03 | Phase 3 | Pending |
+| CUST-04 | Phase 3 | Pending |
+| CUST-05 | Phase 3 | Pending |
+| CUST-06 | Phase 3 | Pending |
+| CUST-07 | Phase 3 | Pending |
+| CART-01 | Phase 4 | Pending |
+| CART-02 | Phase 4 | Pending |
+| CART-03 | Phase 4 | Pending |
+| CART-04 | Phase 4 | Pending |
+| CART-05 | Phase 4 | Pending |
+| ORD-01 | Phase 4 | Pending |
+| ORD-02 | Phase 4 | Pending |
+| PAY-01 | Phase 5 | Pending |
+| PAY-02 | Phase 5 | Pending |
+| PAY-03 | Phase 5 | Pending |
+| PAY-04 | Phase 5 | Pending |
+| PAY-05 | Phase 5 | Pending |
+| ORD-03 | Phase 5 | Pending |
+| ORD-04 | Phase 5 | Pending |
+| ORD-05 | Phase 5 | Pending |
+| ORD-06 | Phase 5 | Pending |
+| MAIL-01 | Phase 5 | Pending |
+| MAIL-02 | Phase 5 | Pending |
+| ANLYT-01 | Phase 6 | Pending |
+| ANLYT-02 | Phase 6 | Pending |
+| ANLYT-03 | Phase 6 | Pending |
+| ANLYT-04 | Phase 6 | Pending |
+| ANLYT-05 | Phase 6 | Pending |
+| ADMIN-01 | Phase 6 | Pending |
+| ADMIN-02 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 47 total
-- Mapped to phases: 0
-- Unmapped: 47 ⚠️ (will be mapped during roadmap creation)
+- Mapped to phases: 47
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-27*
-*Last updated: 2026-03-27 after initial definition*
+*Last updated: 2026-03-27 after roadmap creation*
