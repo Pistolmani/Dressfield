@@ -10,15 +10,17 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 ## Current Phase
 
 **Phase 1: Foundation & Scaffolding**
-- Status: Not Started
+- Status: Planned (ready for execution)
 - Goal: Working project skeleton with authentication, layout shell, and deployment pipeline
 - Requirements: AUTH-01..05, UX-01..04, ADMIN-03
+- Plans: 5 (Next.js setup, ASP.NET setup, Auth, Layout shell, Deployment)
+- UI-SPEC: Approved 2026-03-27
 
 ## Phase History
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
-| 1. Foundation & Scaffolding | Not Started | — |
+| 1. Foundation & Scaffolding | Planned | — |
 | 2. Product Catalog | Not Started | — |
 | 3. Custom Design Orders | Not Started | — |
 | 4. Cart & Checkout | Not Started | — |
