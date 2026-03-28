@@ -78,11 +78,26 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+// Storage service — Azure in prod, local filesystem in dev
 var azureConnectionString = builder.Configuration["AzureStorage:ConnectionString"];
 if (string.IsNullOrWhiteSpace(azureConnectionString))
     builder.Services.AddScoped<IStorageService, LocalStorageService>();
 else
     builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
+
+// Payment service — real BOG iPay in prod, mock in dev
+var bogClientId = builder.Configuration["BogIPay:ClientId"];
+if (string.IsNullOrWhiteSpace(bogClientId))
+{
+    builder.Services.AddScoped<IPaymentService, MockPaymentService>();
+}
+else
+{
+    builder.Services.AddHttpClient<BogIPayService>();
+    builder.Services.AddScoped<IPaymentService, BogIPayService>();
+}
 
 builder.Services.AddValidatorsFromAssemblyContaining<Dressfield.Application.DTOs.RegisterRequest>();
 builder.Services.AddControllers();

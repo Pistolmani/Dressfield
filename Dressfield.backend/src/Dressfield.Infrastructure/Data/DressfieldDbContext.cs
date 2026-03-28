@@ -15,6 +15,8 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<CustomOrder> CustomOrders => Set<CustomOrder>();
     public DbSet<CustomOrderDesign> CustomOrderDesigns => Set<CustomOrderDesign>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -90,6 +92,40 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.PositionY).HasPrecision(10, 2);
             entity.HasIndex(e => new { e.CustomOrderId, e.SortOrder });
             entity.HasOne(e => e.CustomOrder).WithMany(o => o.Designs).HasForeignKey(e => e.CustomOrderId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Order>(entity =>
+        {
+            entity.Property(e => e.ContactName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.ContactPhone).HasMaxLength(30).IsRequired();
+            entity.Property(e => e.ContactEmail).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.ShippingCity).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.ShippingAddressLine1).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.ShippingAddressLine2).HasMaxLength(200);
+            entity.Property(e => e.ShippingPostalCode).HasMaxLength(20);
+            entity.Property(e => e.Subtotal).HasPrecision(18, 2);
+            entity.Property(e => e.ShippingCost).HasPrecision(18, 2);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+            entity.Property(e => e.BogOrderId).HasMaxLength(100);
+            entity.Property(e => e.BogOrderKey).HasMaxLength(64);
+            entity.Property(e => e.CustomerNotes).HasMaxLength(1000);
+            entity.Property(e => e.AdminNotes).HasMaxLength(1000);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.BogOrderId);
+            entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+        });
+
+        builder.Entity<OrderItem>(entity =>
+        {
+            entity.Property(e => e.ProductName).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.ProductSlug).HasMaxLength(160).IsRequired();
+            entity.Property(e => e.ProductImageUrl).HasMaxLength(500);
+            entity.Property(e => e.VariantName).HasMaxLength(200);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 2);
+            entity.HasOne(e => e.Order).WithMany(o => o.Items).HasForeignKey(e => e.OrderId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Product).WithMany().HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
         });
     }
 }
