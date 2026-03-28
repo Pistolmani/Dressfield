@@ -5,31 +5,30 @@
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** Customers can discover embroidered products, customize their own designs with a live preview, and pay securely through Bank of Georgia.
-**Current focus:** Phase 2 — Product Catalog (Plans 1-3 complete, Plan 4 in progress)
+**Current focus:** Phase 3 — Custom Design Orders
 
 ## Current Phase
 
-**Phase 2: Product Catalog**
-- Status: In Progress (nearly complete)
-- Goal: Browsable product catalog with admin management and SEO-optimized pages
-- Requirements: PROD-01..09, SEO-01..05
-- Plans: 4 total
-  - [x] Plan 1: Database schema & API — COMPLETE (commit 2a5423b, 2026-03-28)
-  - [x] Plan 2: Admin product management UI — COMPLETE (Codex + reviewed 2026-03-28)
-  - [x] Plan 3: Public product pages (SSG) — COMPLETE (Codex + category pages + homepage 2026-03-28)
-  - [ ] Plan 4: SEO implementation — IN PROGRESS
-    - [x] generateMetadata on product detail pages (title, description, OG, product:price meta)
-    - [x] JSON-LD Product schema on product detail pages
-    - [x] generateMetadata on category pages (title, description, OG)
-    - [ ] next-sitemap XML sitemap config
-    - [ ] Global OG/Twitter Card defaults in layout.tsx
+**Phase 3: Custom Design Orders**
+- Status: Not Started
+- Goal: Upload flow, fabric.js canvas editor, live product mockup preview, custom order submission
+- Requirements: CUSTOM-01..08
+- Plans: TBD
+
+## Previous Phase (Completed)
+
+**Phase 2: Product Catalog** — COMPLETE (commit a98e961, 2026-03-28)
+- [x] Plan 1: Database schema & API
+- [x] Plan 2: Admin product management UI
+- [x] Plan 3: Public product pages (SSG) — homepage, /products, /products/[slug], categories
+- [x] Plan 4: SEO — generateMetadata, JSON-LD, global OG/Twitter defaults, next-sitemap, robots.txt
 
 ## Phase History
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 1. Foundation & Scaffolding | Complete | 2026-03-28 |
-| 2. Product Catalog | In Progress | — |
+| 2. Product Catalog | Complete | 2026-03-28 |
 | 3. Custom Design Orders | Not Started | — |
 | 4. Cart & Checkout | Not Started | — |
 | 5. Payments & Order Management | Not Started | — |
@@ -58,4 +57,4 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 None.
 
 ---
-*Last updated: 2026-03-28 — Phase 2 Plans 1-3 complete, Plan 4 SEO in progress*
+*Last updated: 2026-03-28 — Phase 2 complete. Starting Phase 3: Custom Design Orders.*
