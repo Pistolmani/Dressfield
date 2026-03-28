@@ -106,6 +106,25 @@ export function ProductsManager() {
               </tr>
             </thead>
             <tbody>
+              {productsQuery.isLoading ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-muted-foreground">
+                    იტვირთება...
+                  </td>
+                </tr>
+              ) : productsQuery.isError ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-destructive">
+                    პროდუქტების ჩატვირთვა ვერ მოხერხდა.
+                  </td>
+                </tr>
+              ) : productsQuery.data?.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-muted-foreground">
+                    პროდუქტი ჯერ არ არის დამატებული.
+                  </td>
+                </tr>
+              ) : null}
               {productsQuery.data?.map((product) => (
                 <tr key={product.id} className="border-t border-black/6">
                   <td className="px-5 py-4">
