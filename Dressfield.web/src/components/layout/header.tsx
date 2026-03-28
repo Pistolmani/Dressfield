@@ -8,9 +8,11 @@ import { useAuth } from "@/lib/auth";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinks } from "./nav-links";
 import { Logo } from "@/components/ui/logo";
+import { useCartStore } from "@/stores/cart-store";
 
 export function Header() {
   const { user } = useAuth();
+  const cartCount = useCartStore((s) => s.totalItems());
 
   return (
     <header className="sticky top-0 z-50 bg-header-bg text-header-text">
@@ -33,9 +35,11 @@ export function Header() {
             className="relative p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
             <ShoppingCart className="h-5 w-5" />
-            <span className="absolute -top-0.5 -right-0.5 bg-accent text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-medium">
-              0
-            </span>
+            {cartCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-accent text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-medium">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
           </Link>
 
           {/* Auth / User */}

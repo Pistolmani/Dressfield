@@ -54,11 +54,11 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
             className="bg-accent px-4 text-white hover:bg-accent-hover"
             onClick={() =>
               addItem({
-                productId: String(product.id),
+                productId: product.id,
                 name: product.name,
                 price: product.basePrice,
                 quantity: 1,
-                image: product.primaryImageUrl || undefined,
+                imageUrl: product.primaryImageUrl || undefined,
               })
             }
           >

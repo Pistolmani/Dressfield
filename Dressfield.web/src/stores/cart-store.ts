@@ -1,34 +1,45 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface CartItem {
-  productId: string;
+export interface CartItem {
+  productId: number;
+  variantId?: number;
   name: string;
+  variantLabel?: string;
   price: number;
   quantity: number;
-  image?: string;
+  imageUrl?: string;
 }
 
 interface CartState {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (productId: number, variantId?: number) => void;
+  updateQuantity: (productId: number, variantId: number | undefined, quantity: number) => void;
   clearCart: () => void;
   totalItems: () => number;
+  totalPrice: () => number;
+}
+
+function itemKey(productId: number, variantId?: number) {
+  return `${productId}-${variantId ?? 0}`;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+
       addItem: (item) =>
         set((state) => {
-          const existing = state.items.find((i) => i.productId === item.productId);
+          const key = itemKey(item.productId, item.variantId);
+          const existing = state.items.find(
+            (i) => itemKey(i.productId, i.variantId) === key
+          );
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.productId === item.productId
+                itemKey(i.productId, i.variantId) === key
                   ? { ...i, quantity: i.quantity + item.quantity }
                   : i
               ),
@@ -36,18 +47,29 @@ export const useCartStore = create<CartState>()(
           }
           return { items: [...state.items, item] };
         }),
-      removeItem: (productId) =>
+
+      removeItem: (productId, variantId) =>
         set((state) => ({
-          items: state.items.filter((i) => i.productId !== productId),
-        })),
-      updateQuantity: (productId, quantity) =>
-        set((state) => ({
-          items: state.items.map((i) =>
-            i.productId === productId ? { ...i, quantity } : i
+          items: state.items.filter(
+            (i) => itemKey(i.productId, i.variantId) !== itemKey(productId, variantId)
           ),
         })),
+
+      updateQuantity: (productId, variantId, quantity) =>
+        set((state) => ({
+          items: state.items.map((i) =>
+            itemKey(i.productId, i.variantId) === itemKey(productId, variantId)
+              ? { ...i, quantity }
+              : i
+          ),
+        })),
+
       clearCart: () => set({ items: [] }),
+
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
+
+      totalPrice: () =>
+        get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
     { name: "dressfield-cart" }
   )

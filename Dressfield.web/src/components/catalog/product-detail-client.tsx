@@ -2,8 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ChevronDown, Minus, Plus } from "lucide-react";
+import { useMemo, useState, useCallback } from "react";
+import { ChevronDown, Minus, Plus, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/catalog";
@@ -46,6 +46,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
   const [selectedImage, setSelectedImage] = useState(images[0]);
   const [quantity, setQuantity] = useState(1);
   const [expanded, setExpanded] = useState(false);
+  const [addedFeedback, setAddedFeedback] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, number>>(() =>
     Object.fromEntries(
       variantGroups.map((group) => [group.name, group.items[0]?.id]).filter((entry) => entry[1])
@@ -61,6 +62,24 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
   const totalPrice =
     product.basePrice +
     selectedVariantItems.reduce((sum, item) => sum + item.priceAdjustment, 0);
+
+  const handleAddToCart = useCallback(() => {
+    const primaryVariant = selectedVariantItems[0];
+    const variantLabel = selectedVariantItems.length > 0
+      ? selectedVariantItems.map((v) => `${v.name}: ${v.value || v.name}`).join(', ')
+      : undefined;
+    addItem({
+      productId: product.id,
+      variantId: primaryVariant?.id,
+      name: product.name,
+      variantLabel,
+      price: totalPrice,
+      quantity,
+      imageUrl: selectedImage.imageUrl,
+    });
+    setAddedFeedback(true);
+    setTimeout(() => setAddedFeedback(false), 1500);
+  }, [addItem, product.id, product.name, selectedVariantItems, totalPrice, quantity, selectedImage.imageUrl]);
 
   return (
     <div className="bg-background py-10 sm:py-12">
@@ -180,17 +199,17 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
               <div className="flex flex-1 flex-col gap-3 sm:flex-row">
                 <Button
                   className="h-11 flex-1 bg-accent text-white hover:bg-accent-hover"
-                  onClick={() =>
-                    addItem({
-                      productId: String(product.id),
-                      name: product.name,
-                      price: totalPrice,
-                      quantity,
-                      image: selectedImage.imageUrl,
-                    })
-                  }
+                  onClick={handleAddToCart}
+                  disabled={addedFeedback}
                 >
-                  კალათაში დამატება
+                  {addedFeedback ? (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      დამატებულია
+                    </>
+                  ) : (
+                    'კალათაში დამატება'
+                  )}
                 </Button>
                 <Button variant="outline" className="h-11 flex-1">
                   ინდივიდუალური შეკვეთა
