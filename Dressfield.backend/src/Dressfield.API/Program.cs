@@ -78,6 +78,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
+var azureConnectionString = builder.Configuration["AzureStorage:ConnectionString"];
+if (string.IsNullOrWhiteSpace(azureConnectionString))
+    builder.Services.AddScoped<IStorageService, LocalStorageService>();
+else
+    builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Dressfield.Application.DTOs.RegisterRequest>();
 builder.Services.AddControllers();
@@ -93,6 +98,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
