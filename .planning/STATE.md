@@ -9,13 +9,19 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 
 ## Current Phase
 
-**Phase 4: Cart & Checkout**
+**Phase 5: Payments & Order Management**
 - Status: Not Started
-- Goal: Shopping cart (guest + logged in), checkout flow, shipping address, order creation
-- Requirements: CART-01..07
-- Plans: TBD
+- Goal: BOG iPay live integration, order status emails, admin order management
+- Requirements: PAY-01..05
 
 ## Previous Phases (Completed)
+
+**Phase 4: Cart & Checkout** — COMPLETE (commits b70270a..d6cf650, 2026-03-28)
+- [x] Plan 1: Order domain — entities, EF migration, OrderService, BogIPayService, MockPaymentService
+- [x] Plan 2: API — OrdersController, PaymentsController, Program.cs wiring
+- [x] Plan 3: Frontend — cart store, checkout page (2-step), order-confirmation, order-failed
+- [x] Plan 4: Admin orders UI — orders table, order detail + status update
+- [x] Plan 5: Architecture review & fixes — EF inline projection, image include, BOG URL split, formatPrice consolidation, SHIPPING_COST env var
 
 **Phase 3: Custom Design Orders** — COMPLETE (commits 9184c22..ab832f5, 2026-03-28)
 - [x] Plan 1: Custom order domain — entities, service, API, EF migration
@@ -35,7 +41,7 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 | 1. Foundation & Scaffolding | Complete | 2026-03-28 |
 | 2. Product Catalog | Complete | 2026-03-28 |
 | 3. Custom Design Orders | Complete | 2026-03-28 |
-| 4. Cart & Checkout | Not Started | — |
+| 4. Cart & Checkout | Complete | 2026-03-28 |
 | 5. Payments & Order Management | Not Started | — |
 | 6. Analytics & SEO Polish | Not Started | — |
 | 7. Security, Polish & Launch | Not Started | — |
@@ -62,4 +68,4 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 None.
 
 ---
-*Last updated: 2026-03-28 — Phase 2 complete. Starting Phase 3: Custom Design Orders.*
+*Last updated: 2026-03-28 — Phase 4 complete. Starting Phase 5: Payments & Order Management.*
