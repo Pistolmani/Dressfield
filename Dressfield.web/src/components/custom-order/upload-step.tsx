@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ArrowLeft, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,21 +29,17 @@ export function UploadStep() {
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl && previewUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
   function handleFile(nextFile: File) {
     try {
       validateDesignFile(nextFile);
       setError("");
       setFile(nextFile);
       setPreviewUrl((current) => {
-        if (current && current.startsWith("blob:")) {
+        if (
+          current &&
+          current.startsWith("blob:") &&
+          current !== design?.previewDataUrl
+        ) {
           URL.revokeObjectURL(current);
         }
         return URL.createObjectURL(nextFile);

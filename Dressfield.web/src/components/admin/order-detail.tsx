@@ -12,10 +12,7 @@ import {
   OrderStatusLabels,
   OrderStatusColors,
 } from "@/types/order";
-
-function formatPrice(amount: number) {
-  return `₾${amount.toFixed(2)}`;
-}
+import { formatPrice } from "@/lib/utils";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("ka-GE");
@@ -57,6 +54,9 @@ export default function OrderDetail({ orderId }: { orderId: number }) {
         adminNotes: adminNotes.trim() || undefined,
       }),
     onSuccess: () => {
+      // Reset local state so the useEffect re-syncs from the refetched data
+      setStatusValue(null);
+      setAdminNotes("");
       queryClient.invalidateQueries({ queryKey: ["admin-order", orderId] });
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       setSaved(true);

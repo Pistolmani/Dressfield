@@ -16,13 +16,8 @@ export const productSortOptions = [
 
 export type ProductSort = (typeof productSortOptions)[number]["value"];
 
-export function formatPrice(price: number) {
-  return new Intl.NumberFormat("ka-GE", {
-    style: "currency",
-    currency: "GEL",
-    maximumFractionDigits: 2,
-  }).format(price);
-}
+// Single source of truth — re-exported from utils so all pages use the same format
+export { formatPrice } from "@/lib/utils";
 
 export function slugify(value: string) {
   return value

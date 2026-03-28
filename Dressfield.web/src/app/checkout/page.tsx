@@ -7,14 +7,11 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
 import { createOrder } from "@/lib/orders";
+import { formatPrice } from "@/lib/utils";
 
 type Step = "form" | "review";
 
-function formatPrice(amount: number) {
-  return `₾${amount.toFixed(2)}`;
-}
-
-const SHIPPING_COST = 5;
+const SHIPPING_COST = Number(process.env.NEXT_PUBLIC_SHIPPING_COST ?? "5");
 
 interface FormData {
   contactName: string;

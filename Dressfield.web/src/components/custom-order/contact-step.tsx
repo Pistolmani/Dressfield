@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/catalog";
-import { submitCustomOrder } from "@/lib/custom-orders";
+import {
+  getPlacementLabel,
+  getSizeLabel,
+  submitCustomOrder,
+} from "@/lib/custom-orders";
 import { useCustomOrderStore } from "@/stores/custom-order-store";
 
 type ContactErrors = {
@@ -180,11 +184,11 @@ export function ContactStep() {
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">ზომა</span>
-              <span>{design?.size || "M"}</span>
+              <span>{getSizeLabel(design?.size)}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">განთავსება</span>
-              <span>{design?.placement || "გულმკერდი"}</span>
+              <span>{getPlacementLabel(design?.placement)}</span>
             </div>
           </div>
           <div className="border-t border-black/8 pt-4">

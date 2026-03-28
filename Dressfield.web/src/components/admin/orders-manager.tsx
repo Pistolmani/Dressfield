@@ -9,10 +9,7 @@ import {
   OrderStatusLabels,
   OrderStatusColors,
 } from "@/types/order";
-
-function formatPrice(amount: number) {
-  return `₾${amount.toFixed(2)}`;
-}
+import { formatPrice } from "@/lib/utils";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("ka-GE", {

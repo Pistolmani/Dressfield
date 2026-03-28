@@ -1,7 +1,7 @@
 using Dressfield.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Dressfield.Infrastructure.Data;
+namespace Dressfield.Infrastructure.Services;
 
 public class DevEmailService : IEmailService
 {

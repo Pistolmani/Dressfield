@@ -9,12 +9,16 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  getPlacementLabel,
+  getSizeLabel,
+  getThreadColorLabel,
   getAdminCustomOrderById,
   updateCustomOrderStatus,
 } from "@/lib/custom-orders";
 import { formatPrice } from "@/lib/catalog";
 import {
   CustomOrderStatusLabels,
+  type CustomOrderDetailDto,
   type CustomOrderStatus,
 } from "@/types/custom-order";
 
@@ -40,23 +44,9 @@ function getStatusBadgeClass(status: CustomOrderStatus) {
 }
 
 export function CustomOrderDetail({ id }: { id: number }) {
-  const queryClient = useQueryClient();
-  const [status, setStatus] = useState<CustomOrderStatus>(0);
-  const [adminNotes, setAdminNotes] = useState("");
-
   const orderQuery = useQuery({
     queryKey: ["admin-custom-order", id],
     queryFn: () => getAdminCustomOrderById(id),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: () => updateCustomOrderStatus(id, status, adminNotes || null),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-custom-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-custom-order", id] });
-      toast.success("სტატუსი განახლდა");
-    },
-    onError: () => toast.error("სტატუსის განახლება ვერ მოხერხდა"),
   });
 
   const order = orderQuery.data;
@@ -74,6 +64,24 @@ export function CustomOrderDetail({ id }: { id: number }) {
       </div>
     );
   }
+
+  return <CustomOrderDetailContent key={order.id} order={order} />;
+}
+
+function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
+  const queryClient = useQueryClient();
+  const [status, setStatus] = useState<CustomOrderStatus>(order.status);
+  const [adminNotes, setAdminNotes] = useState(order.adminNotes || "");
+
+  const updateMutation = useMutation({
+    mutationFn: () => updateCustomOrderStatus(order.id, status, adminNotes || null),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-custom-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-custom-order", order.id] });
+      toast.success("სტატუსი განახლდა");
+    },
+    onError: () => toast.error("სტატუსის განახლება ვერ მოხერხდა"),
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
@@ -139,8 +147,8 @@ export function CustomOrderDetail({ id }: { id: number }) {
                     className="h-[200px] w-full rounded-2xl object-cover"
                   />
                   <div className="space-y-1 text-sm">
-                    <p><span className="text-muted-foreground">განთავსება:</span> {design.placement || "-"}</p>
-                    <p><span className="text-muted-foreground">ზომა:</span> {design.size || "-"}</p>
+                    <p><span className="text-muted-foreground">განთავსება:</span> {getPlacementLabel(design.placement)}</p>
+                    <p><span className="text-muted-foreground">ზომა:</span> {getSizeLabel(design.size)}</p>
                     <p className="flex items-center gap-2">
                       <span className="text-muted-foreground">ძაფის ფერი:</span>
                       {design.threadColor ? (
@@ -149,7 +157,7 @@ export function CustomOrderDetail({ id }: { id: number }) {
                             className="h-4 w-4 rounded-full border border-black/8"
                             style={{ backgroundColor: design.threadColor }}
                           />
-                          {design.threadColor}
+                          {getThreadColorLabel(design.threadColor)}
                         </>
                       ) : (
                         "-"

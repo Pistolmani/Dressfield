@@ -54,12 +54,22 @@ export const useCustomOrderStore = create<CustomOrderState>((set) => ({
   setContact: (contact) => set((state) => ({ contact: { ...state.contact, ...contact } })),
   setTotalPrice: (totalPrice) => set({ totalPrice }),
   reset: () =>
-    set({
-      step: 1,
-      selectedProduct: null,
-      uploadedFile: null,
-      design: null,
-      contact: defaultContact,
-      totalPrice: 45,
+    set((state) => {
+      if (
+        typeof window !== "undefined" &&
+        state.design?.previewDataUrl &&
+        state.design.previewDataUrl.startsWith("blob:")
+      ) {
+        URL.revokeObjectURL(state.design.previewDataUrl);
+      }
+
+      return {
+        step: 1,
+        selectedProduct: null,
+        uploadedFile: null,
+        design: null,
+        contact: defaultContact,
+        totalPrice: 45,
+      };
     }),
 }));

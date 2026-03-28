@@ -19,7 +19,8 @@ public class BogIPayService : IPaymentService
     private readonly ILogger<BogIPayService> _logger;
     private readonly string _clientId;
     private readonly string _clientSecret;
-    private readonly string _callbackBaseUrl;
+    private readonly string _apiBaseUrl;      // Backend URL — where BOG sends the webhook
+    private readonly string _frontendBaseUrl; // Frontend URL — where the customer is redirected
     private readonly string _tokenUrl;
     private readonly string _ordersUrl;
 
@@ -27,9 +28,10 @@ public class BogIPayService : IPaymentService
     {
         _http = http;
         _logger = logger;
-        _clientId     = config["BogIPay:ClientId"]     ?? throw new InvalidOperationException("BogIPay:ClientId is not configured.");
-        _clientSecret = config["BogIPay:ClientSecret"] ?? throw new InvalidOperationException("BogIPay:ClientSecret is not configured.");
-        _callbackBaseUrl = config["BogIPay:CallbackBaseUrl"] ?? throw new InvalidOperationException("BogIPay:CallbackBaseUrl is not configured.");
+        _clientId      = config["BogIPay:ClientId"]      ?? throw new InvalidOperationException("BogIPay:ClientId is not configured.");
+        _clientSecret  = config["BogIPay:ClientSecret"]  ?? throw new InvalidOperationException("BogIPay:ClientSecret is not configured.");
+        _apiBaseUrl    = config["BogIPay:ApiBaseUrl"]    ?? throw new InvalidOperationException("BogIPay:ApiBaseUrl is not configured.");
+        _frontendBaseUrl = config["BogIPay:FrontendBaseUrl"] ?? throw new InvalidOperationException("BogIPay:FrontendBaseUrl is not configured.");
         _tokenUrl  = config["BogIPay:TokenUrl"]  ?? "https://oauth2.bog.ge/auth/realms/BOG/protocol/openid-connect/token";
         _ordersUrl = config["BogIPay:OrdersUrl"] ?? "https://api.bog.ge/payments/v1/ecommerce/orders";
     }
@@ -45,12 +47,12 @@ public class BogIPayService : IPaymentService
 
             var body = new
             {
-                callback_url  = $"{_callbackBaseUrl.TrimEnd('/')}/api/payments/callback",
+                callback_url  = $"{_apiBaseUrl.TrimEnd('/')}/api/payments/callback",
                 shop_order_id = orderKey,
                 redirect_urls = new
                 {
-                    success = $"{_callbackBaseUrl.TrimEnd('/')}/order-confirmation?orderId={orderId}&key={orderKey}",
-                    fail    = $"{_callbackBaseUrl.TrimEnd('/')}/order-failed?orderId={orderId}"
+                    success = $"{_frontendBaseUrl.TrimEnd('/')}/order-confirmation?orderId={orderId}&key={orderKey}",
+                    fail    = $"{_frontendBaseUrl.TrimEnd('/')}/order-failed?orderId={orderId}"
                 },
                 purchase_units = new[]
                 {

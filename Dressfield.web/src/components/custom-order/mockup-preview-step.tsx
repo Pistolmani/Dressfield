@@ -5,17 +5,13 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/catalog";
 import {
-  PLACEMENT_OPTIONS,
-  SIZE_OPTIONS,
-  THREAD_COLOR_OPTIONS,
+  getPlacementLabel,
+  getSizeLabel,
+  getThreadColorLabel,
 } from "@/lib/custom-orders";
 import { useCustomOrderStore } from "@/stores/custom-order-store";
 
 type FabricModule = typeof import("fabric");
-
-function getLabel(options: ReadonlyArray<{ value: string; label: string }>, value: string | null) {
-  return options.find((option) => option.value === value)?.label || "არ არის არჩეული";
-}
 
 export function MockupPreviewStep() {
   const selectedProduct = useCustomOrderStore((state) => state.selectedProduct);
@@ -97,9 +93,7 @@ export function MockupPreviewStep() {
     );
   }
 
-  const threadColorLabel =
-    THREAD_COLOR_OPTIONS.find((option) => option.value === design.threadColor)?.label ||
-    design.threadColor;
+  const threadColorLabel = getThreadColorLabel(design.threadColor);
 
   return (
     <div className="space-y-6">
@@ -126,11 +120,11 @@ export function MockupPreviewStep() {
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">განთავსება</span>
-              <span>{getLabel(PLACEMENT_OPTIONS, design.placement)}</span>
+              <span>{getPlacementLabel(design.placement)}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">ზომა</span>
-              <span>{getLabel(SIZE_OPTIONS, design.size)}</span>
+              <span>{getSizeLabel(design.size)}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">ძაფის ფერი</span>

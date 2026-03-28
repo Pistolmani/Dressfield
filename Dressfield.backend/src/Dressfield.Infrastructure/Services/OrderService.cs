@@ -33,7 +33,17 @@ public class OrderService : IOrderService
 
         return await query
             .OrderByDescending(o => o.CreatedAt)
-            .Select(o => MapToSummary(o))
+            .Select(o => new OrderSummaryDto(
+                o.Id,
+                o.UserId,
+                o.ContactName,
+                o.ContactEmail,
+                o.ContactPhone,
+                o.ShippingCity,
+                o.Status,
+                o.TotalAmount,
+                o.Items.Count,
+                o.CreatedAt))
             .ToListAsync();
     }
 
@@ -60,7 +70,17 @@ public class OrderService : IOrderService
             .AsNoTracking()
             .Where(o => o.UserId == userId)
             .OrderByDescending(o => o.CreatedAt)
-            .Select(o => MapToSummary(o))
+            .Select(o => new OrderSummaryDto(
+                o.Id,
+                o.UserId,
+                o.ContactName,
+                o.ContactEmail,
+                o.ContactPhone,
+                o.ShippingCity,
+                o.Status,
+                o.TotalAmount,
+                o.Items.Count,
+                o.CreatedAt))
             .ToListAsync();
     }
 
@@ -75,6 +95,7 @@ public class OrderService : IOrderService
         var productIds = request.Items.Select(i => i.ProductId).Distinct().ToList();
         var products = await _db.Products
             .Include(p => p.Variants)
+            .Include(p => p.Images)
             .Where(p => productIds.Contains(p.Id) && p.IsActive)
             .ToListAsync();
 
@@ -174,7 +195,6 @@ public class OrderService : IOrderService
     private IQueryable<OrderDetailDto> BuildDetailQuery() =>
         _db.Orders
             .AsNoTracking()
-            .Include(o => o.Items)
             .Select(o => new OrderDetailDto(
                 o.Id,
                 o.UserId,
@@ -207,16 +227,4 @@ public class OrderService : IOrderService
                         i.LineTotal))
                     .ToList()));
 
-    private static OrderSummaryDto MapToSummary(Order o) =>
-        new(
-            o.Id,
-            o.UserId,
-            o.ContactName,
-            o.ContactEmail,
-            o.ContactPhone,
-            o.ShippingCity,
-            o.Status,
-            o.TotalAmount,
-            o.Items.Count,
-            o.CreatedAt);
 }

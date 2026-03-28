@@ -6,10 +6,7 @@ import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
-
-function formatPrice(amount: number) {
-  return `₾${amount.toFixed(2)}`;
-}
+import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
   const router = useRouter();

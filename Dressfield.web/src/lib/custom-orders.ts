@@ -32,6 +32,18 @@ export const THREAD_COLOR_OPTIONS = [
 
 export const BASE_CUSTOM_PRICE = 45;
 
+export function getPlacementLabel(value: string | null | undefined) {
+  return PLACEMENT_OPTIONS.find((option) => option.value === value)?.label || "არ არის არჩეული";
+}
+
+export function getSizeLabel(value: string | null | undefined) {
+  return SIZE_OPTIONS.find((option) => option.value === value)?.label || "არ არის არჩეული";
+}
+
+export function getThreadColorLabel(value: string | null | undefined) {
+  return THREAD_COLOR_OPTIONS.find((option) => option.value === value)?.label || "არ არის არჩეული";
+}
+
 export function getSizePriceAdjustment(size: string | null | undefined) {
   return SIZE_OPTIONS.find((option) => option.value === size)?.priceAdj ?? 0;
 }
