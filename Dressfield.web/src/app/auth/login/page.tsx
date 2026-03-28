@@ -7,16 +7,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth/login-form";
+import { Logo } from "@/components/ui/logo";
 
 export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)] px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="text-2xl font-bold font-[family-name:var(--font-inter)] mb-2">
-            <span className="text-accent">●</span>DRESS
-            <span className="font-normal">Field</span>
-          </div>
+          <Logo className="h-7 w-auto mx-auto mb-2" />
           <CardTitle className="text-xl">შესვლა</CardTitle>
           <CardDescription>
             შეიყვანეთ თქვენი მონაცემები

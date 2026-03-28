@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Globe, Phone, Mail, MapPin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Logo } from "@/components/ui/logo";
 
 export function Footer() {
   return (
@@ -9,10 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-xl font-bold text-white font-[family-name:var(--font-inter)] mb-3">
-              <span className="text-accent">●</span>DRESS
-              <span className="font-normal">Field</span>
-            </h3>
+            <Logo className="h-5 w-auto text-white mb-3" />
             <p className="text-sm leading-relaxed">
               ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და
               ინდივიდუალური შეკვეთები.
@@ -33,7 +31,7 @@ export function Footer() {
                 პროდუქცია
               </Link>
               <Link
-                href="/categories"
+                href="/products"
                 className="hover:text-accent transition-colors"
               >
                 კატეგორიები

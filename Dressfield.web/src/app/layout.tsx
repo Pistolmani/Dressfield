@@ -18,10 +18,35 @@ const notoGeorgian = Noto_Sans_Georgian({
   variable: "--font-georgian",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
+
 export const metadata: Metadata = {
-  title: "DressField — ქართული ნაქარგები",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "DressField — ქართული ნაქარგები",
+    template: "%s — DressField",
+  },
   description:
     "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+  openGraph: {
+    siteName: "DressField",
+    locale: "ka_GE",
+    type: "website",
+    title: "DressField — ქართული ნაქარგები",
+    description:
+      "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DressField — ქართული ნაქარგები",
+    description:
+      "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

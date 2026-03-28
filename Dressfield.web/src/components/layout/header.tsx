@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinks } from "./nav-links";
+import { Logo } from "@/components/ui/logo";
 
 export function Header() {
   const { user } = useAuth();
@@ -15,12 +16,8 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-header-bg text-header-text">
       <div className="mx-auto max-w-7xl flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
         {/* Logo */}
-        <Link
-          href="/"
-          className="text-xl font-bold font-[family-name:var(--font-inter)] tracking-tight"
-        >
-          <span className="text-accent">●</span>DRESS
-          <span className="font-normal">Field</span>
+        <Link href="/" aria-label="DressField — მთავარი">
+          <Logo className="h-5 w-auto" />
         </Link>
 
         {/* Desktop Nav */}
