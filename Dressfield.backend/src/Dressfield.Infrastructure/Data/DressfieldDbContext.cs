@@ -13,6 +13,8 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+    public DbSet<CustomOrder> CustomOrders => Set<CustomOrder>();
+    public DbSet<CustomOrderDesign> CustomOrderDesigns => Set<CustomOrderDesign>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -60,6 +62,34 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Sku).HasMaxLength(64);
             entity.Property(e => e.PriceAdjustment).HasPrecision(18, 2);
             entity.HasOne(e => e.Product).WithMany(p => p.Variants).HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<CustomOrder>(entity =>
+        {
+            entity.Property(e => e.ContactName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.ContactPhone).HasMaxLength(30).IsRequired();
+            entity.Property(e => e.ContactEmail).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.TotalPrice).HasPrecision(18, 2);
+            entity.Property(e => e.CustomerNotes).HasMaxLength(1000);
+            entity.Property(e => e.AdminNotes).HasMaxLength(1000);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.UserId);
+            entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+            entity.HasOne(e => e.BaseProduct).WithMany().HasForeignKey(e => e.BaseProductId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+        });
+
+        builder.Entity<CustomOrderDesign>(entity =>
+        {
+            entity.Property(e => e.DesignImageUrl).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.Placement).HasMaxLength(50);
+            entity.Property(e => e.Size).HasMaxLength(20);
+            entity.Property(e => e.ThreadColor).HasMaxLength(20);
+            entity.Property(e => e.Width).HasPrecision(10, 2);
+            entity.Property(e => e.Height).HasPrecision(10, 2);
+            entity.Property(e => e.PositionX).HasPrecision(10, 2);
+            entity.Property(e => e.PositionY).HasPrecision(10, 2);
+            entity.HasIndex(e => new { e.CustomOrderId, e.SortOrder });
+            entity.HasOne(e => e.CustomOrder).WithMany(o => o.Designs).HasForeignKey(e => e.CustomOrderId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -4,6 +4,7 @@ using Dressfield.Core.Entities;
 using Dressfield.Core.Interfaces;
 using Dressfield.Infrastructure.Data;
 using Dressfield.Infrastructure.Services;
+using Dressfield.Application.DTOs;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -76,6 +77,7 @@ builder.Services.AddScoped<IEmailService, DevEmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Dressfield.Application.DTOs.RegisterRequest>();
 builder.Services.AddControllers();
