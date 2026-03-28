@@ -104,20 +104,24 @@ export function getApiBaseUrl() {
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 }
 
-export async function getStaticProducts() {
-  try {
-    const response = await fetch(`${getApiBaseUrl()}/api/products`, {
-      cache: "force-cache",
-    });
+/**
+ * Fetches all products for static generation (generateStaticParams).
+ * Intentionally throws on failure — the build requires the backend to be running.
+ * Callers that want graceful fallback must use .catch(() => []) themselves (see homepage).
+ */
+export async function getStaticProducts(): Promise<ProductSummaryDto[]> {
+  const response = await fetch(`${getApiBaseUrl()}/api/products`, {
+    cache: "force-cache",
+  });
 
-    if (!response.ok) {
-      return [] as ProductSummaryDto[];
-    }
-
-    return (await response.json()) as ProductSummaryDto[];
-  } catch {
-    return [] as ProductSummaryDto[];
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch products for static generation (${response.status}). ` +
+      `Is the backend running at ${getApiBaseUrl()}?`
+    );
   }
+
+  return response.json() as Promise<ProductSummaryDto[]>;
 }
 
 export async function getStaticCategories() {
