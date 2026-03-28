@@ -5,17 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** Customers can discover embroidered products, customize their own designs with a live preview, and pay securely through Bank of Georgia.
-**Current focus:** Phase 3 — Custom Design Orders
+**Current focus:** Phase 4 — Cart & Checkout
 
 ## Current Phase
 
-**Phase 3: Custom Design Orders**
+**Phase 4: Cart & Checkout**
 - Status: Not Started
-- Goal: Upload flow, fabric.js canvas editor, live product mockup preview, custom order submission
-- Requirements: CUSTOM-01..08
+- Goal: Shopping cart (guest + logged in), checkout flow, shipping address, order creation
+- Requirements: CART-01..07
 - Plans: TBD
 
-## Previous Phase (Completed)
+## Previous Phases (Completed)
+
+**Phase 3: Custom Design Orders** — COMPLETE (commits 9184c22..ab832f5, 2026-03-28)
+- [x] Plan 1: Custom order domain — entities, service, API, EF migration
+- [x] Plan 2: Azure Blob Storage upload (LocalStorageService dev fallback)
+- [x] Plans 3-6: Full wizard UI — product picker, dropzone upload, fabric.js canvas, options, mockup preview, contact form, admin review
 
 **Phase 2: Product Catalog** — COMPLETE (commit a98e961, 2026-03-28)
 - [x] Plan 1: Database schema & API
@@ -29,7 +34,7 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 |-------|--------|-----------|
 | 1. Foundation & Scaffolding | Complete | 2026-03-28 |
 | 2. Product Catalog | Complete | 2026-03-28 |
-| 3. Custom Design Orders | Not Started | — |
+| 3. Custom Design Orders | Complete | 2026-03-28 |
 | 4. Cart & Checkout | Not Started | — |
 | 5. Payments & Order Management | Not Started | — |
 | 6. Analytics & SEO Polish | Not Started | — |
