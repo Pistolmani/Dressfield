@@ -28,7 +28,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Never retry the refresh endpoint itself — that would cause an infinite loop
+    const isRefreshRequest = originalRequest?.url?.includes("/api/auth/refresh");
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
       originalRequest._retry = true;
 
       try {
@@ -42,9 +45,6 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch {
         setAccessToken(null);
-        if (typeof window !== "undefined") {
-          window.location.href = "/auth/login";
-        }
         return Promise.reject(error);
       }
     }
