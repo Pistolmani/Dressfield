@@ -5,6 +5,7 @@ using Dressfield.Core.Enums;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dressfield.API.Controllers;
 
@@ -30,6 +31,7 @@ public class OrdersController : ControllerBase
 
     /// <summary>POST /api/orders — place an order, returns BOG payment redirect URL.</summary>
     [HttpPost]
+    [EnableRateLimiting("orders")]
     public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
     {
         var validation = await _createValidator.ValidateAsync(request);

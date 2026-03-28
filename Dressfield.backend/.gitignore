@@ -4,4 +4,9 @@ logs/
 *.user
 *.suo
 .vs/
+
+# Local secret overrides — never commit these
+# Production secrets live in Azure App Service → Configuration → Application settings
 appsettings.*.local.json
+appsettings.Production.json
+secrets.json

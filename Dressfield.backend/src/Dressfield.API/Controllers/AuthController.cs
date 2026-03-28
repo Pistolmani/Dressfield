@@ -3,6 +3,7 @@ using Dressfield.Application.DTOs;
 using Dressfield.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dressfield.API.Controllers;
 
@@ -11,13 +12,16 @@ namespace Dressfield.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IConfiguration _config;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IConfiguration config)
     {
         _authService = authService;
+        _config      = config;
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var response = await _authService.RegisterAsync(request);
@@ -26,6 +30,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var response = await _authService.LoginAsync(request);
@@ -58,11 +63,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
-        var resetBaseUrl = $"{Request.Headers.Origin}/auth/reset-password";
+        // Use the configured frontend URL — never trust the Origin/Host header from the request
+        var frontendBase = _config["App:FrontendBaseUrl"]
+            ?? throw new InvalidOperationException("App:FrontendBaseUrl is not configured.");
+        var resetBaseUrl = $"{frontendBase.TrimEnd('/')}/auth/reset-password";
+
         await _authService.ForgotPasswordAsync(request.Email, resetBaseUrl);
-        return Ok(); // Always return OK to not reveal if email exists
+        return Ok(); // Always return OK — never reveal whether the email exists
     }
 
     [HttpPost("reset-password")]
@@ -87,11 +97,11 @@ public class AuthController : ControllerBase
     {
         Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-            Expires = DateTimeOffset.UtcNow.AddDays(7),
-            Path = "/api/auth"
+            HttpOnly  = true,
+            Secure    = true,
+            SameSite  = SameSiteMode.None,
+            Expires   = DateTimeOffset.UtcNow.AddDays(7),
+            Path      = "/api/auth"
         });
     }
 }
