@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Globe } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/auth";
 import { NavLinks } from "./nav-links";
 
@@ -14,26 +13,36 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex flex-col h-full pt-8">
-      <nav className="flex flex-col gap-5">
-        {/* NavLinks with onNavigate to close the sheet */}
+    <div className="flex flex-col h-full bg-black text-white px-8 py-10">
+
+      {/* Nav links */}
+      <nav className="flex flex-col gap-6 mt-4">
         <NavLinks
-          className="text-xl text-foreground"
+          className="text-4xl text-white/90 hover:text-white hover:opacity-100"
           onNavigate={onClose}
         />
       </nav>
 
-      <Separator className="my-6" />
+      {/* Divider */}
+      <div className="my-8 h-px bg-white/10" />
 
-      <div className="flex flex-col gap-3">
+      {/* Auth section */}
+      <div className="flex flex-col gap-4">
         {user ? (
           <>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs uppercase tracking-widest text-white/40 font-medium mb-1">
               {user.firstName} {user.lastName}
             </p>
+            <Link
+              href="/orders"
+              onClick={onClose}
+              className="font-[family-name:var(--font-brand)] text-2xl text-white/80 hover:text-white transition-colors tracking-wide"
+            >
+              ჩემი შეკვეთები
+            </Link>
             <button
               onClick={() => { logout(); onClose(); }}
-              className="text-left text-sm text-destructive hover:underline"
+              className="text-left font-[family-name:var(--font-brand)] text-2xl text-white/40 hover:text-red-400 transition-colors tracking-wide"
             >
               გამოსვლა
             </button>
@@ -43,14 +52,14 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             <Link
               href="/auth/login"
               onClick={onClose}
-              className="text-lg font-medium hover:text-accent transition-colors"
+              className="font-[family-name:var(--font-brand)] text-3xl text-white/90 hover:text-white transition-colors tracking-wide"
             >
               შესვლა
             </Link>
             <Link
               href="/auth/register"
               onClick={onClose}
-              className="text-lg font-medium hover:text-accent transition-colors"
+              className="font-[family-name:var(--font-brand)] text-3xl text-white/50 hover:text-white transition-colors tracking-wide"
             >
               რეგისტრაცია
             </Link>
@@ -58,15 +67,18 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
         )}
       </div>
 
-      <div className="mt-auto pb-6 flex gap-4">
+      {/* Bottom */}
+      <div className="mt-auto flex items-center gap-4 pb-2">
         <a
           href="https://instagram.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-accent transition-colors"
+          className="text-white/40 hover:text-white transition-colors"
+          aria-label="Instagram"
         >
           <Globe className="h-5 w-5" />
         </a>
+        <span className="text-white/20 text-xs tracking-widest uppercase">DressField</span>
       </div>
     </div>
   );

@@ -125,8 +125,13 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-// â”€â”€ Application Services â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-builder.Services.AddScoped<IEmailService, DevEmailService>();
+// ── Application Services ──────────────────────────────────────────────────────
+// Email service — real SMTP in prod, dev logger in dev
+var smtpHost = builder.Configuration["Smtp:Host"];
+if (string.IsNullOrWhiteSpace(smtpHost))
+    builder.Services.AddScoped<IEmailService, DevEmailService>();
+else
+    builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();

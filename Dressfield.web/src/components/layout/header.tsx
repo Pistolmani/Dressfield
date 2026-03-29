@@ -45,14 +45,21 @@ export function Header() {
           </Link>
 
           {/* Auth / User */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-1">
             {user ? (
-              <Link href="/admin">
-                <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
-                  <User className="h-4 w-4 mr-1.5" />
-                  {user.firstName}
-                </Button>
-              </Link>
+              <>
+                <Link href="/orders">
+                  <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
+                    ჩემი შეკვეთები
+                  </Button>
+                </Link>
+                <Link href="/admin">
+                  <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
+                    <User className="h-4 w-4 mr-1.5" />
+                    {user.firstName}
+                  </Button>
+                </Link>
+              </>
             ) : (
               <Link href="/auth/login">
                 <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
@@ -70,7 +77,7 @@ export function Header() {
             >
               <Menu className="h-5 w-5" />
             </SheetTrigger>
-            <SheetContent side="right" className="w-[80%] max-w-sm">
+            <SheetContent side="right" className="w-[80%] max-w-sm bg-black border-white/10 p-0">
               <MobileMenu onClose={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>

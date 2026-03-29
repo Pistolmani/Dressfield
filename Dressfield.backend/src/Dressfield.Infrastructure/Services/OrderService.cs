@@ -6,6 +6,7 @@ using Dressfield.Core.Interfaces;
 using Dressfield.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Dressfield.Infrastructure.Services;
 
@@ -13,12 +14,16 @@ public class OrderService : IOrderService
 {
     private readonly DressfieldDbContext _db;
     private readonly IPaymentService _payment;
+    private readonly IEmailService _email;
+    private readonly ILogger<OrderService> _logger;
     private readonly decimal _shippingCost;
 
-    public OrderService(DressfieldDbContext db, IPaymentService payment, IConfiguration configuration)
+    public OrderService(DressfieldDbContext db, IPaymentService payment, IEmailService email, IConfiguration configuration, ILogger<OrderService> logger)
     {
         _db = db;
         _payment = payment;
+        _email = email;
+        _logger = logger;
         _shippingCost = decimal.TryParse(configuration["Orders:ShippingCost"], out var sc) ? sc : 5m;
     }
 
@@ -60,6 +65,19 @@ public class OrderService : IOrderService
         order.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        // Send shipping notification when status changes to Shipped
+        if (request.Status == OrderStatus.Shipped)
+        {
+            try
+            {
+                await _email.SendShippingNotificationAsync(order.ContactEmail, order.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send shipping notification for order {OrderId}", order.Id);
+            }
+        }
     }
 
     // ── Customer ──────────────────────────────────────────────────────────────
@@ -175,10 +193,21 @@ public class OrderService : IOrderService
 
     public async Task HandlePaymentCallbackAsync(string bogOrderId)
     {
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.BogOrderId == bogOrderId);
+        var order = await _db.Orders
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.BogOrderId == bogOrderId);
+
         if (order == null)
         {
-            // Nothing to update — callback for unknown order
+            _logger.LogWarning("Payment callback for unknown BOG order {BogOrderId}", bogOrderId);
+            return;
+        }
+
+        // Idempotency guard — only process if still awaiting payment
+        if (order.Status != OrderStatus.AwaitingPayment)
+        {
+            _logger.LogInformation("Duplicate callback for order {OrderId} (status: {Status}) — skipping",
+                order.Id, order.Status);
             return;
         }
 
@@ -188,6 +217,26 @@ public class OrderService : IOrderService
         order.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Order {OrderId} payment {Result} (BOG: {BogOrderId})",
+            order.Id, result.IsApproved ? "approved" : "declined", bogOrderId);
+
+        // Send confirmation email on successful payment
+        if (result.IsApproved)
+        {
+            try
+            {
+                var itemsHtml = string.Join("", order.Items.Select(i =>
+                    $"<tr><td style=\"padding:6px 0;\">{i.ProductName}{(i.VariantName != null ? $" ({i.VariantName})" : "")}</td>" +
+                    $"<td style=\"padding:6px 0;text-align:center;\">{i.Quantity}</td>" +
+                    $"<td style=\"padding:6px 0;text-align:right;\">₾{i.LineTotal:F2}</td></tr>"));
+                await _email.SendOrderConfirmationAsync(order.ContactEmail, order.Id, itemsHtml, $"₾{order.TotalAmount:F2}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send confirmation email for order {OrderId}", order.Id);
+            }
+        }
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
