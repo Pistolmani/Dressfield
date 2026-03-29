@@ -7,7 +7,6 @@ public class CreateProductRequestValidator : AbstractValidator<CreateProductRequ
 {
     public CreateProductRequestValidator()
     {
-        RuleFor(x => x.CategoryId).GreaterThan(0).WithMessage("კატეგორია აუცილებელია");
         RuleFor(x => x.Name).NotEmpty().WithMessage("პროდუქტის სახელი აუცილებელია").MaximumLength(150).WithMessage("პროდუქტის სახელი მაქსიმუმ 150 სიმბოლოა");
         RuleFor(x => x.Slug).NotEmpty().WithMessage("Slug აუცილებელია").MaximumLength(160).WithMessage("Slug მაქსიმუმ 160 სიმბოლოა").Matches("^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Slug უნდა შეიცავდეს მხოლოდ პატარა ლათინურ ასოებს, ციფრებს და ტირეებს");
         RuleFor(x => x.ShortDescription).MaximumLength(300).WithMessage("მოკლე აღწერა მაქსიმუმ 300 სიმბოლოა");

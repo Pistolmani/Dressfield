@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
@@ -33,9 +33,6 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
 
       <div className="space-y-4 p-5">
         <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-            {product.categoryName}
-          </p>
           <Link href={`/products/${product.slug}`} className="block">
             <h3 className="font-[family-name:var(--font-inter)] text-xl font-semibold tracking-tight">
               {product.name}

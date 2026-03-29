@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Providers } from "@/lib/providers";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { CursorTrail } from "@/components/ui/CursorTrail";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -65,6 +66,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
+          <CursorTrail />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

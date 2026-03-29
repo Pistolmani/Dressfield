@@ -9,7 +9,6 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
     public DressfieldDbContext(DbContextOptions<DressfieldDbContext> options) : base(options) { }
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-    public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
@@ -28,14 +27,6 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
-        builder.Entity<Category>(entity =>
-        {
-            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.Slug).HasMaxLength(120).IsRequired();
-            entity.Property(e => e.Description).HasMaxLength(500);
-            entity.HasIndex(e => e.Slug).IsUnique();
-        });
-
         builder.Entity<Product>(entity =>
         {
             entity.Property(e => e.Name).HasMaxLength(150).IsRequired();
@@ -45,8 +36,6 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Sku).HasMaxLength(64);
             entity.Property(e => e.BasePrice).HasPrecision(18, 2);
             entity.HasIndex(e => e.Slug).IsUnique();
-            entity.HasIndex(e => e.CategoryId);
-            entity.HasOne(e => e.Category).WithMany(c => c.Products).HasForeignKey(e => e.CategoryId).OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<ProductImage>(entity =>

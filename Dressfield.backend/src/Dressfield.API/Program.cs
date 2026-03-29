@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Threading.RateLimiting;
 using Dressfield.Application.Interfaces;
 using Dressfield.Core.Entities;
@@ -17,7 +17,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Logging ───────────────────────────────────────────────────────────────────
+// â”€â”€ Logging â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .WriteTo.Console()
@@ -26,25 +26,25 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// ── Resolve real client IP from Azure / reverse proxy (required for rate limiting) ──
+// â”€â”€ Resolve real client IP from Azure / reverse proxy (required for rate limiting) â”€â”€
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    // Trust all known proxies — Azure App Service manages this internally
+    // Trust all known proxies â€” Azure App Service manages this internally
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
-// ── Request body size (20 MB — covers design image uploads) ──────────────────
+// â”€â”€ Request body size (20 MB â€” covers design image uploads) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.WebHost.ConfigureKestrel(options =>
     options.Limits.MaxRequestBodySize = 20 * 1024 * 1024);
 
-// ── Database ──────────────────────────────────────────────────────────────────
+// â”€â”€ Database â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DressfieldDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 36))));
 
-// ── Identity ──────────────────────────────────────────────────────────────────
+// â”€â”€ Identity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
         options.Password.RequireDigit = true;
@@ -56,9 +56,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<DressfieldDbContext>()
     .AddDefaultTokenProviders();
 
-// ── JWT Authentication ────────────────────────────────────────────────────────
+// â”€â”€ JWT Authentication â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // IMPORTANT: Jwt:Secret must NEVER be left as empty in production.
-// Set it via Azure App Service → Configuration → Application settings: Jwt__Secret
+// Set it via Azure App Service â†’ Configuration â†’ Application settings: Jwt__Secret
 var jwtSecret = builder.Configuration["Jwt:Secret"];
 if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
     throw new InvalidOperationException(
@@ -91,7 +91,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
+// â”€â”€ CORS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -102,10 +102,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ── Rate Limiting ─────────────────────────────────────────────────────────────
+// â”€â”€ Rate Limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddRateLimiter(options =>
 {
-    // Auth endpoints — 10 requests per minute per IP (prevents brute-force)
+    // Auth endpoints â€” 10 requests per minute per IP (prevents brute-force)
     options.AddFixedWindowLimiter("auth", o =>
     {
         o.Window              = TimeSpan.FromMinutes(1);
@@ -114,7 +114,7 @@ builder.Services.AddRateLimiter(options =>
         o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
 
-    // Order creation — 20 requests per minute per IP (prevents order flooding)
+    // Order creation â€” 20 requests per minute per IP (prevents order flooding)
     options.AddFixedWindowLimiter("orders", o =>
     {
         o.Window      = TimeSpan.FromMinutes(1);
@@ -125,22 +125,21 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-// ── Application Services ──────────────────────────────────────────────────────
+// â”€â”€ Application Services â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddScoped<IEmailService, DevEmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
-// Storage service — Azure Blob in prod, local filesystem in dev
+// Storage service â€” Azure Blob in prod, local filesystem in dev
 var azureConnectionString = builder.Configuration["AzureStorage:ConnectionString"];
 if (string.IsNullOrWhiteSpace(azureConnectionString))
     builder.Services.AddScoped<IStorageService, LocalStorageService>();
 else
     builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
 
-// Payment service — real BOG iPay in prod, mock in dev
+// Payment service â€” real BOG iPay in prod, mock in dev
 var bogClientId = builder.Configuration["BogIPay:ClientId"];
 if (string.IsNullOrWhiteSpace(bogClientId))
 {
@@ -159,9 +158,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ── Middleware pipeline ───────────────────────────────────────────────────────
+// â”€â”€ Middleware pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// Must be first — resolve real client IP from Azure load balancer
+// Must be first â€” resolve real client IP from Azure load balancer
 app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
@@ -195,7 +194,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
-// ── Database seed (roles + first admin account) ───────────────────────────────
+// â”€â”€ Database seed (roles + first admin account) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 try
 {
     using var scope       = app.Services.CreateScope();
@@ -216,13 +215,13 @@ try
     {
         if (app.Environment.IsDevelopment())
         {
-            // Acceptable dev default — never reaches production
+            // Acceptable dev default â€” never reaches production
             adminPassword = "Admin123!@#";
-            Log.Warning("Admin:Password not configured — using dev default. Never deploy this to production.");
+            Log.Warning("Admin:Password not configured â€” using dev default. Never deploy this to production.");
         }
         else
         {
-            // Hard fail in production — no fallback password ever
+            // Hard fail in production â€” no fallback password ever
             throw new InvalidOperationException(
                 "Admin:Password must be set in production via Azure environment variable Admin__Password.");
         }
@@ -247,12 +246,13 @@ try
 }
 catch (InvalidOperationException)
 {
-    // Re-throw config errors — these must be fixed before the app can run
+    // Re-throw config errors â€” these must be fixed before the app can run
     throw;
 }
 catch (Exception ex)
 {
-    Log.Warning(ex, "Skipping seed — database is unavailable.");
+    Log.Warning(ex, "Skipping seed â€” database is unavailable.");
 }
 
 app.Run();
+

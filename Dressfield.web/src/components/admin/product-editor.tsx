@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+import { ArrowLeft, LoaderCircle, Trash2, UploadCloud } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,41 +12,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   createProduct,
-  getAdminCategories,
   getAdminProductById,
   slugify,
   updateProduct,
 } from "@/lib/catalog";
+import {
+  UPLOAD_ALLOWED_EXTENSIONS,
+  UPLOAD_MAX_SIZE_MB,
+  UploadValidationError,
+  uploadDesignImage,
+  validateDesignFile,
+} from "@/lib/upload";
 import type {
-  CategoryDto,
   ProductDetailDto,
   ProductImagePayload,
   ProductPayload,
-  ProductVariantPayload,
 } from "@/types/catalog";
 
 type ProductEditorProps = {
   productId?: number;
 };
 
-const emptyImage: ProductImagePayload = {
-  imageUrl: "",
-  altText: "",
-  sortOrder: 0,
-  isPrimary: true,
-};
-
-const emptyVariant: ProductVariantPayload = {
-  name: "",
-  value: "",
-  sku: "",
-  priceAdjustment: 0,
-  stockQuantity: 0,
-  isActive: true,
+type ProductImageUploaderProps = {
+  image: ProductImagePayload;
+  index: number;
+  isUploading: boolean;
+  onChange: (patch: Partial<ProductImagePayload>) => void;
+  onRemove: () => void;
 };
 
 const emptyForm: ProductPayload = {
-  categoryId: 0,
   name: "",
   slug: "",
   shortDescription: "",
@@ -54,13 +50,12 @@ const emptyForm: ProductPayload = {
   sku: "",
   isActive: true,
   isFeatured: false,
-  images: [{ ...emptyImage }],
-  variants: [{ ...emptyVariant }],
+  images: [],
+  variants: [],
 };
 
 function mapProductToForm(product: ProductDetailDto): ProductPayload {
   return {
-    categoryId: product.categoryId,
     name: product.name,
     slug: product.slug,
     shortDescription: product.shortDescription,
@@ -79,18 +74,8 @@ function mapProductToForm(product: ProductDetailDto): ProductPayload {
               sortOrder: image.sortOrder,
               isPrimary: image.isPrimary,
             }))
-        : [{ ...emptyImage }],
-    variants:
-      product.variants.length > 0
-        ? product.variants.map((variant) => ({
-            name: variant.name,
-            value: variant.value,
-            sku: variant.sku,
-            priceAdjustment: variant.priceAdjustment,
-            stockQuantity: variant.stockQuantity,
-            isActive: variant.isActive,
-          }))
-        : [{ ...emptyVariant }],
+        : [],
+    variants: [],
   };
 }
 
@@ -100,57 +85,86 @@ function normalizeForm(form: ProductPayload): ProductPayload {
     .map((image, index) => ({
       imageUrl: image.imageUrl.trim(),
       altText: image.altText?.trim() || null,
-      sortOrder: Number.isFinite(image.sortOrder) ? image.sortOrder : index,
+      sortOrder: index,
       isPrimary: image.isPrimary,
     }));
+
+  const shortDescription = form.shortDescription?.trim() || null;
 
   return {
     ...form,
     name: form.name.trim(),
-    slug: form.slug.trim(),
-    shortDescription: form.shortDescription?.trim() || null,
-    description: form.description.trim(),
+    slug: slugify(form.slug.trim() || form.name),
+    shortDescription,
+    description: shortDescription || form.name.trim(),
     sku: form.sku?.trim() || null,
     basePrice: Number(form.basePrice),
-    categoryId: Number(form.categoryId),
     images: images.map((image, index) => ({
       ...image,
+      sortOrder: index,
       isPrimary: images.some((item) => item.isPrimary) ? image.isPrimary : index === 0,
     })),
-    variants: form.variants
-      .filter((variant) => variant.name.trim())
-      .map((variant) => ({
-        name: variant.name.trim(),
-        value: variant.value?.trim() || null,
-        sku: variant.sku?.trim() || null,
-        priceAdjustment: Number(variant.priceAdjustment),
-        stockQuantity: Number(variant.stockQuantity),
-        isActive: variant.isActive,
-      })),
+    variants: [],
   };
 }
 
+function ProductImageUploader({ image, index, isUploading, onChange, onRemove }: ProductImageUploaderProps) {
+  return (
+    <div className="space-y-3 rounded-2xl border border-black/8 p-4">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+        <div className="space-y-3">
+          <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-black/10 bg-gray-50 px-4 py-6 text-center">
+            {image.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={image.imageUrl} alt={image.altText || `Product image ${index + 1}`} className="h-36 w-full rounded-xl object-cover" />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
+                {isUploading ? <LoaderCircle className="h-8 w-8 animate-spin text-accent" /> : <UploadCloud className="h-8 w-8 text-accent" />}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <Label>Alt ტექსტი</Label>
+            <Input value={image.altText || ""} placeholder="მაგ: შავი ჰუდი ნაქარგით" onChange={(event) => onChange({ altText: event.target.value })} />
+          </div>
+
+          <div className="flex items-end gap-3">
+            <label className="flex h-10 flex-1 items-center gap-2 rounded-xl border border-black/8 px-3 text-sm">
+              <input type="checkbox" checked={image.isPrimary} onChange={(event) => onChange({ isPrimary: event.target.checked })} className="h-4 w-4 accent-accent" />
+              მთავარი სურათი
+            </label>
+            <Button variant="outline" onClick={onRemove}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="rounded-xl bg-black/3 px-3 py-2 text-xs text-muted-foreground break-all">
+            {image.imageUrl || "სურათი ჯერ არ არის ატვირთული"}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProductEditorForm({
-  categories,
   initialForm,
   productId,
 }: {
-  categories: CategoryDto[];
   initialForm: ProductPayload;
   productId?: number;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<ProductPayload>({
-    ...initialForm,
-    categoryId: initialForm.categoryId || categories[0]?.id || 0,
-  });
+  const [form, setForm] = useState<ProductPayload>(initialForm);
   const [slugTouched, setSlugTouched] = useState(Boolean(productId));
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
-  const shortDescriptionLength = useMemo(
-    () => form.shortDescription?.length || 0,
-    [form.shortDescription]
-  );
+  const shortDescriptionLength = useMemo(() => form.shortDescription?.length || 0, [form.shortDescription]);
 
   const saveMutation = useMutation({
     mutationFn: async (payload: ProductPayload) => {
@@ -170,27 +184,86 @@ function ProductEditorForm({
   });
 
   function updateImage(index: number, patch: Partial<ProductImagePayload>) {
-    setForm((current) => ({
-      ...current,
-      images: current.images.map((image, currentIndex) =>
-        currentIndex === index ? { ...image, ...patch } : image
-      ),
-    }));
+    setForm((current) => {
+      const nextImages = current.images.map((image, currentIndex) => {
+        if (currentIndex !== index) {
+          return patch.isPrimary ? { ...image, isPrimary: false } : image;
+        }
+
+        return { ...image, ...patch };
+      });
+
+      return {
+        ...current,
+        images: nextImages,
+      };
+    });
   }
 
-  function updateVariant(index: number, patch: Partial<ProductVariantPayload>) {
-    setForm((current) => ({
-      ...current,
-      variants: current.variants.map((variant, currentIndex) =>
-        currentIndex === index ? { ...variant, ...patch } : variant
-      ),
-    }));
+  async function uploadImages(files: File[]) {
+    if (files.length === 0) return;
+
+    try {
+      setIsUploadingImages(true);
+      setUploadError("");
+
+      for (const file of files) {
+        validateDesignFile(file);
+      }
+
+      const uploaded = await Promise.all(
+        files.map(async (file, index) => {
+          const url = await uploadDesignImage(file);
+          return {
+            imageUrl: url,
+            altText: file.name.replace(/\.[^.]+$/, ""),
+            sortOrder: form.images.length + index,
+            isPrimary: form.images.length === 0 && index === 0,
+          } satisfies ProductImagePayload;
+        })
+      );
+
+      setForm((current) => ({
+        ...current,
+        images: [...current.images, ...uploaded].map((image, index) => ({
+          ...image,
+          sortOrder: index,
+          isPrimary: current.images.length === 0 ? index === 0 : image.isPrimary,
+        })),
+      }));
+
+      toast.success(`${uploaded.length} სურათი აიტვირთა`);
+    } catch (error) {
+      if (error instanceof UploadValidationError) {
+        setUploadError(error.message);
+      } else {
+        setUploadError("სურათების ატვირთვა ვერ მოხერხდა.");
+      }
+      toast.error("სურათების ატვირთვა ვერ მოხერხდა");
+    } finally {
+      setIsUploadingImages(false);
+    }
   }
+
+  const dropzone = useDropzone({
+    multiple: true,
+    accept: {
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+      "image/webp": [".webp"],
+    },
+    onDropAccepted: async (acceptedFiles) => {
+      await uploadImages(acceptedFiles);
+    },
+    onDropRejected: () => {
+      setUploadError("მხოლოდ JPG, PNG ან WebP ფორმატია დაშვებული.");
+    },
+  });
 
   function submitForm() {
     const payload = normalizeForm(form);
 
-    if (!payload.name || !payload.slug || !payload.description || !payload.categoryId) {
+    if (!payload.name || !payload.slug) {
       toast.error("აუცილებელი ველები შეავსე");
       return;
     }
@@ -208,9 +281,7 @@ function ProductEditorForm({
           </Button>
         </Link>
         <div>
-          <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">
-            პროდუქტები
-          </p>
+          <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">პროდუქტები</p>
           <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
             {productId ? "პროდუქტის რედაქტირება" : "ახალი პროდუქტი"}
           </h1>
@@ -219,9 +290,7 @@ function ProductEditorForm({
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
-            ძირითადი ინფორმაცია
-          </h2>
+          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">ძირითადი ინფორმაცია</h2>
           <div className="space-y-2">
             <Label htmlFor="product-name">სახელი</Label>
             <Input
@@ -242,326 +311,119 @@ function ProductEditorForm({
             <Input
               id="product-slug"
               value={form.slug}
+              placeholder="ავტომატურად შეივსება სახელიდან"
               onChange={(event) => {
                 setSlugTouched(true);
-                setForm((current) => ({ ...current, slug: event.target.value }));
+                setForm((current) => ({ ...current, slug: slugify(event.target.value) }));
               }}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="product-category">კატეგორია</Label>
-            <select
-              id="product-category"
-              value={form.categoryId}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  categoryId: Number(event.target.value),
-                }))
-              }
-              className="h-10 w-full rounded-xl border border-input bg-white px-3 text-sm outline-none focus:border-accent"
-            >
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="flex items-center gap-3 rounded-xl border border-black/8 px-3 py-3">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, isActive: event.target.checked }))
-                }
-                className="h-4 w-4 accent-accent"
-              />
+              <input type="checkbox" checked={form.isActive} onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} className="h-4 w-4 accent-accent" />
               <span className="text-sm">აქტიური</span>
             </label>
             <label className="flex items-center gap-3 rounded-xl border border-black/8 px-3 py-3">
-              <input
-                type="checkbox"
-                checked={form.isFeatured}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    isFeatured: event.target.checked,
-                  }))
-                }
-                className="h-4 w-4 accent-accent"
-              />
+              <input type="checkbox" checked={form.isFeatured} onChange={(event) => setForm((current) => ({ ...current, isFeatured: event.target.checked }))} className="h-4 w-4 accent-accent" />
               <span className="text-sm">რჩეული</span>
             </label>
           </div>
         </section>
 
         <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
-            ფასი და SKU
-          </h2>
+          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">ფასი და SKU</h2>
           <div className="space-y-2">
             <Label htmlFor="product-price">ფასი</Label>
-            <Input
-              id="product-price"
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.basePrice}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  basePrice: Number(event.target.value),
-                }))
-              }
-            />
+            <Input id="product-price" type="number" min="0" step="0.01" value={form.basePrice} onChange={(event) => setForm((current) => ({ ...current, basePrice: Number(event.target.value) }))} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="product-sku">SKU</Label>
-            <Input
-              id="product-sku"
-              value={form.sku || ""}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, sku: event.target.value }))
-              }
-            />
+            <Input id="product-sku" value={form.sku || ""} onChange={(event) => setForm((current) => ({ ...current, sku: event.target.value }))} />
           </div>
         </section>
 
         <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm xl:col-span-2">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
-            აღწერები
-          </h2>
+          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">მოკლე აღწერა</h2>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="product-short-description">მოკლე აღწერა</Label>
-              <span className="text-xs text-muted-foreground">
-                {shortDescriptionLength}/300
-              </span>
+              <Label htmlFor="product-short-description">ტექსტი</Label>
+              <span className="text-xs text-muted-foreground">{shortDescriptionLength}/300</span>
             </div>
             <textarea
               id="product-short-description"
-              rows={4}
+              rows={5}
               maxLength={300}
               value={form.shortDescription || ""}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  shortDescription: event.target.value,
-                }))
-              }
+              onChange={(event) => setForm((current) => ({ ...current, shortDescription: event.target.value, description: event.target.value }))}
               className="w-full rounded-xl border border-input px-3 py-2 text-sm outline-none focus:border-accent"
+              placeholder="მოკლე ტექსტი, რომელიც გამოჩნდება ბარათზე და პროდუქტის ზედა ნაწილში"
             />
           </div>
+        </section>
+
+        <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm xl:col-span-2">
           <div className="space-y-2">
-            <Label htmlFor="product-description">სრული აღწერა</Label>
-            <textarea
-              id="product-description"
-              rows={8}
-              value={form.description}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
-              }
-              className="w-full rounded-xl border border-input px-3 py-2 text-sm outline-none focus:border-accent"
-            />
+            <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">სურათები</h2>
+            <p className="text-sm text-muted-foreground">შეგიძლია ერთდროულად რამდენიმე სურათი ატვირთო. ეს იყენებს იმავე upload flow-ს, რასაც მომხმარებლის custom-order გვერდი.</p>
           </div>
-        </section>
 
-        <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm xl:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
-              სურათები
-            </h2>
-            <Button
-              variant="outline"
-              onClick={() =>
-                setForm((current) => ({
-                  ...current,
-                  images: [...current.images, { ...emptyImage, sortOrder: current.images.length }],
-                }))
-              }
-            >
-              <Plus className="h-4 w-4" />
-              დამატება
-            </Button>
+          <div
+            {...dropzone.getRootProps()}
+            className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-black/12 bg-gray-50 px-4 py-8 text-center transition-colors hover:border-accent hover:bg-violet-50/60"
+          >
+            <input {...dropzone.getInputProps()} />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
+              {isUploadingImages ? <LoaderCircle className="h-8 w-8 animate-spin text-accent" /> : <UploadCloud className="h-8 w-8 text-accent" />}
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                {isUploadingImages ? "სურათები იტვირთება..." : "ატვირთე ერთი ან რამდენიმე სურათი"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {UPLOAD_ALLOWED_EXTENSIONS.join(", ").toUpperCase().replaceAll(".", "")} - მაქსიმუმ {UPLOAD_MAX_SIZE_MB} MB თითო ფაილზე
+              </p>
+            </div>
           </div>
+
+          {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
+
           <div className="space-y-4">
-            {form.images.map((image, index) => (
-              <div
-                key={`${index}-${image.imageUrl}`}
-                className="grid gap-3 rounded-2xl border border-black/8 p-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_120px_130px_auto]"
-              >
-                <Input
-                  value={image.imageUrl}
-                  placeholder="Image URL"
-                  onChange={(event) =>
-                    updateImage(index, { imageUrl: event.target.value })
-                  }
-                />
-                <Input
-                  value={image.altText || ""}
-                  placeholder="Alt ტექსტი"
-                  onChange={(event) => updateImage(index, { altText: event.target.value })}
-                />
-                <Input
-                  type="number"
-                  value={image.sortOrder}
-                  onChange={(event) =>
-                    updateImage(index, { sortOrder: Number(event.target.value) })
-                  }
-                />
-                <label className="flex items-center gap-2 rounded-xl border border-black/8 px-3 py-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={image.isPrimary}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        images: current.images.map((currentImage, currentIndex) => ({
-                          ...currentImage,
-                          isPrimary:
-                            currentIndex === index ? event.target.checked : false,
-                        })),
-                      }))
-                    }
-                    className="h-4 w-4 accent-accent"
-                  />
-                  მთავარი
-                </label>
-                <Button
-                  variant="outline"
-                  onClick={() =>
+            {form.images.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-black/12 bg-white px-6 py-10 text-center text-sm text-muted-foreground">
+                ჯერ სურათი არ არის დამატებული.
+              </div>
+            ) : (
+              form.images.map((image, index) => (
+                <ProductImageUploader
+                  key={`${index}-${image.imageUrl}`}
+                  image={image}
+                  index={index}
+                  isUploading={isUploadingImages}
+                  onChange={(patch) => updateImage(index, patch)}
+                  onRemove={() =>
                     setForm((current) => ({
                       ...current,
-                      images:
-                        current.images.length > 1
-                          ? current.images.filter((_, currentIndex) => currentIndex !== index)
-                          : [{ ...emptyImage }],
+                      images: current.images.filter((_, currentIndex) => currentIndex !== index).map((nextImage, nextIndex) => ({
+                        ...nextImage,
+                        sortOrder: nextIndex,
+                        isPrimary: nextImage.isPrimary || nextIndex === 0,
+                      })),
                     }))
                   }
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm xl:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
-              ვარიანტები
-            </h2>
-            <Button
-              variant="outline"
-              onClick={() =>
-                setForm((current) => ({
-                  ...current,
-                  variants: [...current.variants, { ...emptyVariant }],
-                }))
-              }
-            >
-              <Plus className="h-4 w-4" />
-              დამატება
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {form.variants.map((variant, index) => (
-              <div
-                key={`${index}-${variant.name}-${variant.value}`}
-                className="grid gap-3 rounded-2xl border border-black/8 p-4 lg:grid-cols-[1fr_1fr_1fr_140px_120px_120px_auto]"
-              >
-                <Input
-                  value={variant.name}
-                  placeholder="სახელი"
-                  onChange={(event) =>
-                    updateVariant(index, { name: event.target.value })
-                  }
                 />
-                <Input
-                  value={variant.value || ""}
-                  placeholder="მნიშვნელობა"
-                  onChange={(event) =>
-                    updateVariant(index, { value: event.target.value })
-                  }
-                />
-                <Input
-                  value={variant.sku || ""}
-                  placeholder="SKU"
-                  onChange={(event) => updateVariant(index, { sku: event.target.value })}
-                />
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={variant.priceAdjustment}
-                  placeholder="ფასის სხვაობა"
-                  onChange={(event) =>
-                    updateVariant(index, {
-                      priceAdjustment: Number(event.target.value),
-                    })
-                  }
-                />
-                <Input
-                  type="number"
-                  value={variant.stockQuantity}
-                  placeholder="ნაშთი"
-                  onChange={(event) =>
-                    updateVariant(index, {
-                      stockQuantity: Number(event.target.value),
-                    })
-                  }
-                />
-                <label className="flex items-center gap-2 rounded-xl border border-black/8 px-3 py-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={variant.isActive}
-                    onChange={(event) =>
-                      updateVariant(index, { isActive: event.target.checked })
-                    }
-                    className="h-4 w-4 accent-accent"
-                  />
-                  აქტიური
-                </label>
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    setForm((current) => ({
-                      ...current,
-                      variants:
-                        current.variants.length > 1
-                          ? current.variants.filter(
-                              (_, currentIndex) => currentIndex !== index
-                            )
-                          : [{ ...emptyVariant }],
-                    }))
-                  }
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </section>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/8 bg-white/95 backdrop-blur">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 px-4 py-4">
-          <p className="text-sm text-muted-foreground">
-            შეამოწმე სურათები, ვარიანტები და აღწერები შენახვამდე.
-          </p>
+          <p className="text-sm text-muted-foreground">შეამოწმე სურათები და ძირითადი მონაცემები შენახვამდე.</p>
           <div className="flex gap-3">
-            <Link href="/admin/products">
-              <Button variant="outline">გაუქმება</Button>
-            </Link>
-            <Button
-              className="bg-accent text-white hover:bg-accent-hover"
-              onClick={submitForm}
-            >
-              შენახვა
+            <Link href="/admin/products"><Button variant="outline">გაუქმება</Button></Link>
+            <Button className="bg-accent text-white hover:bg-accent-hover" onClick={submitForm} disabled={saveMutation.isPending || isUploadingImages}>
+              {saveMutation.isPending ? "ინახება..." : "შენახვა"}
             </Button>
           </div>
         </div>
@@ -571,41 +433,23 @@ function ProductEditorForm({
 }
 
 export function ProductEditor({ productId }: ProductEditorProps) {
-  const categoriesQuery = useQuery({
-    queryKey: ["admin-categories"],
-    queryFn: getAdminCategories,
-  });
-
   const productQuery = useQuery({
     queryKey: ["admin-product", productId],
     queryFn: () => getAdminProductById(productId as number),
     enabled: typeof productId === "number",
   });
 
-  if (categoriesQuery.isLoading || (productId && productQuery.isLoading)) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="rounded-3xl border border-black/8 bg-white p-6 text-sm text-muted-foreground">
-          იტვირთება...
-        </div>
-      </div>
-    );
+  if (productId && productQuery.isLoading) {
+    return <div className="max-w-7xl mx-auto px-4 py-8"><div className="rounded-3xl border border-black/8 bg-white p-6 text-sm text-muted-foreground">იტვირთება...</div></div>;
   }
 
-  if (categoriesQuery.isError || (productId && productQuery.isError)) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="rounded-3xl border border-destructive/40 bg-white p-6 text-sm text-destructive">
-          მონაცემების ჩატვირთვა ვერ მოხერხდა. გთხოვთ სცადოთ ხელახლა.
-        </div>
-      </div>
-    );
+  if (productId && productQuery.isError) {
+    return <div className="max-w-7xl mx-auto px-4 py-8"><div className="rounded-3xl border border-destructive/40 bg-white p-6 text-sm text-destructive">მონაცემების ჩატვირთვა ვერ მოხერხდა. გთხოვთ სცადოთ ხელახლა.</div></div>;
   }
 
   return (
     <ProductEditorForm
       key={productId ? `product-${productId}` : "product-new"}
-      categories={categoriesQuery.data || []}
       initialForm={productQuery.data ? mapProductToForm(productQuery.data) : emptyForm}
       productId={productId}
     />

@@ -31,12 +31,6 @@ export function Footer() {
                 პროდუქცია
               </Link>
               <Link
-                href="/products"
-                className="hover:text-accent transition-colors"
-              >
-                კატეგორიები
-              </Link>
-              <Link
                 href="/custom-order"
                 className="hover:text-accent transition-colors"
               >

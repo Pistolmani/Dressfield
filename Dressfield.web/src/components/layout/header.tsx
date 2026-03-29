@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ShoppingCart, Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -13,6 +14,7 @@ import { useCartStore } from "@/stores/cart-store";
 export function Header() {
   const { user } = useAuth();
   const cartCount = useCartStore((s) => s.totalItems());
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-header-bg text-header-text">
@@ -36,7 +38,7 @@ export function Header() {
           >
             <ShoppingCart className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-accent text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-medium">
+              <span className="absolute -top-0.5 -right-0.5 bg-white text-black text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
                 {cartCount > 9 ? "9+" : cartCount}
               </span>
             )}
@@ -46,35 +48,30 @@ export function Header() {
           <div className="hidden md:block">
             {user ? (
               <Link href="/admin">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-header-text hover:bg-white/10"
-                >
+                <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
                   <User className="h-4 w-4 mr-1.5" />
                   {user.firstName}
                 </Button>
               </Link>
             ) : (
               <Link href="/auth/login">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-header-text hover:bg-white/10"
-                >
+                <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
                   შესვლა
                 </Button>
               </Link>
             )}
           </div>
 
-          {/* Mobile menu */}
-          <Sheet>
-            <SheetTrigger className="md:hidden p-2 text-header-text hover:bg-white/10 rounded-lg transition-colors">
+          {/* Mobile menu — controlled so it closes on navigation */}
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger
+              className="md:hidden p-2 text-header-text hover:bg-white/10 rounded-lg transition-colors"
+              onClick={() => setMobileOpen(true)}
+            >
               <Menu className="h-5 w-5" />
             </SheetTrigger>
             <SheetContent side="right" className="w-[80%] max-w-sm">
-              <MobileMenu />
+              <MobileMenu onClose={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
         </div>

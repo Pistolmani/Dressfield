@@ -1,10 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
 import { useMemo, useState, useCallback } from "react";
 import { ChevronDown, Minus, Plus, Check } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cart-store";
@@ -118,19 +117,16 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
           <section className="space-y-6">
             <nav className="text-sm text-muted-foreground">
               <Link href="/" className="hover:text-foreground">
-                მთავარი
+                áƒ›áƒ—áƒáƒ•áƒáƒ áƒ˜
               </Link>{" "}
               /{" "}
               <Link href="/products" className="hover:text-foreground">
-                პროდუქტები
+                áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ”áƒ‘áƒ˜
               </Link>{" "}
               / <span>{product.name}</span>
             </nav>
 
             <div className="space-y-4">
-              <Badge variant="outline" className="border-accent/20 text-accent">
-                {product.categoryName}
-              </Badge>
               <div className="space-y-3">
                 <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight sm:text-4xl">
                   {product.name}
@@ -205,14 +201,14 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                   {addedFeedback ? (
                     <>
                       <Check className="h-4 w-4 mr-2" />
-                      დამატებულია
+                      áƒ“áƒáƒ›áƒáƒ¢áƒ”áƒ‘áƒ£áƒšáƒ˜áƒ
                     </>
                   ) : (
-                    'კალათაში დამატება'
+                    'áƒ™áƒáƒšáƒáƒ—áƒáƒ¨áƒ˜ áƒ“áƒáƒ›áƒáƒ¢áƒ”áƒ‘áƒ'
                   )}
                 </Button>
                 <Button variant="outline" className="h-11 flex-1">
-                  ინდივიდუალური შეკვეთა
+                  áƒ˜áƒœáƒ“áƒ˜áƒ•áƒ˜áƒ“áƒ£áƒáƒšáƒ£áƒ áƒ˜ áƒ¨áƒ”áƒ™áƒ•áƒ”áƒ—áƒ
                 </Button>
               </div>
             </div>
@@ -224,7 +220,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                 className="flex w-full items-center justify-between px-5 py-4 text-left"
               >
                 <span className="font-[family-name:var(--font-inter)] text-lg font-semibold">
-                  სრული აღწერა
+                  áƒ¡áƒ áƒ£áƒšáƒ˜ áƒáƒ¦áƒ¬áƒ”áƒ áƒ
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 transition-transform ${
@@ -244,3 +240,4 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
     </div>
   );
 }
+

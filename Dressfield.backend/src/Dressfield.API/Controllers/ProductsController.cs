@@ -17,11 +17,13 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyCollection<ProductSummaryDto>>> GetActive([FromQuery] int? categoryId, [FromQuery] string? search) => Ok(await _productService.GetActiveAsync(categoryId, search));
+    public async Task<ActionResult<IReadOnlyCollection<ProductSummaryDto>>> GetActive([FromQuery] string? search) =>
+        Ok(await _productService.GetActiveAsync(search));
 
     [Authorize(Roles = "Admin")]
     [HttpGet("admin")]
-    public async Task<ActionResult<IReadOnlyCollection<ProductSummaryDto>>> GetAdmin([FromQuery] int? categoryId, [FromQuery] string? search) => Ok(await _productService.GetAdminAsync(categoryId, search));
+    public async Task<ActionResult<IReadOnlyCollection<ProductSummaryDto>>> GetAdmin([FromQuery] string? search) =>
+        Ok(await _productService.GetAdminAsync(search));
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProductDetailDto>> GetById(int id)
@@ -55,7 +57,8 @@ public class ProductsController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<ProductDetailDto>> Update(int id, [FromBody] UpdateProductRequest request) => Ok(await _productService.UpdateAsync(id, request));
+    public async Task<ActionResult<ProductDetailDto>> Update(int id, [FromBody] UpdateProductRequest request) =>
+        Ok(await _productService.UpdateAsync(id, request));
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]

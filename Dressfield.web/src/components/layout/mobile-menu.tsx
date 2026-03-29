@@ -6,13 +6,21 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/auth";
 import { NavLinks } from "./nav-links";
 
-export function MobileMenu() {
+interface MobileMenuProps {
+  onClose: () => void;
+}
+
+export function MobileMenu({ onClose }: MobileMenuProps) {
   const { user, logout } = useAuth();
 
   return (
     <div className="flex flex-col h-full pt-8">
-      <nav className="flex flex-col gap-4">
-        <NavLinks className="text-lg text-foreground" />
+      <nav className="flex flex-col gap-5">
+        {/* NavLinks with onNavigate to close the sheet */}
+        <NavLinks
+          className="text-xl text-foreground"
+          onNavigate={onClose}
+        />
       </nav>
 
       <Separator className="my-6" />
@@ -24,7 +32,7 @@ export function MobileMenu() {
               {user.firstName} {user.lastName}
             </p>
             <button
-              onClick={() => logout()}
+              onClick={() => { logout(); onClose(); }}
               className="text-left text-sm text-destructive hover:underline"
             >
               გამოსვლა
@@ -34,12 +42,14 @@ export function MobileMenu() {
           <>
             <Link
               href="/auth/login"
+              onClick={onClose}
               className="text-lg font-medium hover:text-accent transition-colors"
             >
               შესვლა
             </Link>
             <Link
               href="/auth/register"
+              onClick={onClose}
               className="text-lg font-medium hover:text-accent transition-colors"
             >
               რეგისტრაცია

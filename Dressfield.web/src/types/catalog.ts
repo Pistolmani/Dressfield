@@ -1,17 +1,5 @@
-export type CategoryDto = {
+﻿export type ProductSummaryDto = {
   id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  displayOrder: number;
-  isActive: boolean;
-  productCount: number;
-};
-
-export type ProductSummaryDto = {
-  id: number;
-  categoryId: number;
-  categoryName: string;
   name: string;
   slug: string;
   shortDescription: string | null;
@@ -41,9 +29,6 @@ export type ProductVariantDto = {
 
 export type ProductDetailDto = {
   id: number;
-  categoryId: number;
-  categoryName: string;
-  categorySlug: string;
   name: string;
   slug: string;
   shortDescription: string | null;
@@ -54,14 +39,6 @@ export type ProductDetailDto = {
   isFeatured: boolean;
   images: ProductImageDto[];
   variants: ProductVariantDto[];
-};
-
-export type CategoryPayload = {
-  name: string;
-  slug: string;
-  description: string | null;
-  displayOrder: number;
-  isActive: boolean;
 };
 
 export type ProductImagePayload = {
@@ -81,7 +58,6 @@ export type ProductVariantPayload = {
 };
 
 export type ProductPayload = {
-  categoryId: number;
   name: string;
   slug: string;
   shortDescription: string | null;
