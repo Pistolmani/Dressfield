@@ -18,7 +18,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// â"€â"€ Logging â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Logging
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .WriteTo.Console()
@@ -27,25 +27,25 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// â"€â"€ Resolve real client IP from Azure / reverse proxy (required for rate limiting) â"€â"€
+// Resolve real client IP from Azure / reverse proxy (required for rate limiting)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    // Trust all known proxies  --" Azure App Service manages this internally
+    // Trust all known proxies; Azure App Service manages this internally.
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
-// â"€â"€ Request body size (20 MB  --" covers design image uploads) â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Request body size (20 MB covers design image uploads)
 builder.WebHost.ConfigureKestrel(options =>
     options.Limits.MaxRequestBodySize = 20 * 1024 * 1024);
 
-// â"€â"€ Database â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DressfieldDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 36))));
 
-// â"€â"€ Identity â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
         options.Password.RequireDigit = true;
@@ -57,9 +57,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<DressfieldDbContext>()
     .AddDefaultTokenProviders();
 
-// â"€â"€ JWT Authentication â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// JWT authentication
 // IMPORTANT: Jwt:Secret must NEVER be left as empty in production.
-// Set it via Azure App Service â†' Configuration â†' Application settings: Jwt__Secret
+// Set it via Azure App Service -> Configuration -> Application settings: Jwt__Secret
 var jwtSecret = builder.Configuration["Jwt:Secret"];
 if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
     throw new InvalidOperationException(
@@ -92,7 +92,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// â"€â"€ CORS â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -103,24 +103,32 @@ builder.Services.AddCors(options =>
     });
 });
 
-// â"€â"€ Rate Limiting â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Rate limiting
 builder.Services.AddRateLimiter(options =>
 {
-    // Auth endpoints  --" 10 requests per minute per IP (prevents brute-force)
-    options.AddFixedWindowLimiter("auth", o =>
+    options.AddPolicy("auth", context =>
     {
-        o.Window              = TimeSpan.FromMinutes(1);
-        o.PermitLimit         = 10;
-        o.QueueLimit          = 0;
-        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(ipAddress, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromMinutes(1),
+            PermitLimit = 10,
+            QueueLimit = 0,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+        });
     });
 
-    // Order creation  --" 20 requests per minute per IP (prevents order flooding)
-    options.AddFixedWindowLimiter("orders", o =>
+    options.AddPolicy("orders", context =>
     {
-        o.Window      = TimeSpan.FromMinutes(1);
-        o.PermitLimit = 20;
-        o.QueueLimit  = 0;
+        var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(ipAddress, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromMinutes(1),
+            PermitLimit = 20,
+            QueueLimit = 0
+        });
     });
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -138,14 +146,14 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
-// Storage service  --" Azure Blob in prod, local filesystem in dev
+// Storage service: Azure Blob in prod, local filesystem in dev
 var azureConnectionString = builder.Configuration["AzureStorage:ConnectionString"];
 if (string.IsNullOrWhiteSpace(azureConnectionString))
     builder.Services.AddScoped<IStorageService, LocalStorageService>();
 else
     builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
 
-// Payment service  --" real BOG iPay in prod, mock in dev
+// Payment service: real BOG iPay in prod, mock in dev
 var bogClientId = builder.Configuration["BogIPay:ClientId"];
 if (string.IsNullOrWhiteSpace(bogClientId))
 {
@@ -171,9 +179,9 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
-// â"€â"€ Middleware pipeline â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Middleware pipeline
 
-// Must be first  --" resolve real client IP from Azure load balancer
+// Must be first: resolve real client IP from Azure load balancer.
 app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
@@ -218,7 +226,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/api/health");
 
-// â"€â"€ Database seed (roles + first admin account) â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+// Database seed (roles + first admin account)
 try
 {
     using var scope       = app.Services.CreateScope();
@@ -263,7 +271,7 @@ try
 }
 catch (InvalidOperationException)
 {
-    // Re-throw config errors -- these must be fixed before the app can run
+    // Re-throw config errors; these must be fixed before the app can run.
     throw;
 }
 catch (Exception ex)

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -39,10 +39,11 @@ function ConfirmationContent() {
 
   const isPending = order?.status === "AwaitingPayment" || order?.status === "Pending";
 
-  // Clear the persisted orderId once payment is confirmed
-  if (!isPending && order && typeof window !== "undefined") {
-    localStorage.removeItem("dressfield_pending_order_id");
-  }
+  useEffect(() => {
+    if (!isPending && order && typeof window !== "undefined") {
+      localStorage.removeItem("dressfield_pending_order_id");
+    }
+  }, [isPending, order]);
 
   return (
     <div className="min-h-[70vh] bg-background flex flex-col items-center justify-center px-4 text-center">

@@ -203,10 +203,10 @@ public class OrderService : IOrderService
             return;
         }
 
-        // Key validation — confirm the callback came via our registered URL (per-order secret)
-        if (!string.IsNullOrEmpty(orderKey) && order.BogOrderKey != orderKey)
+        // Reject callbacks without the per-order secret, or with a mismatched secret.
+        if (string.IsNullOrWhiteSpace(orderKey) || order.BogOrderKey != orderKey)
         {
-            _logger.LogWarning("Payment callback key mismatch for order {OrderId} — possible forgery attempt", order.Id);
+            _logger.LogWarning("Payment callback key validation failed for order {OrderId}", order.Id);
             return;
         }
 
