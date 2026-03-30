@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Dressfield is an e-commerce website for an embroidery business based in Georgia. Customers browse pre-made embroidered products (clothing, home decor, accessories) and order custom embroidery by uploading their own designs, choosing placement/material/color options, and previewing a mockup before purchasing. Payments are processed through Bank of Georgia's iPay gateway.
+Dressfield is an e-commerce website for an embroidery business based in Georgia. Customers browse pre-made embroidered products and order custom embroidery by uploading their own designs, choosing embroidery size/product options, and previewing a mockup before purchasing. Payments are processed through Bank of Georgia's iPay gateway.
 
 ## Core Value
 
@@ -12,30 +12,23 @@ Customers can discover embroidered products, customize their own designs with a 
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] User registration, login, logout, and password reset
+- [x] Guest checkout with shipping form and order summary
+- [x] Flat product catalog with SSG product detail pages
+- [x] Custom embroidery flow with upload, live preview, and pricing
+- [x] Cart persistence for guest users
+- [x] Bank of Georgia iPay checkout and signed callback processing
+- [x] Order confirmation and shipping emails
+- [x] Customer order history and admin order management
+- [x] Responsive Georgian-language storefront with updated premium visual direction
 
 ### Active
 
-- [ ] User registration and login with email/password
-- [ ] Guest checkout without creating an account
-- [ ] Browse pre-made products by category with filtering/sorting
-- [ ] View product details with image gallery and variants
-- [ ] Upload custom design (photo) for embroidery
-- [ ] Choose embroidery options (size, placement, material, thread colors)
-- [ ] Preview mockup of design on product before ordering
-- [ ] Base price + option add-on pricing for custom orders
-- [ ] Add products to cart (guest and authenticated)
-- [ ] Checkout with shipping address
-- [ ] Pay via Bank of Georgia iPay (redirect-based flow)
-- [ ] Receive order confirmation email
-- [ ] Track order status
-- [ ] Admin: manage products (CRUD, images, variants, pricing)
-- [ ] Admin: manage categories
-- [ ] Admin: view and manage orders
-- [ ] Admin: review custom design orders
-- [ ] SEO-optimized product and category pages (SSG)
+- [ ] Authenticated cart sync across devices
 - [ ] Meta Pixel tracking for Facebook/Instagram ad conversions
-- [ ] Structured data (JSON-LD) for products
+- [ ] Admin dashboard summary stats
+- [ ] Final launch hardening and deployment polish
+- [ ] Keep SEO coverage aligned with the current flat-catalog scope
 
 ### Out of Scope
 
@@ -44,7 +37,7 @@ Customers can discover embroidered products, customize their own designs with a 
 - Wishlist/favorites — v2, nice-to-have
 - Discount codes/coupons — v2, marketing feature
 - Inventory alert system — v2, small catalog managed manually
-- Advanced analytics dashboard — v2, basic admin stats only for MVP
+- Advanced analytics dashboard — v2, only lightweight admin summary stats are planned for MVP
 - Social login (Google/Facebook) — v2, email/password sufficient for Georgian market
 - Mobile app — web-first, responsive design covers mobile
 
@@ -102,4 +95,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-27 after initialization*
+*Last updated: 2026-03-30 after Phase 5 completion*

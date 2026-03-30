@@ -52,7 +52,7 @@
 
 ### Phase 2: Product Catalog
 
-**Goal:** Admin can manage products and categories; customers can browse, filter, and view product details with SEO-optimized pages.
+**Goal:** Admin can manage products; customers can browse a flat catalog and view product details with SEO-optimized pages.
 
 **Requirements:**
 - PROD-01, PROD-02, PROD-03, PROD-04, PROD-05
@@ -62,17 +62,17 @@
 **UI hint:** yes
 
 **Plans:**
-1. **Database schema & API** — Categories, Products, ProductImages, ProductVariants tables; EF Core migrations; CRUD API endpoints
-2. **Admin product management** — Admin pages for product CRUD, image upload to Azure Blob Storage, variant management, category management
-3. **Public product pages** — Product listing (SSG), product detail (SSG) with image gallery and variant selection, category pages with filtering/sorting
+1. **Database schema & API** — Products, ProductImages, ProductVariants tables; EF Core migrations; CRUD API endpoints
+2. **Admin product management** — Admin pages for product CRUD, image upload to Azure Blob Storage, variant management
+3. **Public product pages** — Product listing (SSG), product detail (SSG) with image gallery, search, and variant selection
 4. **SEO implementation** — JSON-LD structured data, next-sitemap config, meta tags, Open Graph, Twitter Cards
 
 **Success criteria:**
-1. Admin can create a product with images, variants, and assign to category
-2. Product listing page shows all active products with pagination and category filter
+1. Admin can create a product with images and variants
+2. Product listing page shows all active products with search/sort
 3. Product detail page renders full HTML at build time (view-source shows content)
 4. JSON-LD structured data validates in Google's Rich Results Test
-5. XML sitemap includes all product and category URLs
+5. XML sitemap includes all public catalog URLs
 
 **Dependencies:** Phase 1 (auth, layout, deployment)
 
@@ -129,7 +129,9 @@
 
 ### Phase 5: Payments & Order Management
 
-**Goal:** iPay payment integration with webhook handling, order lifecycle management, and email notifications.
+**Status:** Complete (2026-03-30)
+
+**Goal:** iPay payment integration with signed callback handling, order lifecycle management, and email notifications.
 
 **Requirements:**
 - PAY-01, PAY-02, PAY-03, PAY-04, PAY-05
@@ -140,13 +142,13 @@
 
 **Plans:**
 1. **iPay integration** — Helix.BankOfGeorgia.IpayClient setup, create payment endpoint, redirect flow, success/failure pages
-2. **Webhook handler** — Callback endpoint, signature verification, idempotent status updates, retry handling
+2. **Webhook handler** — Signed POST callback endpoint, RSA signature verification, idempotent status updates, fallback verify-order handling
 3. **Order management** — Customer order history page, order detail with payment status, admin order list with filtering, status update workflow
 4. **Email notifications** — SMTP via Hostinger, order confirmation email template, shipping notification email template
 
 **Success criteria:**
-1. User is redirected to BOG payment form and can complete payment (test mode)
-2. Webhook updates order status correctly; duplicate webhooks don't cause double updates
+1. User is redirected to BOG payment form and can complete payment
+2. Signed callback updates order status correctly; duplicate callbacks don't cause double updates
 3. Customer can view order history and see payment/order status
 4. Admin can update order status and customer receives shipping notification email
 5. Order confirmation email is sent after successful payment
@@ -215,4 +217,4 @@ Phases are sequential — each depends on the previous. Within each phase, plans
 
 ---
 *Roadmap created: 2026-03-27*
-*Last updated: 2026-03-27 after initial creation*
+*Last updated: 2026-03-30 after Phase 5 completion and flat-catalog scope update*

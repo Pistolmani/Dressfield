@@ -5,14 +5,25 @@
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** Customers can discover embroidered products, customize their own designs with a live preview, and pay securely through Bank of Georgia.
-**Current focus:** Phase 4 — Cart & Checkout
+**Current focus:** Phase 6 — Analytics & SEO Polish
 
 ## Current Phase
 
 **Phase 5: Payments & Order Management**
-- Status: Not Started
-- Goal: BOG iPay live integration, order status emails, admin order management
-- Requirements: PAY-01..05
+- Status: Complete
+- Goal: BOG iPay integration, signed callback handling, order status emails, admin/customer order management
+- Requirements: PAY-01..05, ORD-03..06, MAIL-01..02
+
+**Delivered in Phase 5:**
+- [x] BOG redirect-based checkout flow
+- [x] Signed callback handling with RSA signature verification
+- [x] Idempotent payment status updates
+- [x] Customer order history and order detail pages
+- [x] Admin order list/detail and status update workflow
+- [x] Order confirmation and shipping emails
+- [x] Email outbox worker with retry
+- [x] Order status audit log
+- [x] Health check and correlation ID middleware
 
 ## Previous Phases (Completed)
 
@@ -22,6 +33,13 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 - [x] Plan 3: Frontend — cart store, checkout page (2-step), order-confirmation, order-failed
 - [x] Plan 4: Admin orders UI — orders table, order detail + status update
 - [x] Plan 5: Architecture review & fixes — EF inline projection, image include, BOG URL split, formatPrice consolidation, SHIPPING_COST env var
+
+**Phase 5: Payments & Order Management** — COMPLETE (commits 8cc107d..eeeb9a9, 2026-03-30)
+- [x] Plan 1: iPay integration — redirect flow, success/failure pages, payment session wiring
+- [x] Plan 2: Webhook handler — signed callback verification, idempotency guard, fallback verify-order call
+- [x] Plan 3: Order management — customer history/detail, admin list/detail, status workflow
+- [x] Plan 4: Email notifications — SMTP service, outbox worker, confirmation + shipping emails
+- [x] Plan 5: Hardening — audit log, health checks, correlation IDs, callback key enforcement
 
 **Phase 3: Custom Design Orders** — COMPLETE (commits 9184c22..ab832f5, 2026-03-28)
 - [x] Plan 1: Custom order domain — entities, service, API, EF migration
@@ -42,7 +60,7 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 | 2. Product Catalog | Complete | 2026-03-28 |
 | 3. Custom Design Orders | Complete | 2026-03-28 |
 | 4. Cart & Checkout | Complete | 2026-03-28 |
-| 5. Payments & Order Management | Not Started | — |
+| 5. Payments & Order Management | Complete | 2026-03-30 |
 | 6. Analytics & SEO Polish | Not Started | — |
 | 7. Security, Polish & Launch | Not Started | — |
 
@@ -68,4 +86,4 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 None.
 
 ---
-*Last updated: 2026-03-28 — Phase 4 complete. Starting Phase 5: Payments & Order Management.*
+*Last updated: 2026-03-30 — Phase 5 complete. Next focus: Phase 6 (Analytics & SEO Polish).*
