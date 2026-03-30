@@ -359,6 +359,90 @@ namespace Dressfield.Infrastructure.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("Dressfield.Core.Entities.OrderStatusLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ChangedByUserId")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("FromStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ToStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedAt");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderStatusLogs");
+                });
+
+            modelBuilder.Entity("Dressfield.Core.Entities.PendingEmail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("HtmlBody")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("NextRetryAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("ToEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Status", "NextRetryAt");
+
+                    b.ToTable("PendingEmails");
+                });
+
             modelBuilder.Entity("Dressfield.Core.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -709,6 +793,17 @@ namespace Dressfield.Infrastructure.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Dressfield.Core.Entities.OrderStatusLog", b =>
+                {
+                    b.HasOne("Dressfield.Core.Entities.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Dressfield.Core.Entities.ProductImage", b =>

@@ -68,7 +68,8 @@ public record CreateOrderRequest(
 
 public record UpdateOrderStatusRequest(
     OrderStatus Status,
-    string? AdminNotes);
+    string? AdminNotes,
+    string? ChangedByUserId = null);
 
 // ── Checkout Response ─────────────────────────────────────────────────────────
 

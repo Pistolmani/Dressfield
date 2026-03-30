@@ -36,13 +36,13 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             <Link
               href="/orders"
               onClick={onClose}
-              className="font-[family-name:var(--font-brand)] text-2xl text-white/80 hover:text-white transition-colors tracking-wide"
+              className="font-ui text-2xl text-white/80 hover:text-white transition-colors tracking-wide"
             >
               ჩემი შეკვეთები
             </Link>
             <button
               onClick={() => { logout(); onClose(); }}
-              className="text-left font-[family-name:var(--font-brand)] text-2xl text-white/40 hover:text-red-400 transition-colors tracking-wide"
+              className="text-left font-ui text-2xl text-white/40 hover:text-red-400 transition-colors tracking-wide"
             >
               გამოსვლა
             </button>
@@ -52,14 +52,14 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             <Link
               href="/auth/login"
               onClick={onClose}
-              className="font-[family-name:var(--font-brand)] text-3xl text-white/90 hover:text-white transition-colors tracking-wide"
+              className="font-ui text-3xl text-white/90 hover:text-white transition-colors tracking-wide"
             >
               შესვლა
             </Link>
             <Link
               href="/auth/register"
               onClick={onClose}
-              className="font-[family-name:var(--font-brand)] text-3xl text-white/50 hover:text-white transition-colors tracking-wide"
+              className="font-ui text-3xl text-white/50 hover:text-white transition-colors tracking-wide"
             >
               რეგისტრაცია
             </Link>

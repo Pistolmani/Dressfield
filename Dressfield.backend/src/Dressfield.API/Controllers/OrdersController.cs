@@ -104,7 +104,8 @@ public class OrdersController : ControllerBase
 
         try
         {
-            await _orders.UpdateStatusAsync(id, request);
+            var adminUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _orders.UpdateStatusAsync(id, request with { ChangedByUserId = adminUserId });
             return NoContent();
         }
         catch (KeyNotFoundException)

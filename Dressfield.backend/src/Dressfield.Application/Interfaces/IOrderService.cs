@@ -18,5 +18,5 @@ public interface IOrderService
     Task<CheckoutResponse> CreateAsync(CreateOrderRequest request, string? userId);
 
     // Payment webhook — called when BOG confirms payment status
-    Task HandlePaymentCallbackAsync(string bogOrderId);
+    Task HandlePaymentCallbackAsync(string bogOrderId, string? orderKey);
 }

@@ -50,7 +50,7 @@ function OrdersContent() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      <h1 className="font-[family-name:var(--font-inter)] text-2xl font-semibold">
+      <h1 className="font-ui text-2xl font-semibold">
         ჩემი შეკვეთები
       </h1>
 

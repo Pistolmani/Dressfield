@@ -16,6 +16,8 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<CustomOrderDesign> CustomOrderDesigns => Set<CustomOrderDesign>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<OrderStatusLog> OrderStatusLogs => Set<OrderStatusLog>();
+    public DbSet<PendingEmail> PendingEmails => Set<PendingEmail>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -115,6 +117,22 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LineTotal).HasPrecision(18, 2);
             entity.HasOne(e => e.Order).WithMany(o => o.Items).HasForeignKey(e => e.OrderId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.Product).WithMany().HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+        });
+
+        builder.Entity<OrderStatusLog>(entity =>
+        {
+            entity.Property(e => e.Notes).HasMaxLength(1000);
+            entity.HasIndex(e => e.OrderId);
+            entity.HasIndex(e => e.ChangedAt);
+            entity.HasOne(e => e.Order).WithMany().HasForeignKey(e => e.OrderId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<PendingEmail>(entity =>
+        {
+            entity.Property(e => e.ToEmail).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Subject).HasMaxLength(300).IsRequired();
+            entity.Property(e => e.LastError).HasMaxLength(1000);
+            entity.HasIndex(e => new { e.Status, e.NextRetryAt });
         });
     }
 }

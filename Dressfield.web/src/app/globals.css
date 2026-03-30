@@ -133,10 +133,23 @@ body {
   font-family: var(--font-ui);
   font-size: 1.2rem;
   letter-spacing: 0.025em;
+  line-height: 1.6;
 }
 
-body {
-  line-height: 1.6;
+/* Form elements — match body font. font-size:inherit applies to raw <label> elements;
+   the shadcn Label component has an explicit text-* class that takes precedence. */
+label {
+  font-family: var(--font-ui);
+  font-size: inherit;
+  letter-spacing: 0.03em;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-ui);
+  font-size: inherit;
+  letter-spacing: 0.02em;
 }
 
 h1,

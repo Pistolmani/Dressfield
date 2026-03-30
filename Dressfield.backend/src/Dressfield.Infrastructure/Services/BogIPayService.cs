@@ -47,7 +47,7 @@ public class BogIPayService : IPaymentService
 
             var body = new
             {
-                callback_url  = $"{_apiBaseUrl.TrimEnd('/')}/api/payments/callback",
+                callback_url  = $"{_apiBaseUrl.TrimEnd('/')}/api/payments/callback?key={orderKey}",
                 shop_order_id = orderKey,
                 redirect_urls = new
                 {

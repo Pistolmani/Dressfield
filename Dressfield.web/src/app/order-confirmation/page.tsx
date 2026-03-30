@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -14,24 +14,35 @@ import { formatPrice } from "@/lib/utils";
 
 function ConfirmationContent() {
   const params = useSearchParams();
-  const orderId = params.get("orderId");
   const isMock = params.get("mock") === "1";
   const { user } = useAuth();
 
+  // Prefer URL param; fall back to localStorage in case user navigated away mid-redirect
+  const orderId = params.get("orderId")
+    ?? (typeof window !== "undefined" ? localStorage.getItem("dressfield_pending_order_id") : null);
+
   const id = orderId ? Number(orderId) : 0;
+  const pollStartRef = useRef(Date.now());
 
   const { data: order } = useQuery({
     queryKey: ["my-order", id],
     queryFn: () => getMyOrderById(id),
     enabled: !!user && id > 0,
     refetchInterval: (query) => {
-      // Poll every 3s while still awaiting payment (webhook may not have arrived yet)
+      // Poll every 3s while awaiting payment, stop after 2 minutes
       const status = query.state.data?.status;
-      return status === "AwaitingPayment" || status === "Pending" ? 3000 : false;
+      const isPending = status === "AwaitingPayment" || status === "Pending";
+      const timedOut = Date.now() - pollStartRef.current > 120_000;
+      return isPending && !timedOut ? 3000 : false;
     },
   });
 
   const isPending = order?.status === "AwaitingPayment" || order?.status === "Pending";
+
+  // Clear the persisted orderId once payment is confirmed
+  if (!isPending && order && typeof window !== "undefined") {
+    localStorage.removeItem("dressfield_pending_order_id");
+  }
 
   return (
     <div className="min-h-[70vh] bg-background flex flex-col items-center justify-center px-4 text-center">

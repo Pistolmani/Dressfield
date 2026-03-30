@@ -22,7 +22,9 @@ public class PaymentsController : ControllerBase
     /// Must return 200 OK for BOG to consider the callback delivered.
     /// </summary>
     [HttpGet("callback")]
-    public async Task<IActionResult> Callback([FromQuery(Name = "order_id")] string? orderId)
+    public async Task<IActionResult> Callback(
+        [FromQuery(Name = "order_id")] string? orderId,
+        [FromQuery(Name = "key")] string? key)
     {
         if (string.IsNullOrWhiteSpace(orderId))
         {
@@ -34,7 +36,7 @@ public class PaymentsController : ControllerBase
 
         try
         {
-            await _orders.HandlePaymentCallbackAsync(orderId);
+            await _orders.HandlePaymentCallbackAsync(orderId, key);
         }
         catch (Exception ex)
         {

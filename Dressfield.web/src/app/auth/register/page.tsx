@@ -12,17 +12,17 @@ import { Logo } from "@/components/ui/logo";
 export default function RegisterPage() {
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)] px-4 py-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <Logo className="h-7 w-auto mx-auto mb-2" />
-          <CardTitle className="text-xl">რეგისტრაცია</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-lg text-lg">
+        <CardHeader className="text-center pb-8 pt-8">
+          <Logo className="h-9 w-auto mx-auto mb-4" />
+          <CardTitle className="text-4xl mb-1">რეგისტრაცია</CardTitle>
+          <CardDescription className="text-lg">
             შექმენით ახალი ანგარიში
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 pb-8">
           <RegisterForm />
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-6 text-center text-base">
             <p className="text-muted-foreground">
               უკვე გაქვთ ანგარიში?{" "}
               <Link

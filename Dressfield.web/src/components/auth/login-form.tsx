@@ -45,13 +45,14 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="email">ელ-ფოსტა</Label>
+        <Label htmlFor="email" className="text-lg">ელ-ფოსტა</Label>
         <Input
           id="email"
           type="email"
           placeholder="example@mail.com"
+          className="h-12"
           {...register("email")}
         />
         {errors.email && (
@@ -60,10 +61,11 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">პაროლი</Label>
+        <Label htmlFor="password" className="text-lg">პაროლი</Label>
         <Input
           id="password"
           type="password"
+          className="h-12"
           {...register("password")}
         />
         {errors.password && (
@@ -73,7 +75,7 @@ export function LoginForm() {
 
       <Button
         type="submit"
-        className="w-full bg-accent hover:bg-accent-hover text-accent-foreground"
+        className="w-full h-12 text-base bg-accent hover:bg-accent-hover text-accent-foreground mt-2"
         disabled={loading}
       >
         {loading ? "იტვირთება..." : "შესვლა"}

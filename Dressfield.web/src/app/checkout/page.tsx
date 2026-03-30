@@ -87,6 +87,12 @@ export default function CheckoutPage() {
         })),
       });
 
+      // Persist orderId before leaving — lets the confirmation page recover
+      // if the tab closes between the redirect and BOG's return callback.
+      if (result.orderId) {
+        localStorage.setItem("dressfield_pending_order_id", String(result.orderId));
+      }
+
       clearCart();
 
       if (result.paymentRedirectUrl) {

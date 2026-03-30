@@ -14,15 +14,13 @@ public class OrderService : IOrderService
 {
     private readonly DressfieldDbContext _db;
     private readonly IPaymentService _payment;
-    private readonly IEmailService _email;
     private readonly ILogger<OrderService> _logger;
     private readonly decimal _shippingCost;
 
-    public OrderService(DressfieldDbContext db, IPaymentService payment, IEmailService email, IConfiguration configuration, ILogger<OrderService> logger)
+    public OrderService(DressfieldDbContext db, IPaymentService payment, IConfiguration configuration, ILogger<OrderService> logger)
     {
         _db = db;
         _payment = payment;
-        _email = email;
         _logger = logger;
         _shippingCost = decimal.TryParse(configuration["Orders:ShippingCost"], out var sc) ? sc : 5m;
     }
@@ -60,24 +58,26 @@ public class OrderService : IOrderService
         var order = await _db.Orders.FindAsync(id)
             ?? throw new KeyNotFoundException("შეკვეთა ვერ მოიძებნა");
 
+        var previousStatus = order.Status;
         order.Status = request.Status;
         order.AdminNotes = request.AdminNotes?.Trim();
         order.UpdatedAt = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync();
-
-        // Send shipping notification when status changes to Shipped
-        if (request.Status == OrderStatus.Shipped)
+        // Audit log
+        _db.OrderStatusLogs.Add(new OrderStatusLog
         {
-            try
-            {
-                await _email.SendShippingNotificationAsync(order.ContactEmail, order.Id);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send shipping notification for order {OrderId}", order.Id);
-            }
-        }
+            OrderId = order.Id,
+            FromStatus = previousStatus,
+            ToStatus = request.Status,
+            ChangedByUserId = request.ChangedByUserId,
+            Notes = request.AdminNotes?.Trim(),
+        });
+
+        // Queue shipping notification email via outbox
+        if (request.Status == OrderStatus.Shipped && !string.IsNullOrEmpty(order.ContactEmail))
+            QueueShippingEmail(order.ContactEmail, order.Id);
+
+        await _db.SaveChangesAsync();
     }
 
     // ── Customer ──────────────────────────────────────────────────────────────
@@ -191,7 +191,7 @@ public class OrderService : IOrderService
 
     // ── Payment Callback ──────────────────────────────────────────────────────
 
-    public async Task HandlePaymentCallbackAsync(string bogOrderId)
+    public async Task HandlePaymentCallbackAsync(string bogOrderId, string? orderKey)
     {
         var order = await _db.Orders
             .Include(o => o.Items)
@@ -200,6 +200,13 @@ public class OrderService : IOrderService
         if (order == null)
         {
             _logger.LogWarning("Payment callback for unknown BOG order {BogOrderId}", bogOrderId);
+            return;
+        }
+
+        // Key validation — confirm the callback came via our registered URL (per-order secret)
+        if (!string.IsNullOrEmpty(orderKey) && order.BogOrderKey != orderKey)
+        {
+            _logger.LogWarning("Payment callback key mismatch for order {OrderId} — possible forgery attempt", order.Id);
             return;
         }
 
@@ -213,30 +220,38 @@ public class OrderService : IOrderService
 
         var result = await _payment.VerifyCallbackAsync(bogOrderId);
 
+        var previousStatus = order.Status;
         order.Status    = result.IsApproved ? OrderStatus.Paid : OrderStatus.Cancelled;
         order.UpdatedAt = DateTime.UtcNow;
+
+        // Audit log
+        _db.OrderStatusLogs.Add(new OrderStatusLog
+        {
+            OrderId = order.Id,
+            FromStatus = previousStatus,
+            ToStatus = order.Status,
+            ChangedByUserId = null, // system event
+            Notes = $"BOG callback: {(result.IsApproved ? "approved" : "declined")} (txn: {result.TransactionId})",
+        });
+
+        // Queue confirmation email via outbox
+        if (result.IsApproved && !string.IsNullOrEmpty(order.ContactEmail))
+        {
+            var itemsHtml = string.Join("", order.Items.Select(i =>
+            {
+                var name = System.Net.WebUtility.HtmlEncode(i.ProductName);
+                var variant = i.VariantName != null ? $" ({System.Net.WebUtility.HtmlEncode(i.VariantName)})" : "";
+                return $"<tr><td style=\"padding:6px 0;\">{name}{variant}</td>" +
+                       $"<td style=\"padding:6px 0;text-align:center;\">{i.Quantity}</td>" +
+                       $"<td style=\"padding:6px 0;text-align:right;\">₾{i.LineTotal:F2}</td></tr>";
+            }));
+            QueueConfirmationEmail(order.ContactEmail, order.Id, itemsHtml, $"₾{order.TotalAmount:F2}");
+        }
 
         await _db.SaveChangesAsync();
 
         _logger.LogInformation("Order {OrderId} payment {Result} (BOG: {BogOrderId})",
             order.Id, result.IsApproved ? "approved" : "declined", bogOrderId);
-
-        // Send confirmation email on successful payment
-        if (result.IsApproved)
-        {
-            try
-            {
-                var itemsHtml = string.Join("", order.Items.Select(i =>
-                    $"<tr><td style=\"padding:6px 0;\">{i.ProductName}{(i.VariantName != null ? $" ({i.VariantName})" : "")}</td>" +
-                    $"<td style=\"padding:6px 0;text-align:center;\">{i.Quantity}</td>" +
-                    $"<td style=\"padding:6px 0;text-align:right;\">₾{i.LineTotal:F2}</td></tr>"));
-                await _email.SendOrderConfirmationAsync(order.ContactEmail, order.Id, itemsHtml, $"₾{order.TotalAmount:F2}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send confirmation email for order {OrderId}", order.Id);
-            }
-        }
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -276,4 +291,58 @@ public class OrderService : IOrderService
                         i.LineTotal))
                     .ToList()));
 
+    // ── Email outbox helpers ───────────────────────────────────────────────────
+    // Emails are inserted into PendingEmails and delivered by EmailOutboxWorker.
+    // This decouples order processing from SMTP availability.
+
+    private void QueueConfirmationEmail(string to, int orderId, string itemsHtml, string total)
+    {
+        var html = $"""
+            <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+                <h2 style="margin-bottom:4px;">შეკვეთა წარმატებით გაფორმდა!</h2>
+                <p style="color:#888;margin-top:0;">შეკვეთის ნომერი: <strong>#{orderId}</strong></p>
+                <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #eee;text-align:left;font-size:13px;color:#888;">
+                            <th style="padding:8px 0;">პროდუქტი</th>
+                            <th style="padding:8px 0;">რ-ბა</th>
+                            <th style="padding:8px 0;text-align:right;">ფასი</th>
+                        </tr>
+                    </thead>
+                    <tbody>{itemsHtml}</tbody>
+                </table>
+                <p style="font-size:16px;font-weight:600;text-align:right;">სულ: {total}</p>
+                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+                <p style="color:#888;font-size:13px;">გმადლობთ შეკვეთისთვის! ჩვენი გუნდი დაგიკავშირდებათ მალე.</p>
+                <p style="color:#888;font-size:13px;">— DressField</p>
+            </div>
+            """;
+
+        _db.PendingEmails.Add(new PendingEmail
+        {
+            ToEmail = to,
+            Subject = $"შეკვეთა #{orderId} — DressField",
+            HtmlBody = html,
+        });
+    }
+
+    private void QueueShippingEmail(string to, int orderId)
+    {
+        var html = $"""
+            <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
+                <h2>თქვენი შეკვეთა გაიგზავნა!</h2>
+                <p>შეკვეთის ნომერი: <strong>#{orderId}</strong></p>
+                <p>თქვენი შეკვეთა გაგზავნილია და მალე მიიღებთ.</p>
+                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+                <p style="color:#888;font-size:13px;">— DressField</p>
+            </div>
+            """;
+
+        _db.PendingEmails.Add(new PendingEmail
+        {
+            ToEmail = to,
+            Subject = $"შეკვეთა #{orderId} გაიგზავნა — DressField",
+            HtmlBody = html,
+        });
+    }
 }

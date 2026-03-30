@@ -70,11 +70,11 @@ export function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <Label htmlFor="firstName">სახელი</Label>
-          <Input id="firstName" {...register("firstName")} />
+          <Label htmlFor="firstName" className="text-lg">სახელი</Label>
+          <Input id="firstName" className="h-12" {...register("firstName")} />
           {errors.firstName && (
             <p className="text-sm text-destructive">
               {errors.firstName.message}
@@ -82,8 +82,8 @@ export function RegisterForm() {
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="lastName">გვარი</Label>
-          <Input id="lastName" {...register("lastName")} />
+          <Label htmlFor="lastName" className="text-lg">გვარი</Label>
+          <Input id="lastName" className="h-12" {...register("lastName")} />
           {errors.lastName && (
             <p className="text-sm text-destructive">
               {errors.lastName.message}
@@ -93,34 +93,35 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">ელ-ფოსტა</Label>
-        <Input id="email" type="email" {...register("email")} />
+        <Label htmlFor="email" className="text-lg">ელ-ფოსტა</Label>
+        <Input id="email" type="email" className="h-12" {...register("email")} />
         {errors.email && (
           <p className="text-sm text-destructive">{errors.email.message}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone">ტელეფონი (არასავალდებულო)</Label>
-        <Input id="phone" placeholder="+995 5XX XXX XXX" {...register("phone")} />
+        <Label htmlFor="phone" className="text-lg">ტელეფონი (არასავალდებულო)</Label>
+        <Input id="phone" placeholder="+995 5XX XXX XXX" className="h-12" {...register("phone")} />
         {errors.phone && (
           <p className="text-sm text-destructive">{errors.phone.message}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">პაროლი</Label>
-        <Input id="password" type="password" {...register("password")} />
+        <Label htmlFor="password" className="text-lg">პაროლი</Label>
+        <Input id="password" type="password" className="h-12" {...register("password")} />
         {errors.password && (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">პაროლის დადასტურება</Label>
+        <Label htmlFor="confirmPassword" className="text-lg">პაროლის დადასტურება</Label>
         <Input
           id="confirmPassword"
           type="password"
+          className="h-12"
           {...register("confirmPassword")}
         />
         {errors.confirmPassword && (
@@ -132,7 +133,7 @@ export function RegisterForm() {
 
       <Button
         type="submit"
-        className="w-full bg-accent hover:bg-accent-hover text-accent-foreground"
+        className="w-full h-12 text-base bg-accent hover:bg-accent-hover text-accent-foreground mt-2"
         disabled={loading}
       >
         {loading ? "იტვირთება..." : "რეგისტრაცია"}

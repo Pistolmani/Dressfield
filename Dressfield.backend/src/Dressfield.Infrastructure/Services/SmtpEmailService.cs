@@ -39,7 +39,7 @@ public class SmtpEmailService : IEmailService
 
             var username = _config["Smtp:Username"];
             var password = _config["Smtp:Password"];
-            if (!string.IsNullOrEmpty(username))
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                 await client.AuthenticateAsync(username, password);
 
             await client.SendAsync(message);
