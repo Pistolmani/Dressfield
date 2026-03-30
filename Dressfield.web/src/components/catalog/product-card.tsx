@@ -34,7 +34,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
       <div className="space-y-4 p-5">
         <div className="space-y-2">
           <Link href={`/products/${product.slug}`} className="block">
-            <h3 className="font-[family-name:var(--font-inter)] text-xl font-semibold tracking-tight">
+            <h3 className="font-ui text-3xl font-semibold tracking-[0.04em]">
               {product.name}
             </h3>
           </Link>
@@ -44,7 +44,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <span className="font-[family-name:var(--font-inter)] text-lg font-semibold text-accent">
+          <span className="font-ui text-2xl font-semibold text-accent">
             {formatPrice(product.basePrice)}
           </span>
           <Button

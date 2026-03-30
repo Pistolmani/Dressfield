@@ -37,7 +37,7 @@ export function ProductsPageClient() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-8 flex flex-col gap-3 border-b border-black/8 pb-6">
           <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">პროდუქტები</p>
-          <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight sm:text-4xl">ნაქარგი პროდუქციის კატალოგი</h1>
+          <h1 className="font-ui text-5xl sm:text-6xl font-semibold tracking-[0.04em]">ნაქარგი პროდუქციის კატალოგი</h1>
           <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">დაათვალიერე მზა ნამუშევრები, ნახე დეტალები და დაამატე სასურველი ნივთები კალათაში.</p>
         </div>
 

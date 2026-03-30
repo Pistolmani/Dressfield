@@ -128,10 +128,10 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
 
             <div className="space-y-4">
               <div className="space-y-3">
-                <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight sm:text-4xl">
+                <h1 className="font-ui text-5xl sm:text-6xl font-semibold tracking-[0.04em]">
                   {product.name}
                 </h1>
-                <p className="font-[family-name:var(--font-inter)] text-3xl font-semibold text-accent">
+                <p className="font-ui text-5xl font-semibold text-accent">
                   {formatPrice(totalPrice)}
                 </p>
                 {product.shortDescription ? (
@@ -219,7 +219,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                 onClick={() => setExpanded((current) => !current)}
                 className="flex w-full items-center justify-between px-5 py-4 text-left"
               >
-                <span className="font-[family-name:var(--font-inter)] text-lg font-semibold">
+                <span className="font-ui text-2xl font-semibold">
                   áƒ¡áƒ áƒ£áƒšáƒ˜ áƒáƒ¦áƒ¬áƒ”áƒ áƒ
                 </span>
                 <ChevronDown

@@ -98,7 +98,7 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm text-muted-foreground">შეკვეთა #{order.id}</p>
-                <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
+                <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">
                   {order.contactName}
                 </h1>
               </div>
@@ -135,7 +135,7 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
           </div>
 
           <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-            <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
+            <h2 className="font-ui text-3xl font-semibold">
               დიზაინები
             </h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -175,7 +175,7 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
 
           {order.customerNotes ? (
             <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-              <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
+              <h2 className="font-ui text-3xl font-semibold">
                 მომხმარებლის შენიშვნა
               </h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
@@ -186,7 +186,7 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
         </div>
 
         <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm h-fit">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
+          <h2 className="font-ui text-3xl font-semibold">
             სტატუსის განახლება
           </h2>
           <div className="mt-4 space-y-4">

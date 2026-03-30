@@ -107,7 +107,7 @@ export default function CheckoutPage() {
   return (
     <div className="bg-background min-h-screen py-10">
       <div className="max-w-2xl mx-auto px-4">
-        <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold mb-6">
+        <h1 className="font-ui text-5xl font-semibold mb-6">
           გადახდა
         </h1>
 

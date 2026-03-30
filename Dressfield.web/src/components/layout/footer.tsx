@@ -10,8 +10,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <Logo className="h-5 w-auto text-white mb-3" />
-            <p className="text-sm leading-relaxed">
+            <Logo className="h-8 w-auto text-white mb-4" />
+            <p className="text-xl leading-relaxed">
               ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და
               ინდივიდუალური შეკვეთები.
             </p>
@@ -19,20 +19,20 @@ export function Footer() {
 
           {/* Navigation */}
           <div>
-            <h4 className="text-white font-semibold mb-3">ნავიგაცია</h4>
-            <nav className="flex flex-col gap-2 text-sm">
-              <Link href="/" className="hover:text-accent transition-colors">
+            <h4 className="text-white text-3xl font-semibold mb-4">ნავიგაცია</h4>
+            <nav className="flex flex-col gap-3 text-xl">
+              <Link href="/" className="hover:text-white/70 transition-colors">
                 მთავარი
               </Link>
               <Link
                 href="/products"
-                className="hover:text-accent transition-colors"
+                className="hover:text-white/70 transition-colors"
               >
                 პროდუქცია
               </Link>
               <Link
                 href="/custom-order"
-                className="hover:text-accent transition-colors"
+                className="hover:text-white/70 transition-colors"
               >
                 შეკვეთა
               </Link>
@@ -41,18 +41,18 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-white font-semibold mb-3">კონტაქტი</h4>
-            <div className="flex flex-col gap-2 text-sm">
+            <h4 className="text-white text-3xl font-semibold mb-4">კონტაქტი</h4>
+            <div className="flex flex-col gap-3 text-xl">
               <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 shrink-0" />
+                <Phone className="h-5 w-5 shrink-0" />
                 <span>+995 5XX XXX XXX</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0" />
+                <Mail className="h-5 w-5 shrink-0" />
                 <span>info@dressfield.ge</span>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 shrink-0" />
+                <MapPin className="h-5 w-5 shrink-0" />
                 <span>თბილისი, საქართველო</span>
               </div>
             </div>
@@ -73,8 +73,8 @@ export function Footer() {
 
         <Separator className="my-8 bg-white/10" />
 
-        <p className="text-center text-xs text-footer-text/60">
-          &copy; {new Date().getFullYear()} DressField. ყველა უფლება
+        <p className="text-center text-lg text-footer-text/70">
+          &copy; {new Date().getFullYear()} {" "}<span className="font-brand-text">DressField</span>. ყველა უფლება
           დაცულია.
         </p>
       </div>

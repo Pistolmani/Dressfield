@@ -142,7 +142,7 @@ export function CanvasEditorStep() {
       </Button>
 
       <div className="space-y-2">
-        <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
+        <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">
           დაარედაქტირეთ დიზაინი
         </h1>
         <p className="text-muted-foreground">

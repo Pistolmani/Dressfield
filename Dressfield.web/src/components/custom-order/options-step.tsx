@@ -46,7 +46,7 @@ export function OptionsStep() {
       </Button>
 
       <div className="space-y-4 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-        <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
+        <h2 className="font-ui text-3xl font-semibold">
           განთავსება
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -67,7 +67,7 @@ export function OptionsStep() {
       </div>
 
       <div className="space-y-4 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-        <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">ზომა</h2>
+        <h2 className="font-ui text-3xl font-semibold">ზომა</h2>
         <div className="flex flex-wrap gap-2">
           {SIZE_OPTIONS.map((option) => (
             <button
@@ -87,7 +87,7 @@ export function OptionsStep() {
       </div>
 
       <div className="space-y-4 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-        <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
+        <h2 className="font-ui text-3xl font-semibold">
           ძაფის ფერი
         </h2>
         <div className="flex flex-wrap gap-3">

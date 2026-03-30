@@ -38,7 +38,7 @@ export function ProductPickerStep() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
+        <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">
           აირჩიეთ საბაზო პროდუქტი
         </h1>
         <p className="text-muted-foreground">
@@ -63,7 +63,7 @@ export function ProductPickerStep() {
               <Palette className="h-10 w-10 text-accent" />
             </div>
             <div className="mt-4 space-y-1">
-              <p className="font-[family-name:var(--font-inter)] text-lg font-semibold">
+              <p className="font-ui text-2xl font-semibold">
                 ცარიელი ტილო
               </p>
               <p className="text-sm text-muted-foreground">
@@ -95,7 +95,7 @@ export function ProductPickerStep() {
                     className="aspect-[4/5] w-full rounded-3xl object-cover"
                   />
                   <div className="mt-4 space-y-1">
-                    <p className="font-[family-name:var(--font-inter)] text-lg font-semibold">
+                    <p className="font-ui text-2xl font-semibold">
                       {product.name}
                     </p>
                     <p className="text-accent">{formatPrice(product.basePrice)}</p>

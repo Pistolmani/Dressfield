@@ -110,7 +110,7 @@ export function MockupPreviewStep() {
         </div>
 
         <div className="space-y-4 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
+          <h2 className="font-ui text-3xl font-semibold">
             შეკვეთის შეჯამება
           </h2>
           <div className="space-y-2 text-sm">
@@ -139,7 +139,7 @@ export function MockupPreviewStep() {
           </div>
           <div className="border-t border-black/8 pt-4">
             <p className="text-sm text-muted-foreground">სულ</p>
-            <p className="font-[family-name:var(--font-inter)] text-3xl font-semibold text-accent">
+            <p className="font-ui text-5xl font-semibold text-accent">
               {formatPrice(totalPrice)}
             </p>
           </div>

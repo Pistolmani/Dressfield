@@ -95,7 +95,7 @@ export function ContactStep() {
     return (
       <div className="rounded-3xl border border-black/8 bg-white p-8 text-center shadow-sm">
         <CheckCircle2 className="mx-auto h-14 w-14 text-green-600" />
-        <h1 className="mt-4 font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
+        <h1 className="mt-4 font-ui text-5xl font-semibold tracking-[0.04em]">
           შეკვეთა გაიგზავნა!
         </h1>
         <p className="mt-2 text-muted-foreground">მალე დაგიკავშირდებით</p>
@@ -122,7 +122,7 @@ export function ContactStep() {
       </Button>
 
       <div className="space-y-2">
-        <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
+        <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">
           შეკვეთის გაფორმება
         </h1>
       </div>
@@ -174,7 +174,7 @@ export function ContactStep() {
         </div>
 
         <div className="space-y-4 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">
+          <h2 className="font-ui text-3xl font-semibold">
             შეკვეთის შეჯამება
           </h2>
           <div className="space-y-2 text-sm">
@@ -192,7 +192,7 @@ export function ContactStep() {
             </div>
           </div>
           <div className="border-t border-black/8 pt-4">
-            <p className="font-[family-name:var(--font-inter)] text-2xl font-semibold text-accent">
+            <p className="font-ui text-4xl font-semibold text-accent">
               {formatPrice(totalPrice)}
             </p>
           </div>

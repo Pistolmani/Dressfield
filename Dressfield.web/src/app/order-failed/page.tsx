@@ -14,7 +14,7 @@ function FailedContent() {
     <div className="min-h-[70vh] bg-background flex flex-col items-center justify-center px-4 text-center">
       <XCircle className="h-20 w-20 text-red-500 mb-6" />
 
-      <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold mb-2">
+      <h1 className="font-ui text-5xl font-semibold mb-2">
         გადახდა ვერ მოხერხდა
       </h1>
 

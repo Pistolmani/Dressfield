@@ -282,7 +282,7 @@ function ProductEditorForm({
         </Link>
         <div>
           <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">პროდუქტები</p>
-          <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
+          <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">
             {productId ? "პროდუქტის რედაქტირება" : "ახალი პროდუქტი"}
           </h1>
         </div>
@@ -290,7 +290,7 @@ function ProductEditorForm({
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">ძირითადი ინფორმაცია</h2>
+          <h2 className="font-ui text-3xl font-semibold">ძირითადი ინფორმაცია</h2>
           <div className="space-y-2">
             <Label htmlFor="product-name">სახელი</Label>
             <Input
@@ -331,7 +331,7 @@ function ProductEditorForm({
         </section>
 
         <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">ფასი და SKU</h2>
+          <h2 className="font-ui text-3xl font-semibold">ფასი და SKU</h2>
           <div className="space-y-2">
             <Label htmlFor="product-price">ფასი</Label>
             <Input id="product-price" type="number" min="0" step="0.01" value={form.basePrice} onChange={(event) => setForm((current) => ({ ...current, basePrice: Number(event.target.value) }))} />
@@ -343,7 +343,7 @@ function ProductEditorForm({
         </section>
 
         <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm xl:col-span-2">
-          <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">მოკლე აღწერა</h2>
+          <h2 className="font-ui text-3xl font-semibold">მოკლე აღწერა</h2>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="product-short-description">ტექსტი</Label>
@@ -363,7 +363,7 @@ function ProductEditorForm({
 
         <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm xl:col-span-2">
           <div className="space-y-2">
-            <h2 className="font-[family-name:var(--font-inter)] text-xl font-semibold">სურათები</h2>
+            <h2 className="font-ui text-3xl font-semibold">სურათები</h2>
             <p className="text-sm text-muted-foreground">შეგიძლია ერთდროულად რამდენიმე სურათი ატვირთო. ეს იყენებს იმავე upload flow-ს, რასაც მომხმარებლის custom-order გვერდი.</p>
           </div>
 

@@ -108,7 +108,7 @@ export default function CustomOrderPage() {
         {/* Page header */}
         <div className="mb-8">
           <h1 className="text-5xl font-bold text-foreground">
-            ინდივიდუალური შეკვეთა
+            რომელ ტანსაცმელზე გინდა ნაქარგი?
           </h1>
           <p className="mt-2 text-sm text-gray-500">
             შექმენი შენი უნიკალური ნაქარგი ნებისმიერ ტანსაცმელზე

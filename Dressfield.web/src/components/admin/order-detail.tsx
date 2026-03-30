@@ -94,7 +94,7 @@ export default function OrderDetail({ orderId }: { orderId: number }) {
       </Link>
 
       <div className="flex items-center gap-3">
-        <h1 className="font-[family-name:var(--font-inter)] text-2xl font-semibold">
+        <h1 className="font-ui text-4xl font-semibold">
           შეკვეთა #{order.id}
         </h1>
         <span

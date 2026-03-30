@@ -57,7 +57,7 @@ export function CustomOrdersManager() {
           <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">
             ინდივიდუალური შეკვეთები
           </p>
-          <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">
+          <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">
             შეკვეთების მართვა
           </h1>
         </div>

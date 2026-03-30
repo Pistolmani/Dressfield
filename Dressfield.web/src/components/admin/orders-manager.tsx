@@ -42,7 +42,7 @@ export default function OrdersManager() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="font-[family-name:var(--font-inter)] text-2xl font-semibold">
+        <h1 className="font-ui text-4xl font-semibold">
           შეკვეთები
         </h1>
 

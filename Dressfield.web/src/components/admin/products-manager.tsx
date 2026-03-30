@@ -48,7 +48,7 @@ export function ProductsManager() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">პროდუქტები</p>
-          <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold tracking-tight">პროდუქტების მართვა</h1>
+          <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">პროდუქტების მართვა</h1>
         </div>
         <Link href="/admin/products/new">
           <Button className="bg-accent text-white hover:bg-accent-hover">

@@ -16,7 +16,7 @@ export default function CartPage() {
     return (
       <div className="min-h-[60vh] bg-background flex flex-col items-center justify-center px-4 text-center">
         <ShoppingCart className="h-16 w-16 text-muted-foreground mb-4" />
-        <h1 className="font-[family-name:var(--font-inter)] text-2xl font-semibold mb-2">
+        <h1 className="font-ui text-4xl font-semibold mb-2">
           კალათა ცარიელია
         </h1>
         <p className="text-muted-foreground mb-6">
@@ -36,7 +36,7 @@ export default function CartPage() {
   return (
     <div className="bg-background min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4">
-        <h1 className="font-[family-name:var(--font-inter)] text-3xl font-semibold mb-8">
+        <h1 className="font-ui text-5xl font-semibold mb-8">
           კალათა
         </h1>
 
@@ -115,7 +115,7 @@ export default function CartPage() {
 
           {/* Summary */}
           <div className="rounded-2xl border border-black/8 bg-white p-6 h-fit space-y-4">
-            <h2 className="font-[family-name:var(--font-inter)] text-lg font-semibold">
+            <h2 className="font-ui text-2xl font-semibold">
               შეკვეთის შეჯამება
             </h2>
 

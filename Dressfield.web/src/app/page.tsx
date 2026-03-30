@@ -28,7 +28,7 @@ export default async function HomePage() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
           <Logo className="h-12 sm:h-16 w-auto mx-auto mb-8 text-white" />
-          <h1 className="font-[family-name:var(--font-inter)] text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight max-w-3xl mx-auto">
+          <h1 className="font-ui text-6xl sm:text-7xl lg:text-8xl font-bold tracking-[0.04em] leading-tight max-w-3xl mx-auto">
             ქართული ნაქარგი,{" "}
             <span className="text-white">შენი სტილით</span>
           </h1>
@@ -68,7 +68,7 @@ export default async function HomePage() {
                 <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground mb-2">
                   კოლექცია
                 </p>
-                <h2 className="font-[family-name:var(--font-inter)] text-3xl font-bold tracking-tight">
+                <h2 className="font-ui text-5xl font-bold tracking-[0.04em]">
                   პოპულარული პროდუქტები
                 </h2>
               </div>
@@ -105,7 +105,7 @@ export default async function HomePage() {
               <p className="text-xs uppercase tracking-[0.24em] text-white/50 mb-4">
                 ინდივიდუალური შეკვეთა
               </p>
-              <h2 className="font-[family-name:var(--font-inter)] text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+              <h2 className="font-ui text-5xl sm:text-6xl font-bold tracking-[0.04em] mb-6">
                 შეიქმენი შენი უნიკალური ნაქარგი
               </h2>
               <ol className="space-y-4 mb-10">
