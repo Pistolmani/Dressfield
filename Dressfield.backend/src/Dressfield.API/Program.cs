@@ -1,5 +1,9 @@
 ﻿using System.Text;
 using System.Threading.RateLimiting;
+using System.Data.Common;
+using System.Net.Sockets;
+using System.Text.Json;
+using Dressfield.API.Middleware;
 using Dressfield.Application.Interfaces;
 using Dressfield.Core.Entities;
 using Dressfield.Core.Interfaces;
@@ -9,10 +13,12 @@ using Dressfield.Application.DTOs;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
@@ -44,6 +50,8 @@ builder.WebHost.ConfigureKestrel(options =>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DressfieldDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 36))));
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<DressfieldDbContext>("database");
 
 // â”€â”€ Identity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -160,6 +168,28 @@ else
     Log.Information("Using AzureBlobStorageService for uploads.");
 }
 
+var clamEnabled = builder.Configuration.GetValue<bool>("Security:ClamAv:Enabled");
+if (clamEnabled)
+{
+    var clamHost = builder.Configuration["Security:ClamAv:Host"];
+    if (string.IsNullOrWhiteSpace(clamHost))
+    {
+        throw new InvalidOperationException(
+            "Security:ClamAv:Host must be set when malware scanning is enabled.");
+    }
+
+    builder.Services.AddScoped<IFileSecurityScanner, ClamAvFileSecurityScanner>();
+    Log.Information("ClamAV file scanning is enabled.");
+}
+else
+{
+    builder.Services.AddScoped<IFileSecurityScanner, NoOpFileSecurityScanner>();
+    if (!builder.Environment.IsDevelopment())
+    {
+        Log.Warning("ClamAV scanning is disabled. Set Security:ClamAv:Enabled=true in production.");
+    }
+}
+
 // Payment service â€” real BOG iPay in prod, mock in dev
 var bogClientId = builder.Configuration["BogIPay:ClientId"];
 if (string.IsNullOrWhiteSpace(bogClientId))
@@ -175,6 +205,8 @@ else
 builder.Services.AddValidatorsFromAssemblyContaining<Dressfield.Application.DTOs.RegisterRequest>();
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -184,6 +216,7 @@ var app = builder.Build();
 
 // Must be first â€” resolve real client IP from Azure load balancer
 app.UseForwardedHeaders();
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
@@ -214,7 +247,47 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+app.MapHealthChecks("/api/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var payload = new
+        {
+            status = report.Status.ToString(),
+            timestamp = DateTime.UtcNow,
+            checks = report.Entries.Select(entry => new
+            {
+                name = entry.Key,
+                status = entry.Value.Status.ToString(),
+                durationMs = entry.Value.Duration.TotalMilliseconds
+            })
+        };
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+    },
+    ResultStatusCodes =
+    {
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+        [HealthStatus.Degraded] = StatusCodes.Status503ServiceUnavailable,
+        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+    }
+});
+
+static bool IsDatabaseUnavailable(Exception exception)
+{
+    Exception? current = exception;
+    while (current is not null)
+    {
+        if (current is DbException or SocketException or TimeoutException)
+            return true;
+
+        current = current.InnerException;
+    }
+
+    return false;
+}
 
 // â”€â”€ Database seed (roles + first admin account) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 try
@@ -302,14 +375,13 @@ try
         }
     }
 }
-catch (InvalidOperationException)
+catch (Exception ex) when (IsDatabaseUnavailable(ex))
 {
-    // Re-throw config errors â€” these must be fixed before the app can run
-    throw;
+    Log.Warning(ex, "Database unavailable during startup. Continuing without migration/seed.");
 }
-catch (Exception ex)
+catch
 {
-    Log.Warning(ex, "Skipping database migration and seed â€” database is unavailable.");
+    throw;
 }
 
 app.Run();

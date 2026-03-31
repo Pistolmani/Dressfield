@@ -13,10 +13,12 @@ public class UploadsController : ControllerBase
     private const long MaxFileSizeBytes = 10 * 1024 * 1024; // 10 MB
 
     private readonly IStorageService _storage;
+    private readonly IFileSecurityScanner _fileSecurityScanner;
 
-    public UploadsController(IStorageService storage)
+    public UploadsController(IStorageService storage, IFileSecurityScanner fileSecurityScanner)
     {
         _storage = storage;
+        _fileSecurityScanner = fileSecurityScanner;
     }
 
     /// <summary>
@@ -47,6 +49,15 @@ public class UploadsController : ControllerBase
         var bytesRead = await stream.ReadAsync(header.AsMemory(0, header.Length));
         if (!HasValidSignature(ext, header.AsSpan(0, bytesRead)))
             return BadRequest(new { message = "Unsupported or malformed image file." });
+
+        stream.Position = 0;
+        var scanResult = await _fileSecurityScanner.ScanAsync(
+            stream,
+            file.FileName,
+            file.ContentType,
+            HttpContext.RequestAborted);
+        if (!scanResult.IsClean)
+            return BadRequest(new { message = "File failed security scan.", threat = scanResult.ThreatName });
 
         stream.Position = 0;
         var url = await _storage.UploadAsync(stream, file.FileName, file.ContentType);

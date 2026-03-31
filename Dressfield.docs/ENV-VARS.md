@@ -38,3 +38,13 @@
 | `Smtp__FromName` | No | No | `DressField` | Sender display name |
 | `Smtp__UseSsl` | No | No | `true` | Whether SMTP uses SSL |
 | `Orders__ShippingCost` | No | No | `5.00` | Flat shipping cost in GEL |
+| `Security__ClamAv__Enabled` | No | No | `false` | Enables malware scanning pipeline for uploads |
+| `Security__ClamAv__Host` | Required when enabled | No | â€” | ClamAV daemon host |
+| `Security__ClamAv__Port` | No | No | `3310` | ClamAV daemon port |
+| `Security__ClamAv__TimeoutSeconds` | No | No | `15` | Scan timeout in seconds |
+
+## Secret Rotation Guidance
+
+- Rotate `Jwt__Secret`, `BogIPay__ClientSecret`, `Smtp__Password`, and `AzureStorage__ConnectionString` on a fixed schedule (for example, every 90 days).
+- Store production secrets in Azure App Service application settings (or Key Vault references), never in repository files.
+- After rotating auth/payment secrets, restart the backend and verify login + payment flow health checks.

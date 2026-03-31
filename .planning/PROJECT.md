@@ -22,6 +22,7 @@ Customers can discover embroidered products, customize their own designs with a 
 - [x] Customer order history and admin order management
 - [x] Responsive Georgian-language storefront with updated premium visual direction
 - [x] Baseline API hardening (validation pipeline, rate limits, secure upload signature checks)
+- [x] Advanced API hardening (centralized exception handling, DB health checks, pluggable malware scanning pipeline)
 
 ### Active
 

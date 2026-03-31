@@ -31,9 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 - [x] Added rate limiting to auth refresh, upload endpoint, and custom-order creation
 - [x] Added upload magic-byte file signature checks (JPEG/PNG/WEBP)
 - [x] Stopped trusting client `TotalPrice` for custom orders (server now computes persisted total)
+- [x] Added centralized API exception handling (`ProblemDetails` + trace ID)
+- [x] Added DB-backed health checks on `/api/health` (returns 503 when DB is unhealthy)
+- [x] Added optional ClamAV upload scanning pipeline (configurable, with safe fallback scanner)
+- [x] Updated startup resilience: app continues running when DB is temporarily unavailable during migration/seed
 - [x] Verified backend compile after hardening (`dotnet build` success)
 - [x] Verified NuGet vulnerable package audit (`dotnet list ... --vulnerable` reported none)
-- [ ] Runtime availability blocker in local environment: backend startup currently fails when MySQL is unreachable
+- [x] Verified runtime behavior without DB: API starts and `/api/health` returns 503 instead of crashing
 
 ## Previous Phases (Completed)
 
