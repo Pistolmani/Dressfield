@@ -11,11 +11,13 @@ public class LocalStorageService : IStorageService
 {
     private readonly string _uploadDir;
     private readonly string _baseUrl;
+    private readonly string _managedUrlPrefix;
 
     public LocalStorageService(IConfiguration configuration)
     {
         var baseUrl = configuration["AzureStorage:LocalBaseUrl"] ?? "http://localhost:5000";
         _baseUrl = baseUrl.TrimEnd('/');
+        _managedUrlPrefix = $"{_baseUrl}/uploads/designs/";
 
         _uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "designs");
         Directory.CreateDirectory(_uploadDir);
@@ -36,7 +38,16 @@ public class LocalStorageService : IStorageService
     {
         try
         {
-            var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
+            if (!Uri.TryCreate(fileUrl, UriKind.Absolute, out var fileUri))
+                return Task.CompletedTask;
+
+            if (!fileUrl.StartsWith(_managedUrlPrefix, StringComparison.OrdinalIgnoreCase))
+                return Task.CompletedTask;
+
+            var fileName = Path.GetFileName(fileUri.AbsolutePath);
+            if (string.IsNullOrWhiteSpace(fileName))
+                return Task.CompletedTask;
+
             var filePath = Path.Combine(_uploadDir, fileName);
             if (File.Exists(filePath))
                 File.Delete(filePath);

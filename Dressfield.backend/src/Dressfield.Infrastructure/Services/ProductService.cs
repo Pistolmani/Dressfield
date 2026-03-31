@@ -1,18 +1,27 @@
 ﻿using Dressfield.Application.DTOs;
 using Dressfield.Application.Interfaces;
 using Dressfield.Core.Entities;
+using Dressfield.Core.Interfaces;
 using Dressfield.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Dressfield.Infrastructure.Services;
 
 public class ProductService : IProductService
 {
     private readonly DressfieldDbContext _db;
+    private readonly IStorageService _storage;
+    private readonly ILogger<ProductService> _logger;
 
-    public ProductService(DressfieldDbContext db)
+    public ProductService(
+        DressfieldDbContext db,
+        IStorageService storage,
+        ILogger<ProductService> logger)
     {
         _db = db;
+        _storage = storage;
+        _logger = logger;
     }
 
     public async Task<IReadOnlyCollection<ProductSummaryDto>> GetActiveAsync(string? search) =>
@@ -60,6 +69,11 @@ public class ProductService : IProductService
             .FirstOrDefaultAsync(x => x.Id == id)
             ?? throw new KeyNotFoundException("პროდუქტი ვერ მოიძებნა");
 
+        var previousImageUrls = product.Images
+            .Select(x => x.ImageUrl)
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         await EnsureSlugIsUniqueAsync(request.Slug, id);
 
         product.Name = request.Name.Trim();
@@ -78,6 +92,17 @@ public class ProductService : IProductService
         product.Variants = MapVariants(request.Variants);
 
         await _db.SaveChangesAsync();
+
+        var nextImageUrls = product.Images
+            .Select(x => x.ImageUrl)
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var removedUrl in previousImageUrls.Except(nextImageUrls, StringComparer.OrdinalIgnoreCase))
+        {
+            await DeleteImageBestEffortAsync(removedUrl);
+        }
+
         return (await GetAdminByIdAsync(product.Id))!;
     }
 
@@ -89,8 +114,30 @@ public class ProductService : IProductService
             .FirstOrDefaultAsync(x => x.Id == id)
             ?? throw new KeyNotFoundException("პროდუქტი ვერ მოიძებნა");
 
+        var imageUrls = product.Images
+            .Select(x => x.ImageUrl)
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .ToArray();
+
         _db.Products.Remove(product);
         await _db.SaveChangesAsync();
+
+        foreach (var imageUrl in imageUrls)
+        {
+            await DeleteImageBestEffortAsync(imageUrl);
+        }
+    }
+
+    private async Task DeleteImageBestEffortAsync(string imageUrl)
+    {
+        try
+        {
+            await _storage.DeleteAsync(imageUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to delete orphaned product image from storage: {ImageUrl}", imageUrl);
+        }
     }
 
     private IQueryable<ProductSummaryDto> BuildSummaryQuery(bool includeInactive, string? search)

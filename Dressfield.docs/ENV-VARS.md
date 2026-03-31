@@ -19,9 +19,10 @@
 | `Cors__Origins__0` | Yes | No | `http://localhost:3000` | Allowed CORS origin |
 | `Admin__Email` | No | No | `admin@dressfield.ge` | Initial admin email |
 | `Admin__Password` | No | Yes | Dev-only in `appsettings.Development.json` | Initial admin password |
-| `AzureStorage__ConnectionString` | No | Yes | — | Azure Blob Storage connection string |
-| `AzureStorage__ContainerName` | No | No | `designs` | Blob container for uploaded designs |
+| `AzureStorage__ConnectionString` | Yes (prod) | Yes | — | Azure Blob Storage connection string |
+| `AzureStorage__ContainerName` | No | No | `designs` | Blob container for uploaded images |
 | `AzureStorage__PublicBaseUrl` | No | No | — | Public CDN/base URL for blob-hosted assets |
+| `AzureStorage__LocalBaseUrl` | No | No | `http://localhost:5000` | Base URL used by local filesystem fallback (development only) |
 | `BogIPay__ClientId` | No | Yes | — | Bank of Georgia iPay client ID |
 | `BogIPay__ClientSecret` | No | Yes | — | Bank of Georgia iPay client secret |
 | `BogIPay__ApiBaseUrl` | No | No | `http://localhost:5000` | Public backend base URL used in callback URL generation |

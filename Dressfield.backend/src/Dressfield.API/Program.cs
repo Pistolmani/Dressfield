@@ -132,12 +132,25 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
-// Storage service â€” Azure Blob in prod, local filesystem in dev
+// Storage service â€” Azure Blob in production, local filesystem only in development
 var azureConnectionString = builder.Configuration["AzureStorage:ConnectionString"];
 if (string.IsNullOrWhiteSpace(azureConnectionString))
+{
+    if (!builder.Environment.IsDevelopment())
+    {
+        throw new InvalidOperationException(
+            "AzureStorage:ConnectionString is required outside development. " +
+            "Set it via Azure environment variable AzureStorage__ConnectionString.");
+    }
+
     builder.Services.AddScoped<IStorageService, LocalStorageService>();
+    Log.Warning("AzureStorage:ConnectionString is not configured. Using LocalStorageService (development only).");
+}
 else
+{
     builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
+    Log.Information("Using AzureBlobStorageService for uploads.");
+}
 
 // Payment service â€” real BOG iPay in prod, mock in dev
 var bogClientId = builder.Configuration["BogIPay:ClientId"];

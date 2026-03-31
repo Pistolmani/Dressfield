@@ -5,54 +5,52 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ProductCard } from "@/components/catalog/product-card";
 import { getStaticProducts } from "@/lib/catalog";
+import { InteractiveHeroGallery } from "@/components/ui/interactive-hero-gallery";
 
 export default async function HomePage() {
   const products = await getStaticProducts().catch(() => [] as Awaited<ReturnType<typeof getStaticProducts>>);
-
   const featured = products.filter((p) => p.isFeatured).slice(0, 3);
+  const heroImages = ["/slidepic.png", ...products.flatMap(p => p.primaryImageUrl ? [p.primaryImageUrl] : [])];
 
   return (
     <div className="flex-1">
       {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative bg-black text-white overflow-hidden">
-        {/* Embroidery photo background */}
-        <div className="absolute inset-0">
-          <img
-            src="/slidepic.png"
-            alt=""
-            className="h-full w-full object-contain scale-90"
-            style={{ objectPosition: "center center" }}
-          />
-          {/* Dark overlay for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/85" />
+      <section className="relative bg-black text-white overflow-hidden isolate">
+        {/* Fill height better for scattered physics */}
+        <div className="absolute inset-0 z-0">
+          <InteractiveHeroGallery images={heroImages} count={14} className="opacity-80" />
+          {/* Edge gradient to blend seamlessly and ensure text is somewhat readable, but pointer-events-none lets user drag */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-black/95 pointer-events-none" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 text-center">
-          <Logo className="h-10 sm:h-12 w-auto mx-auto mb-6 text-white" />
-          <h1 className="font-ui text-4xl sm:text-5xl lg:text-6xl font-bold tracking-[0.03em] leading-tight max-w-3xl mx-auto">
+
+        {/* The content wrapper passes pointer events through so images can be clicked, but text captures them */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center pointer-events-none min-h-[85vh] flex flex-col justify-center items-center">
+          <Logo className="h-12 w-auto mx-auto mb-8 text-white pointer-events-auto" />
+          <h1 className="font-ui text-4xl sm:text-5xl lg:text-7xl font-bold tracking-[0.03em] leading-tight max-w-4xl mx-auto pointer-events-auto drop-shadow-2xl text-shadow-xl text-white">
             ქართული ნაქარგი,{" "}
-            <span className="text-white">შენი სტილით</span>
+            <span className="text-white/90">შენი სტილით</span>
           </h1>
-          <p className="mt-5 text-base sm:text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
-            ავტვირთე შენი დიზაინი, ნახე live preview და შეუკვეთე
+          <p className="mt-6 text-base sm:text-lg lg:text-xl text-white/90 max-w-xl mx-auto leading-relaxed pointer-events-auto drop-shadow-lg font-medium">
+            ატვირთე შენი დიზაინი, ნახე live preview და შეუკვეთე
             ინდივიდუალური ნაქარგი.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center pointer-events-auto">
             <Link href="/custom-order">
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-white/90 px-6 py-3 text-sm font-semibold"
+                className="bg-white text-black hover:bg-white/90 px-8 py-6 text-base font-semibold shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 transition-transform"
               >
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className="h-5 w-5 mr-2" />
                 ჩემი დიზაინი
               </Button>
             </Link>
             <Link href="/products">
               <Button
                 size="lg"
-                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 text-sm font-semibold"
+                className="bg-white/10 hover:bg-white/20 text-white px-8 py-6 text-base font-semibold border-white/10 backdrop-blur-md hover:scale-105 transition-transform"
               >
                 მზა პროდუქცია
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </Link>
           </div>
@@ -110,7 +108,7 @@ export default async function HomePage() {
               </h2>
               <ol className="space-y-3 mb-8">
                 {[
-                  { icon: Upload, text: "ავტვირთე შენი დიზაინი ან სურათი" },
+                  { icon: Upload, text: "ატვირთე შენი დიზაინი ან სურათი" },
                   { icon: Eye, text: "ნახე live preview პროდუქტზე" },
                   { icon: ShoppingBag, text: "შეუკვეთე და მიიღე სახლში" },
                 ].map(({ icon: Icon, text }, i) => (
@@ -135,7 +133,7 @@ export default async function HomePage() {
               <div className="w-72 h-72 rounded-3xl bg-white/10 border border-white/20 flex items-center justify-center">
                 <div className="text-center text-white/40">
                   <Upload className="h-14 w-14 mx-auto mb-3" />
-                  <p className="text-sm">Design Preview Mockup</p>
+                  <p className="text-sm">დიზაინის პრევიუ</p>
                 </div>
               </div>
             </div>

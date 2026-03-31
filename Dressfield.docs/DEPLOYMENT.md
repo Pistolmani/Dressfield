@@ -49,7 +49,15 @@ dotnet publish src/Dressfield.API -c Release -o ./publish
    - `Jwt__Issuer` — `https://api.dressfield.ge`
    - `Jwt__Audience` — `https://dressfield.ge`
    - `Cors__Origins__0` — `https://dressfield.ge`
+   - `AzureStorage__ConnectionString` — Azure Blob Storage connection string
+   - `AzureStorage__ContainerName` — `designs` (or your preferred container)
+   - `AzureStorage__PublicBaseUrl` — optional CDN/base URL for public assets
 3. Deploy via GitHub Actions or Azure CLI
+
+### Image Storage Notes
+- In production, image uploads are expected to use Azure Blob Storage.
+- If `AzureStorage__ConnectionString` is missing outside development, API startup now fails fast by design.
+- Quick verification endpoint after deploy: `POST /api/upload/design` with a test image and confirm URL host points to Azure/CDN.
 
 ### Health Check
 - Endpoint: `/api/health`

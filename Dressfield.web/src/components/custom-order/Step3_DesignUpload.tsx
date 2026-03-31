@@ -16,6 +16,7 @@ interface Step3DesignUploadProps {
   activeSide: "front" | "back";
   onDesignAdd: (url: string) => void;
   onDesignRemove: (id: string) => void;
+  onDesignReplace: (id: string, newUrl: string) => void;
   onSideChange: (side: "front" | "back") => void;
 }
 
@@ -25,6 +26,7 @@ export function Step3DesignUpload({
   activeSide,
   onDesignAdd,
   onDesignRemove,
+  onDesignReplace,
   onSideChange,
 }: Step3DesignUploadProps) {
   const canvasRef = useRef<ProductCanvasHandle | null>(null);
@@ -45,10 +47,22 @@ export function Step3DesignUpload({
     multiple: true,
   });
 
-  // Background removal replaces the active design with a new URL
-  function handleBgRemoved(newUrl: string) {
-    // find the active design by its current URL match via canvas handle
-    // For simplicity: add as new design (user can delete the old one)
+  // Background removal should replace the active design, not append a new one.
+  function handleBgRemoved(newUrl: string, replacedUrl: string) {
+    const activeDesignId = canvasRef.current?.getActiveDesignId();
+    if (activeDesignId) {
+      onDesignReplace(activeDesignId, newUrl);
+      return;
+    }
+
+    const fallbackMatch = [...designs].reverse().find((design) => design.url === replacedUrl)
+      ?? designs[designs.length - 1];
+
+    if (fallbackMatch) {
+      onDesignReplace(fallbackMatch.id, newUrl);
+      return;
+    }
+
     onDesignAdd(newUrl);
   }
 
@@ -64,7 +78,7 @@ export function Step3DesignUpload({
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
-        {/* ── LEFT: dropzone + design panel + toolbar ── */}
+        {/* ——— LEFT: dropzone + design panel + toolbar ——— */}
         <div className="flex flex-col gap-4 lg:w-[38%]">
 
           {/* Dropzone — always visible */}
@@ -133,7 +147,7 @@ export function Step3DesignUpload({
           )}
         </div>
 
-        {/* ── RIGHT: side toggle + canvas ── */}
+        {/* ——— RIGHT: side toggle + canvas ——— */}
         <div className="flex-1 flex flex-col items-center gap-3">
 
           {/* Front / Back toggle */}
@@ -148,7 +162,7 @@ export function Step3DesignUpload({
                     : "text-gray-500 hover:text-gray-700"
                 )}
               >
-                ზედა
+                წინა
               </button>
               <button
                 onClick={() => onSideChange("back")}

@@ -13,6 +13,7 @@ export interface ProductCanvasHandle {
   flipV: () => void;
   setBrightness: (value: number) => void;
   getActiveDesignUrl: () => string | null;
+  getActiveDesignId: () => string | null;
 }
 
 interface ProductCanvasProps {
@@ -31,10 +32,11 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     const fabricRef      = useRef<FabricCanvas | null>(null);
     const designObjsRef  = useRef<Map<string, FabricImage>>(new Map());
     const urlMapRef      = useRef<Map<string, string>>(new Map());
+    const containerRef   = useRef<HTMLDivElement>(null);
     const [fabricModule, setFabricModule] = useState<FabricModule | null>(null);
     const [isLoading, setIsLoading]       = useState(true);
 
-    // ── Imperative handle ───────────────────────────────────────────────────
+    // â”€â”€ Imperative handle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     useImperativeHandle(ref, () => ({
       flipH() {
         const fc  = fabricRef.current;
@@ -66,14 +68,19 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         if (!obj?._designId) return null;
         return urlMapRef.current.get(obj._designId) ?? null;
       },
+      getActiveDesignId() {
+        const fc = fabricRef.current;
+        const obj = fc?.getActiveObject() as (FabricImage & { _designId?: string }) | undefined;
+        return obj?._designId ?? null;
+      },
     }), [fabricModule]);
 
-    // ── Load fabric once ────────────────────────────────────────────────────
+    // â”€â”€ Load fabric once â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     useEffect(() => {
       import("fabric").then((mod) => setFabricModule(mod));
     }, []);
 
-    // ── Helper: add one design to canvas ───────────────────────────────────
+    // â”€â”€ Helper: add one design to canvas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const addDesignObj = useCallback((fabric: FabricModule, fc: FabricCanvas, item: DesignItem, zone: { x: number; y: number; width: number; height: number }) => {
       urlMapRef.current.set(item.id, item.url);
       fabric.fabric.Image.fromURL(
@@ -106,7 +113,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       );
     }, []);
 
-    // ── Helper: load background SVG ─────────────────────────────────────────
+    // â”€â”€ Helper: load background SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const loadBackground = useCallback((fabric: FabricModule, fc: FabricCanvas, svgUrl: string, onDone: () => void) => {
       fabric.fabric.loadSVGFromURL(svgUrl, (objects, options) => {
         // Remove any existing background
@@ -129,7 +136,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       });
     }, []);
 
-    // ── Init canvas & reload when side or product changes ───────────────────
+    // â”€â”€ Init canvas & reload when side or product changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     useEffect(() => {
       if (!fabricModule || !canvasElRef.current) return;
 
@@ -142,10 +149,14 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       setIsLoading(true);
 
+      const initialWidth = containerRef.current?.clientWidth || CANVAS_SIZE;
+      const initialScale = initialWidth / CANVAS_SIZE;
+
       const fc = new fabricModule.fabric.Canvas(canvasElRef.current, {
-        width: CANVAS_SIZE, height: CANVAS_SIZE,
+        width: initialWidth, height: initialWidth,
         selection: false, backgroundColor: "#F9FAFB",
       });
+      fc.setZoom(initialScale);
       fabricRef.current = fc;
 
       const svgUrl = activeSide === "back" ? product.svgTemplateBack : product.svgTemplate;
@@ -176,7 +187,24 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         opt.e.stopPropagation();
       });
 
+      // Responsive resizing
+      const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { width } = entry.contentRect;
+          const newScale = width / CANVAS_SIZE;
+          if (fabricRef.current) {
+            fabricRef.current.setDimensions({ width, height: width });
+            fabricRef.current.setZoom(newScale);
+          }
+        }
+      });
+      
+      if (containerRef.current) {
+        observer.observe(containerRef.current);
+      }
+
       return () => {
+        observer.disconnect();
         fc.dispose();
         fabricRef.current = null;
         designObjsRef.current.clear();
@@ -184,7 +212,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fabricModule, product.svgTemplate, product.svgTemplateBack, activeSide]);
 
-    // ── Sync designs array: add new, remove deleted ─────────────────────────
+    // â”€â”€ Sync designs array: add new, remove deleted â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     useEffect(() => {
       const fc     = fabricRef.current;
       const fabric = fabricModule;
@@ -195,13 +223,52 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       const canvasIds  = new Set(designObjsRef.current.keys());
       const designIds  = new Set(designs.map((d) => d.id));
 
-      // Remove deleted
+      // Remove deleted or updated
       canvasIds.forEach((id) => {
+        const matchingDesign = designs.find((d) => d.id === id);
+        const isUrlChanged = matchingDesign && urlMapRef.current.get(id) !== matchingDesign.url;
+        
         if (!designIds.has(id)) {
+          // Deleted
           const obj = designObjsRef.current.get(id);
           if (obj) fc.remove(obj);
           designObjsRef.current.delete(id);
           urlMapRef.current.delete(id);
+        } else if (isUrlChanged) {
+          // Updated URL
+          const obj = designObjsRef.current.get(id);
+          const oldProps = obj ? { left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY, angle: obj.angle } : null;
+          
+          if (obj) fc.remove(obj);
+          designObjsRef.current.delete(id);
+          urlMapRef.current.delete(id);
+          
+          urlMapRef.current.set(id, matchingDesign.url);
+          fabric.fabric.Image.fromURL(
+            matchingDesign.url,
+            (img) => {
+              (img as any)._designId = id;
+              img.set({
+                ...(oldProps ? oldProps : {
+                  left: zone.x + zone.width / 2,
+                  top: zone.y + zone.height / 2,
+                  scaleX: Math.min((zone.width * 0.8) / (img.width || 100), (zone.height * 0.8) / (img.height || 100)),
+                  scaleY: Math.min((zone.width * 0.8) / (img.width || 100), (zone.height * 0.8) / (img.height || 100)),
+                }),
+                originX: "center", originY: "center",
+                selectable: true, evented: true,
+                hasControls: true, hasBorders: true,
+                cornerColor: "#7C3AED", cornerStrokeColor: "#7C3AED",
+                borderColor: "#7C3AED", transparentCorners: false, cornerSize: 8,
+              });
+              img.setControlsVisibility({ mtr: true });
+              fc.add(img);
+              fc.setActiveObject(img);
+              fc.renderAll();
+              designObjsRef.current.set(id, img as any);
+            },
+            { crossOrigin: "anonymous" }
+          );
         }
       });
 
@@ -224,11 +291,11 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     }
 
     return (
-      <div className="relative flex flex-col items-center gap-2">
+      <div className="relative flex flex-col items-center gap-2 w-full max-w-[520px] mx-auto">
         {isLoading && <Skeleton className="absolute inset-0 rounded-xl" />}
         <div
-          className="overflow-hidden rounded-xl border border-gray-200 shadow-sm"
-          style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}
+          ref={containerRef}
+          className="w-full aspect-square overflow-hidden rounded-xl border border-gray-200 shadow-sm"
         >
           <canvas ref={canvasElRef} />
         </div>
@@ -245,7 +312,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
         {designs.length > 0 && (
           <p className="text-center text-xs text-gray-400">
-            გადაათრიე სურათი · Ctrl+Z გასაუქმებლად
+            გადაათრიე სურათი
           </p>
         )}
       </div>

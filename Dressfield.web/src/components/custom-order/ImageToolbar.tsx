@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { FlipHorizontal, FlipVertical, Sun, Eraser, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ProductCanvasHandle } from "./ProductCanvas";
@@ -8,7 +9,7 @@ import type { ProductCanvasHandle } from "./ProductCanvas";
 interface ImageToolbarProps {
   canvasRef: React.RefObject<ProductCanvasHandle | null>;
   designImageUrl: string;
-  onBgRemoved: (newUrl: string) => void;
+  onBgRemoved: (newUrl: string, replacedUrl: string) => void;
 }
 
 export function ImageToolbar({ canvasRef, designImageUrl, onBgRemoved }: ImageToolbarProps) {
@@ -26,16 +27,17 @@ export function ImageToolbar({ canvasRef, designImageUrl, onBgRemoved }: ImageTo
       if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
       const url = URL.createObjectURL(result);
       blobUrlRef.current = url;
-      onBgRemoved(url);
+      onBgRemoved(url, activeUrl);
     } catch (err) {
       console.error("Background removal failed:", err);
+      toast.error("ფონის წაშლა ვერ მოხერხდა");
     } finally {
       setRemovingBg(false);
     }
   }
 
   function handleBrightnessChange(values: number[]) {
-    const val = values[0] / 100; // slider 0-200 → -1..+1
+    const val = values[0] / 100; // slider 0-200 â†’ -1..+1
     setBrightness(values[0]);
     canvasRef.current?.setBrightness(val - 1);
   }
@@ -58,7 +60,7 @@ export function ImageToolbar({ canvasRef, designImageUrl, onBgRemoved }: ImageTo
           {removingBg ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              მუშავდება…
+              მუშავდება...
             </>
           ) : (
             <>
@@ -76,7 +78,7 @@ export function ImageToolbar({ canvasRef, designImageUrl, onBgRemoved }: ImageTo
           title="Flip Horizontal"
         >
           <FlipHorizontal className="mr-2 h-4 w-4" />
-          მარჯვ/მარც
+          მარჯვ/მარცხ
         </Button>
 
         <Button

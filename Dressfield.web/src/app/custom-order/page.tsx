@@ -24,14 +24,14 @@ export default function CustomOrderPage() {
   const [selectedProduct, setSelectedProduct] = useState<ProductTypeId | null>(null);
   // Step 2
   const [clothingSize, setClothingSize] = useState<ClothingSize | null>(null);
-  // Step 3 — multi-design, per side
+  // Step 3 â€” multi-design, per side
   const [frontDesigns, setFrontDesigns] = useState<DesignItem[]>([]);
   const [backDesigns,  setBackDesigns]  = useState<DesignItem[]>([]);
   const [activeSide,   setActiveSide]   = useState<"front" | "back">("front");
   // Step 4
   const [embroiderySize, setEmbroiderySize] = useState<EmbroiderySizeId | null>(null);
 
-  // ── Skipped steps based on selected product ──────────────────────────────
+  // â”€â”€ Skipped steps based on selected product â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const skippedSteps = useMemo(
     () => (selectedProduct ? getSkippedSteps(selectedProduct) : []),
     [selectedProduct],
@@ -53,17 +53,43 @@ export default function CustomOrderPage() {
   const setActiveDesigns = activeSide === "front" ? setFrontDesigns : setBackDesigns;
   const allDesigns       = [...frontDesigns, ...backDesigns];
 
+  function revokeIfBlobUrl(url: string) {
+    if (url.startsWith("blob:")) {
+      URL.revokeObjectURL(url);
+    }
+  }
+
   function addDesign(url: string) {
     const id = `d-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setActiveDesigns((prev) => [...prev, { id, url }]);
   }
 
   function removeDesign(id: string) {
-    setFrontDesigns((prev) => prev.filter((d) => d.id !== id));
-    setBackDesigns((prev)  => prev.filter((d) => d.id !== id));
+    setFrontDesigns((prev) => {
+      const target = prev.find((d) => d.id === id);
+      if (target) revokeIfBlobUrl(target.url);
+      return prev.filter((d) => d.id !== id);
+    });
+
+    setBackDesigns((prev) => {
+      const target = prev.find((d) => d.id === id);
+      if (target) revokeIfBlobUrl(target.url);
+      return prev.filter((d) => d.id !== id);
+    });
   }
 
-  // ── Step completion check ────────────────────────────────────────────────
+  function replaceDesignUrl(id: string, newUrl: string) {
+    const replaceIn = (prev: DesignItem[]) => prev.map((design) => {
+      if (design.id !== id) return design;
+      if (design.url !== newUrl) revokeIfBlobUrl(design.url);
+      return { ...design, url: newUrl };
+    });
+
+    setFrontDesigns((prev) => replaceIn(prev));
+    setBackDesigns((prev) => replaceIn(prev));
+  }
+
+  // â”€â”€ Step completion check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const isStepComplete = (): boolean => {
     if (step === 1) return selectedProduct !== null;
     if (step === 2) return clothingSize !== null;
@@ -86,6 +112,7 @@ export default function CustomOrderPage() {
 
   // When product changes, reset downstream state
   const handleProductSelect = (id: ProductTypeId) => {
+    allDesigns.forEach((design) => revokeIfBlobUrl(design.url));
     setSelectedProduct(id);
     setClothingSize(null);
     setFrontDesigns([]);
@@ -143,6 +170,7 @@ export default function CustomOrderPage() {
               activeSide={activeSide}
               onDesignAdd={addDesign}
               onDesignRemove={removeDesign}
+              onDesignReplace={replaceDesignUrl}
               onSideChange={setActiveSide}
             />
           )}
