@@ -50,8 +50,15 @@ public class OrderService : IOrderService
             .ToListAsync();
     }
 
-    public Task<OrderDetailDto?> GetAdminByIdAsync(int id) =>
-        BuildDetailQuery().FirstOrDefaultAsync(o => o.Id == id);
+    public async Task<OrderDetailDto?> GetAdminByIdAsync(int id)
+    {
+        var order = await _db.Orders
+            .AsNoTracking()
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        return order is null ? null : MapDetail(order);
+    }
 
     public async Task UpdateStatusAsync(int id, UpdateOrderStatusRequest request)
     {
@@ -102,8 +109,29 @@ public class OrderService : IOrderService
             .ToListAsync();
     }
 
-    public Task<OrderDetailDto?> GetByIdForUserAsync(int id, string userId) =>
-        BuildDetailQuery().FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+    public async Task<OrderDetailDto?> GetByIdForUserAsync(int id, string userId)
+    {
+        var order = await _db.Orders
+            .AsNoTracking()
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+        return order is null ? null : MapDetail(order);
+    }
+
+    public async Task<OrderStatusLookupDto?> GetPublicStatusAsync(int orderId, string orderKey)
+    {
+        var normalizedKey = orderKey.Trim();
+
+        return await _db.Orders
+            .AsNoTracking()
+            .Where(o => o.Id == orderId && o.BogOrderKey == normalizedKey)
+            .Select(o => new OrderStatusLookupDto(
+                o.Id,
+                o.Status,
+                o.UpdatedAt))
+            .FirstOrDefaultAsync();
+    }
 
     // ── Checkout ──────────────────────────────────────────────────────────────
 
@@ -256,40 +284,39 @@ public class OrderService : IOrderService
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    private IQueryable<OrderDetailDto> BuildDetailQuery() =>
-        _db.Orders
-            .AsNoTracking()
-            .Select(o => new OrderDetailDto(
-                o.Id,
-                o.UserId,
-                o.ContactName,
-                o.ContactEmail,
-                o.ContactPhone,
-                o.ShippingCity,
-                o.ShippingAddressLine1,
-                o.ShippingAddressLine2,
-                o.ShippingPostalCode,
-                o.Status,
-                o.Subtotal,
-                o.ShippingCost,
-                o.TotalAmount,
-                o.CustomerNotes,
-                o.AdminNotes,
-                o.BogOrderId,
-                o.CreatedAt,
-                o.UpdatedAt,
-                o.Items
-                    .Select(i => new OrderItemDto(
-                        i.Id,
-                        i.ProductId,
-                        i.ProductName,
-                        i.ProductSlug,
-                        i.ProductImageUrl,
-                        i.VariantName,
-                        i.UnitPrice,
-                        i.Quantity,
-                        i.LineTotal))
-                    .ToList()));
+    private static OrderDetailDto MapDetail(Order order) =>
+        new(
+            order.Id,
+            order.UserId,
+            order.ContactName,
+            order.ContactEmail,
+            order.ContactPhone,
+            order.ShippingCity,
+            order.ShippingAddressLine1,
+            order.ShippingAddressLine2,
+            order.ShippingPostalCode,
+            order.Status,
+            order.Subtotal,
+            order.ShippingCost,
+            order.TotalAmount,
+            order.CustomerNotes,
+            order.AdminNotes,
+            order.BogOrderId,
+            order.CreatedAt,
+            order.UpdatedAt,
+            order.Items
+                .OrderBy(i => i.Id)
+                .Select(i => new OrderItemDto(
+                    i.Id,
+                    i.ProductId,
+                    i.ProductName,
+                    i.ProductSlug,
+                    i.ProductImageUrl,
+                    i.VariantName,
+                    i.UnitPrice,
+                    i.Quantity,
+                    i.LineTotal))
+                .ToList());
 
     // ── Email outbox helpers ───────────────────────────────────────────────────
     // Emails are inserted into PendingEmails and delivered by EmailOutboxWorker.

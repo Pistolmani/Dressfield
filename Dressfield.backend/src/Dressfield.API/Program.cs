@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using System.Data.Common;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Dressfield.API.Middleware;
 using Dressfield.Application.Interfaces;
 using Dressfield.Core.Entities;
@@ -147,6 +148,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 // Storage service â€” Azure Blob in production, local filesystem only in development
@@ -204,7 +206,11 @@ else
 }
 
 builder.Services.AddValidatorsFromAssemblyContaining<Dressfield.Application.DTOs.RegisterRequest>();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
