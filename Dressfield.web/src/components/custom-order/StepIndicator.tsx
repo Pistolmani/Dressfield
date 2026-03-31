@@ -5,7 +5,7 @@ import { Check, Minus } from "lucide-react";
 
 const STEP_LABELS = [
   "პროდუქტი",
-  "ზომა",
+  "ზომა/ფერი",
   "დიზაინი",
   "პარამეტრები",
   "შეჯამება",

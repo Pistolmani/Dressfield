@@ -12,6 +12,7 @@ import {
   type ProductTypeId,
   type ClothingSize,
   type EmbroiderySizeId,
+  type ProductColor,
 } from "@/config/custom-order";
 
 interface Step5SummaryProps {
@@ -20,6 +21,7 @@ interface Step5SummaryProps {
   frontDesigns:    DesignItem[];
   backDesigns:     DesignItem[];
   embroiderySize:  EmbroiderySizeId;
+  selectedColor?:  ProductColor | null;
 }
 
 export function Step5Summary({
@@ -28,6 +30,7 @@ export function Step5Summary({
   frontDesigns,
   backDesigns,
   embroiderySize,
+  selectedColor = null,
 }: Step5SummaryProps) {
   const [submitted, setSubmitted] = useState(false);
 
@@ -82,6 +85,22 @@ export function Step5Summary({
             <span className="rounded-full bg-gray-100 px-3 py-0.5 text-sm font-semibold text-foreground">
               {clothingSize}
             </span>
+          </div>
+        )}
+
+        {/* Selected Color */}
+        {selectedColor && (
+          <div className="flex items-center justify-between p-4">
+            <p className="text-sm text-gray-500">ფერი</p>
+            <div className="flex items-center gap-2">
+              <span
+                className="inline-block h-5 w-5 rounded-full border border-gray-200 shadow-sm"
+                style={{ backgroundColor: selectedColor.hex }}
+              />
+              <span className="text-sm font-medium text-foreground">
+                {selectedColor.label}
+              </span>
+            </div>
           </div>
         )}
 

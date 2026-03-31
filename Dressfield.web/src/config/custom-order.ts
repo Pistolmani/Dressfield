@@ -106,7 +106,92 @@ export function getSkippedSteps(productId: ProductTypeId): number[] {
   const product = PRODUCT_TYPES.find((p) => p.id === productId);
   if (!product) return [];
   const skipped: number[] = [];
-  if (product.skipClothingSize) skipped.push(2);
-  if (product.skipDesign)       skipped.push(3);
+  
+  // Step 2 is Size AND Color. We only skip it if the product skips clothing size 
+  // AND has no colors available.
+  const hasColors = (PRODUCT_COLORS[productId] && PRODUCT_COLORS[productId]!.length > 0);
+  if (product.skipClothingSize && !hasColors) {
+    skipped.push(2);
+  }
+  
+  if (product.skipDesign) skipped.push(3);
   return skipped;
 }
+
+export interface ProductColor {
+  id: string;
+  label: string;
+  hex: string;
+}
+
+export const PRODUCT_COLORS: Partial<Record<ProductTypeId, ProductColor[]>> = {
+  hoodie: [
+    { id: "black", label: "შავი", hex: "#000000" },
+    { id: "white", label: "თეთრი", hex: "#ffffff" },
+    { id: "dark_grey", label: "მუქი ნაცრისფერი", hex: "#4b4b4b" },
+    { id: "grey", label: "ნაცრისფერი", hex: "#808080" },
+    { id: "red", label: "წითელი", hex: "#e53e3e" },
+    { id: "maroon", label: "ბორდოსფერი", hex: "#800000" },
+    { id: "pomegranate", label: "ბროწეულისფერი", hex: "#9E1B32" },
+    { id: "paprika", label: "პაპრიკა", hex: "#E53935" },
+    { id: "orange", label: "ნარინჯისფერი", hex: "#ed8936" },
+    { id: "phosphorus_orange", label: "ფოსფორის ნარინჯისფერი", hex: "#FF5E00" },
+    { id: "yellow", label: "ყვითელი", hex: "#ecc94b" },
+    { id: "mustard", label: "მდოგვისფერი", hex: "#FFDB58" },
+    { id: "gold", label: "ოქროსფერი", hex: "#FFD700" },
+    { id: "light_green", label: "ღია მწვანე", hex: "#90EE90" },
+    { id: "pastel_green", label: "პასტელური მწვანე", hex: "#77DD77" },
+    { id: "green", label: "მწვანე", hex: "#48bb78" },
+    { id: "dark_green", label: "მუქი მწვანე", hex: "#276749" },
+    { id: "light_blue", label: "ღია ლურჯი", hex: "#63b3ed" },
+    { id: "blue", label: "ლურჯი", hex: "#3182ce" },
+    { id: "royal_blue", label: "გაჯერებული ლურჯი", hex: "#4169E1" },
+    { id: "indigo", label: "ინდიგო ლურჯი", hex: "#4B0082" },
+    { id: "navy", label: "მუქი ლურჯი", hex: "#2c5282" },
+    { id: "light_purple", label: "ღია იასამნისფერი", hex: "#DDA0DD" },
+    { id: "purple", label: "იასამნისფერი", hex: "#805ad5" },
+    { id: "light_pink", label: "ღია ვარდისფერი", hex: "#FFB6C1" },
+    { id: "pink", label: "ვარდისფერი", hex: "#ed64a6" },
+    { id: "brown", label: "ყავისფერი", hex: "#8b4513" },
+    { id: "sand", label: "ქვიშისფერი", hex: "#d2b48c" },
+  ],
+  sweater: [
+    { id: "black", label: "შავი", hex: "#000000" },
+    { id: "brown", label: "ყავისფერი", hex: "#8b4513" },
+    { id: "purple", label: "იასამნისფერი", hex: "#805ad5" },
+    { id: "phosphorus", label: "ფოსფორისფერი", hex: "#ccff00" },
+  ],
+  tshirt: [
+    { id: "black", label: "შავი", hex: "#000000" },
+    { id: "white", label: "თეთრი", hex: "#ffffff" },
+    { id: "red", label: "წითელი", hex: "#e53e3e" },
+    { id: "navy", label: "მუქი ლურჯი", hex: "#2c5282" },
+  ],
+  longsleeve: [
+    { id: "black", label: "შავი", hex: "#000000" },
+    { id: "white", label: "თეთრი", hex: "#ffffff" },
+    { id: "dark_green", label: "მუქი მწვანე", hex: "#276749" },
+  ],
+  cap: [
+    { id: "black", label: "შავი", hex: "#000000" },
+    { id: "white", label: "თეთრი", hex: "#ffffff" },
+    { id: "dark_grey", label: "მუქი ნაცრისფერი", hex: "#4b4b4b" },
+    { id: "red", label: "წითელი", hex: "#e53e3e" },
+    { id: "orange", label: "ნარინჯისფერი", hex: "#ed8936" },
+    { id: "yellow", label: "ყვითელი", hex: "#ecc94b" },
+    { id: "green", label: "მწვანე", hex: "#48bb78" },
+    { id: "dark_green", label: "მუქი მწვანე", hex: "#276749" },
+    { id: "blue", label: "ლურჯი", hex: "#3182ce" },
+    { id: "navy", label: "მუქი ლურჯი", hex: "#2c5282" },
+    { id: "military_black", label: "სამხედრო მწვანე/შავი", hex: "#4B5320" },
+    { id: "orange_black", label: "ნარინჯისფერი/შავი", hex: "#FF8C00" },
+  ],
+  custom: [
+    { id: "black", label: "შავი", hex: "#000000" },
+    { id: "white", label: "თეთრი", hex: "#ffffff" },
+    { id: "grey", label: "ნაცრისფერი", hex: "#808080" },
+    { id: "red", label: "წითელი", hex: "#e53e3e" },
+    { id: "navy", label: "მუქი ლურჯი", hex: "#2c5282" },
+    { id: "green", label: "მწვანე", hex: "#48bb78" },
+  ]
+};

@@ -4,17 +4,19 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/custom-order/StepIndicator";
 import { Step1ProductSelector } from "@/components/custom-order/Step1_ProductSelector";
-import { Step2ClothingSize } from "@/components/custom-order/Step2_ClothingSize";
+import { Step2SizeAndColor } from "@/components/custom-order/Step2_SizeAndColor";
 import { Step3DesignUpload } from "@/components/custom-order/Step3_DesignUpload";
 import { Step4Parameters } from "@/components/custom-order/Step4_Parameters";
 import { Step5Summary } from "@/components/custom-order/Step5_Summary";
 import {
   PRODUCT_TYPES,
+  PRODUCT_COLORS,
   getSkippedSteps,
   type DesignItem,
   type ProductTypeId,
   type ClothingSize,
   type EmbroiderySizeId,
+  type ProductColor,
 } from "@/config/custom-order";
 
 export default function CustomOrderPage() {
@@ -24,14 +26,15 @@ export default function CustomOrderPage() {
   const [selectedProduct, setSelectedProduct] = useState<ProductTypeId | null>(null);
   // Step 2
   const [clothingSize, setClothingSize] = useState<ClothingSize | null>(null);
-  // Step 3 â€” multi-design, per side
+  const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
+  // Step 3 - multi-design, per side
   const [frontDesigns, setFrontDesigns] = useState<DesignItem[]>([]);
   const [backDesigns,  setBackDesigns]  = useState<DesignItem[]>([]);
   const [activeSide,   setActiveSide]   = useState<"front" | "back">("front");
   // Step 4
   const [embroiderySize, setEmbroiderySize] = useState<EmbroiderySizeId | null>(null);
 
-  // â”€â”€ Skipped steps based on selected product â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Skipped steps based on selected product
   const skippedSteps = useMemo(
     () => (selectedProduct ? getSkippedSteps(selectedProduct) : []),
     [selectedProduct],
@@ -89,10 +92,16 @@ export default function CustomOrderPage() {
     setBackDesigns((prev) => replaceIn(prev));
   }
 
-  // â”€â”€ Step completion check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Step completion check
   const isStepComplete = (): boolean => {
     if (step === 1) return selectedProduct !== null;
-    if (step === 2) return clothingSize !== null;
+    if (step === 2) {
+      if (!currentProduct) return false;
+      const hasSize = currentProduct.skipClothingSize || clothingSize !== null;
+      const colors = selectedProduct ? (PRODUCT_COLORS[selectedProduct] ?? []) : [];
+      const hasColor = colors.length === 0 || selectedColor !== null;
+      return hasSize && hasColor;
+    }
     if (step === 3) return allDesigns.length > 0;
     if (step === 4) return embroiderySize !== null;
     if (step === 5) return true;
@@ -115,6 +124,7 @@ export default function CustomOrderPage() {
     allDesigns.forEach((design) => revokeIfBlobUrl(design.url));
     setSelectedProduct(id);
     setClothingSize(null);
+    setSelectedColor(null);
     setFrontDesigns([]);
     setBackDesigns([]);
     setActiveSide("front");
@@ -156,10 +166,15 @@ export default function CustomOrderPage() {
             />
           )}
 
-          {step === 2 && (
-            <Step2ClothingSize
-              selected={clothingSize}
-              onSelect={setClothingSize}
+          {step === 2 && currentProduct && selectedProduct && (
+            <Step2SizeAndColor
+              selectedProduct={selectedProduct}
+              skipSize={currentProduct.skipClothingSize}
+              selectedSize={clothingSize}
+              onSizeSelect={setClothingSize}
+              availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
+              selectedColor={selectedColor}
+              onColorSelect={setSelectedColor}
             />
           )}
 
@@ -200,6 +215,7 @@ export default function CustomOrderPage() {
               <Step5Summary
                 selectedProduct={selectedProduct}
                 clothingSize={clothingSize}
+                selectedColor={selectedColor}
                 frontDesigns={frontDesigns}
                 backDesigns={backDesigns}
                 embroiderySize={embroiderySize}

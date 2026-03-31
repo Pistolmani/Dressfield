@@ -37,7 +37,7 @@ export function ImageToolbar({ canvasRef, designImageUrl, onBgRemoved }: ImageTo
   }
 
   function handleBrightnessChange(values: number[]) {
-    const val = values[0] / 100; // slider 0-200 â†’ -1..+1
+    const val = values[0] / 100; // slider 0-200 -> -1..+1
     setBrightness(values[0]);
     canvasRef.current?.setBrightness(val - 1);
   }

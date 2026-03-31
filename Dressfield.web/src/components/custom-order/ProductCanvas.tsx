@@ -35,8 +35,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     const containerRef   = useRef<HTMLDivElement>(null);
     const [fabricModule, setFabricModule] = useState<FabricModule | null>(null);
     const [isLoading, setIsLoading]       = useState(true);
-
-    // â”€â”€ Imperative handle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Imperative handle
     useImperativeHandle(ref, () => ({
       flipH() {
         const fc  = fabricRef.current;
@@ -74,13 +73,11 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         return obj?._designId ?? null;
       },
     }), [fabricModule]);
-
-    // â”€â”€ Load fabric once â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Load fabric once
     useEffect(() => {
       import("fabric").then((mod) => setFabricModule(mod));
     }, []);
-
-    // â”€â”€ Helper: add one design to canvas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Helper: add one design to canvas
     const addDesignObj = useCallback((fabric: FabricModule, fc: FabricCanvas, item: DesignItem, zone: { x: number; y: number; width: number; height: number }) => {
       urlMapRef.current.set(item.id, item.url);
       fabric.fabric.Image.fromURL(
@@ -112,8 +109,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         { crossOrigin: "anonymous" }
       );
     }, []);
-
-    // â”€â”€ Helper: load background SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Helper: load background SVG
     const loadBackground = useCallback((fabric: FabricModule, fc: FabricCanvas, svgUrl: string, onDone: () => void) => {
       fabric.fabric.loadSVGFromURL(svgUrl, (objects, options) => {
         // Remove any existing background
@@ -135,8 +131,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         onDone();
       });
     }, []);
-
-    // â”€â”€ Init canvas & reload when side or product changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Init canvas and reload when side or product changes
     useEffect(() => {
       if (!fabricModule || !canvasElRef.current) return;
 
@@ -211,8 +206,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fabricModule, product.svgTemplate, product.svgTemplateBack, activeSide]);
-
-    // â”€â”€ Sync designs array: add new, remove deleted â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Sync designs array: add new, remove deleted
     useEffect(() => {
       const fc     = fabricRef.current;
       const fabric = fabricModule;
