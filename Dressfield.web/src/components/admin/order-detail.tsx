@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,8 +31,8 @@ const ALL_STATUSES: OrderStatus[] = [
 
 export default function OrderDetail({ orderId }: { orderId: number }) {
   const queryClient = useQueryClient();
-  const [statusValue, setStatusValue] = useState<OrderStatus | null>(null);
-  const [adminNotes, setAdminNotes] = useState("");
+  const [statusValue, setStatusValue] = useState<OrderStatus | undefined>(undefined);
+  const [adminNotesValue, setAdminNotesValue] = useState<string | undefined>(undefined);
   const [saved, setSaved] = useState(false);
 
   const { data: order, isLoading, isError } = useQuery({
@@ -40,23 +40,16 @@ export default function OrderDetail({ orderId }: { orderId: number }) {
     queryFn: () => getAdminOrderById(orderId),
   });
 
-  useEffect(() => {
-    if (order && statusValue === null) {
-      setStatusValue(order.status);
-      setAdminNotes(order.adminNotes ?? "");
-    }
-  }, [order, statusValue]);
-
   const mutation = useMutation({
     mutationFn: () =>
       updateOrderStatus(orderId, {
-        status: statusValue!,
-        adminNotes: adminNotes.trim() || undefined,
+        status: statusValue ?? order!.status,
+        adminNotes: (adminNotesValue ?? order?.adminNotes ?? "").trim() || undefined,
       }),
     onSuccess: () => {
-      // Reset local state so the useEffect re-syncs from the refetched data
-      setStatusValue(null);
-      setAdminNotes("");
+      // Reset local overrides so UI re-syncs from refetched order data
+      setStatusValue(undefined);
+      setAdminNotesValue(undefined);
       queryClient.invalidateQueries({ queryKey: ["admin-order", orderId] });
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       setSaved(true);
@@ -81,6 +74,7 @@ export default function OrderDetail({ orderId }: { orderId: number }) {
   }
 
   const currentStatus = statusValue ?? order.status;
+  const currentAdminNotes = adminNotesValue ?? (order.adminNotes ?? "");
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -120,9 +114,6 @@ export default function OrderDetail({ orderId }: { orderId: number }) {
           <p className="text-muted-foreground">{order.shippingAddressLine1}</p>
           {order.shippingAddressLine2 && (
             <p className="text-muted-foreground">{order.shippingAddressLine2}</p>
-          )}
-          {order.shippingPostalCode && (
-            <p className="text-muted-foreground">ინდექსი: {order.shippingPostalCode}</p>
           )}
         </div>
       </div>
@@ -231,8 +222,8 @@ export default function OrderDetail({ orderId }: { orderId: number }) {
         <div>
           <label className="block text-sm text-muted-foreground mb-1">ადმინის შენიშვნა</label>
           <textarea
-            value={adminNotes}
-            onChange={(e) => setAdminNotes(e.target.value)}
+            value={currentAdminNotes}
+            onChange={(e) => setAdminNotesValue(e.target.value)}
             rows={3}
             maxLength={1000}
             className="w-full rounded-xl border border-black/10 bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 resize-none"

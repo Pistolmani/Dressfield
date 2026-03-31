@@ -6,6 +6,7 @@ import { Providers } from "@/lib/providers";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CursorTrail } from "@/components/ui/CursorTrail";
+import { PageTransition } from "@/components/ui/page-transition";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -68,7 +69,7 @@ export default function RootLayout({
         <Providers>
           <CursorTrail />
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1"><PageTransition>{children}</PageTransition></main>
           <Footer />
         </Providers>
       </body>

@@ -91,9 +91,6 @@ function OrderDetailContent() {
           {order.shippingAddressLine2 && (
             <p className="text-muted-foreground">{order.shippingAddressLine2}</p>
           )}
-          {order.shippingPostalCode && (
-            <p className="text-muted-foreground">ინდექსი: {order.shippingPostalCode}</p>
-          )}
         </div>
       </div>
 

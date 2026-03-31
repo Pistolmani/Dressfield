@@ -1,6 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -10,121 +11,155 @@ interface InteractiveHeroGalleryProps {
   count?: number;
 }
 
-export function InteractiveHeroGallery({ images, className, count = 12 }: InteractiveHeroGalleryProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
-  const [items, setItems] = useState<{ id: string; url: string; x: number; y: number; rotate: number; zIndex: number }[]>([]);
+interface CardItem {
+  id: string;
+  url: string;
+  left: string;
+  top: string;
+  rotate: number;
+  zIndex: number;
+  floatDelay: number;
+  floatDuration: number;
+}
 
-  useEffect(() => {
-    if (images.length === 0) {
-      setItems([]);
-      setMounted(true);
-      return;
+/**
+ * Distribute N cards across the viewport using a shuffled grid.
+ * Each card gets its own cell — no overlap possible.
+ */
+function createScatteredCards(images: string[], count: number): CardItem[] {
+  if (images.length === 0) return [];
+
+  const pool = [...images];
+  while (pool.length < count) pool.push(...images);
+  const selected = pool.slice(0, count);
+
+  // Landscape-friendly grid: more columns than rows
+  const cols = 6;
+  const rows = Math.ceil(count / cols);
+
+  // Build all cells, shuffle, pick N
+  const cells: [number, number][] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      cells.push([c, r]);
     }
-
-    // Duplicate images if we don't have enough to fill the requested count
-    const pool = [...images];
-    while (pool.length < count) {
-      pool.push(...images);
-    }
-    const selected = pool.slice(0, count);
-
-    // Calculate grid dimensions to spread them evenly
-    const columns = Math.ceil(Math.sqrt(count));
-    const rows = Math.ceil(count / columns);
-
-    // Generate smart-scattered positions and rotations only on mount
-    const newItems = selected.map((url, i) => {
-      // Find what grid cell this image belongs in
-      const row = Math.floor(i / columns);
-      const col = i % columns;
-      
-      // Calculate base percentages for the cell center
-      const baseX = (col / columns) * 90 + 5; // Keep away from extremely sharp edges (5% - 95%)
-      const baseY = (row / rows) * 80 + 10;   // Higher vertical boundary (10% - 90%)
-      
-      // Inject organic randomness (jitter) so it doesn't look like a mathematically perfect grid
-      const jitterX = (Math.random() - 0.5) * (90 / columns); 
-      const jitterY = (Math.random() - 0.5) * (80 / rows);
-      
-      const safeX = Math.max(2, Math.min(98, baseX + jitterX));
-      const safeY = Math.max(2, Math.min(98, baseY + jitterY));
-      const rotate = Math.floor(Math.random() * 70) - 35; // slightly wider rotation variations
-
-      return {
-        id: `img-${i}-${Math.random().toString(36).substring(7)}`,
-        url,
-        x: safeX,
-        y: safeY,
-        rotate,
-        zIndex: i,
-      };
-    });
-    setItems(newItems);
-    setMounted(true);
-  }, [images, count]);
-
-  if (!mounted) {
-    return <div className={cn("absolute inset-0 overflow-hidden", className)} />;
   }
+  for (let i = cells.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cells[i], cells[j]] = [cells[j], cells[i]];
+  }
+  const picked = cells.slice(0, count);
+
+  const cellW = 100 / cols;
+  const cellH = 100 / rows;
+
+  return selected.map((url, i) => {
+    const [c, r] = picked[i];
+    const jitterX = (Math.random() - 0.5) * cellW * 0.4;
+    const jitterY = (Math.random() - 0.5) * cellH * 0.4;
+    const left = `${Math.max(2, Math.min(98, c * cellW + cellW / 2 + jitterX))}%`;
+    const top = `${Math.max(2, Math.min(98, r * cellH + cellH / 2 + jitterY))}%`;
+
+    return {
+      id: `card-${i}-${Math.random().toString(36).slice(2, 8)}`,
+      url,
+      left,
+      top,
+      rotate: (Math.random() - 0.5) * 50,
+      zIndex: i,
+      floatDelay: Math.random() * 3,
+      floatDuration: 5 + Math.random() * 4,
+    };
+  });
+}
+
+export function InteractiveHeroGallery({ images, className, count = 18 }: InteractiveHeroGalleryProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [zMap, setZMap] = useState<Record<string, number>>({});
+
+  // Compute cards once per images/count change — stable across re-renders
+  const cards = useMemo(() => createScatteredCards(images, count), [images, count]);
 
   const bringToFront = (id: string) => {
-    setItems((prev) => {
-      const maxZ = Math.max(...prev.map((i) => i.zIndex), 0);
-      return prev.map((item) =>
-        item.id === id ? { ...item, zIndex: maxZ + 1 } : item
-      );
+    setZMap((prev) => {
+      const maxZ = Math.max(...Object.values(prev), ...cards.map((c) => c.zIndex), 0);
+      return { ...prev, [id]: maxZ + 1 };
     });
   };
+
+  if (cards.length === 0) {
+    return <div className={cn("absolute inset-0 overflow-hidden", className)} />;
+  }
 
   return (
     <div
       ref={containerRef}
       className={cn("absolute inset-0 overflow-hidden pointer-events-auto", className)}
-      style={{ perspective: "1000px" }}
     >
-      {items.map((item, index) => (
-        <motion.div
-          key={item.id}
-          className="absolute w-36 sm:w-48 aspect-[4/5] p-2 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing will-change-transform"
+      {cards.map((card, index) => (
+        <div
+          key={card.id}
+          className="absolute"
           style={{
-            left: `${item.x}%`,
-            top: `${item.y}%`,
-            zIndex: item.zIndex,
-            // Offset origin slightly so rotate looks organic
-            transformOrigin: "center center",
-            // Keep them somewhat within bound on load via translates
-            x: "-50%",
-            y: "-50%"
+            left: card.left,
+            top: card.top,
+            zIndex: zMap[card.id] ?? card.zIndex,
+            translate: "-50% -50%",
           }}
-          initial={{ opacity: 0, scale: 0.5, rotate: item.rotate - 20 }}
-          animate={{ opacity: 1, scale: 1, rotate: item.rotate }}
-          transition={{
-            type: "spring",
-            damping: 20,
-            stiffness: 100,
-            delay: index * 0.05, // Staggered entrance
-          }}
-          drag
-          dragConstraints={containerRef}
-          dragElastic={0.4}
-          dragMomentum={true}
-          whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-          whileDrag={{ scale: 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" }}
-          onHoverStart={() => bringToFront(item.id)}
-          onDragStart={() => bringToFront(item.id)}
         >
-          {/* Use standard img for static export safety */}
-          <div className="w-full h-full relative rounded-lg overflow-hidden border border-gray-100/50 bg-gray-50">
-            <img
-              src={item.url}
-              alt=""
-              aria-hidden="true"
-              className="w-full h-full object-cover pointer-events-none"
-              draggable={false}
-            />
-          </div>
-        </motion.div>
+          <motion.div
+            className="w-28 sm:w-40 aspect-[4/5] p-1.5 bg-white rounded-xl shadow-[0_8px_32px_-8px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing origin-center"
+            initial={{
+              opacity: 0,
+              scale: 0.4,
+              rotate: card.rotate + (index % 2 === 0 ? 30 : -30),
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              rotate: card.rotate,
+            }}
+            transition={{
+              type: "spring",
+              damping: 20,
+              stiffness: 60,
+              mass: 1,
+              delay: index * 0.1,
+            }}
+            drag
+            dragConstraints={containerRef}
+            dragElastic={0.35}
+            dragMomentum={true}
+            whileHover={{ scale: 1.06, transition: { duration: 0.2 } }}
+            whileDrag={{ scale: 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" }}
+            onHoverStart={() => bringToFront(card.id)}
+            onDragStart={() => bringToFront(card.id)}
+          >
+            <motion.div
+              className="w-full h-full"
+              animate={{
+                y: [0, -5, 0, 3, 0],
+                rotate: [0, 1, 0, -0.8, 0],
+              }}
+              transition={{
+                duration: card.floatDuration,
+                delay: card.floatDelay,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <div className="w-full h-full relative rounded-lg overflow-hidden border border-gray-100/50 bg-gray-50 pointer-events-none">
+                <img
+                  src={card.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
       ))}
     </div>
   );

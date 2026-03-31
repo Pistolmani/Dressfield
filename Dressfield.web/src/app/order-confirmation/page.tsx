@@ -22,13 +22,17 @@ function ConfirmationContent() {
     ?? (typeof window !== "undefined" ? localStorage.getItem("dressfield_pending_order_id") : null);
 
   const id = orderId ? Number(orderId) : 0;
-  const pollStartRef = useRef(Date.now());
+  const pollStartRef = useRef<number | null>(null);
 
   const { data: order } = useQuery({
     queryKey: ["my-order", id],
     queryFn: () => getMyOrderById(id),
     enabled: !!user && id > 0,
     refetchInterval: (query) => {
+      if (pollStartRef.current === null) {
+        pollStartRef.current = Date.now();
+      }
+
       // Poll every 3s while awaiting payment, stop after 2 minutes
       const status = query.state.data?.status;
       const isPending = status === "AwaitingPayment" || status === "Pending";

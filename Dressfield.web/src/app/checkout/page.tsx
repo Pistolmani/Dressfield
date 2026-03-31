@@ -20,7 +20,6 @@ interface FormData {
   shippingCity: string;
   shippingAddressLine1: string;
   shippingAddressLine2: string;
-  shippingPostalCode: string;
   customerNotes: string;
 }
 
@@ -31,9 +30,14 @@ const emptyForm: FormData = {
   shippingCity: "",
   shippingAddressLine1: "",
   shippingAddressLine2: "",
-  shippingPostalCode: "",
   customerNotes: "",
 };
+
+// Validation helpers
+const NAME_REGEX = /^[\u10A0-\u10FFa-zA-Z\s\-']+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE_DIGITS_ONLY = /\D/g;
+const CITY_REGEX = /^[\u10A0-\u10FFa-zA-Z\s]+$/;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -51,18 +55,63 @@ export default function CheckoutPage() {
   }, [items.length, router]);
 
   function set(field: keyof FormData, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    // Smart sanitization per field
+    let sanitized = value;
+    if (field === "contactName") {
+      // No leading spaces, no consecutive spaces
+      sanitized = value.replace(/^\s+/, "").replace(/\s{2,}/g, " ");
+    } else if (field === "contactPhone") {
+      // Digits only, max 9
+      sanitized = value.replace(PHONE_DIGITS_ONLY, "").slice(0, 9);
+    } else if (field === "contactEmail") {
+      // No spaces, auto-lowercase
+      sanitized = value.replace(/\s/g, "").toLowerCase();
+    } else if (field === "shippingCity") {
+      sanitized = value.replace(/^\s+/, "").replace(/\s{2,}/g, " ");
+    }
+    setForm((prev) => ({ ...prev, [field]: sanitized }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
   function validate(): boolean {
     const e: Partial<Record<keyof FormData, string>> = {};
-    if (!form.contactName.trim()) e.contactName = "სახელი სავალდებულოა";
-    if (!form.contactPhone.trim()) e.contactPhone = "ტელეფონი სავალდებულოა";
-    if (!form.contactEmail.trim()) e.contactEmail = "ელ-ფოსტა სავალდებულოა";
-    else if (!form.contactEmail.includes("@")) e.contactEmail = "ელ-ფოსტის ფორმატი არასწორია";
-    if (!form.shippingCity.trim()) e.shippingCity = "ქალაქი სავალდებულოა";
-    if (!form.shippingAddressLine1.trim()) e.shippingAddressLine1 = "მისამართი სავალდებულოა";
+    const name = form.contactName.trim();
+    if (!name) {
+      e.contactName = "სახელი სავალდებულოა";
+    } else if (name.length < 2) {
+      e.contactName = "მინიმუმ 2 სიმბოლო";
+    } else if (!name.includes(" ")) {
+      e.contactName = "გთხოვთ მიუთითეთ სახელი და გვარი";
+    } else if (!NAME_REGEX.test(name)) {
+      e.contactName = "მხოლოდ ასოები დაშვებულია";
+    }
+
+    if (!form.contactPhone) {
+      e.contactPhone = "ტელეფონი სავალდებულოა";
+    } else if (form.contactPhone.length !== 9) {
+      e.contactPhone = "ტელეფონის ნომერი 9 ციფრისგან უნდა შედგებოდეს";
+    } else if (!form.contactPhone.startsWith("5")) {
+      e.contactPhone = "მობილურის ნომერი 5-ით უნდა იწყებოდეს";
+    }
+
+    if (!form.contactEmail.trim()) {
+      e.contactEmail = "ელ-ფოსტა სავალდებულოა";
+    } else if (!EMAIL_REGEX.test(form.contactEmail)) {
+      e.contactEmail = "ელ-ფოსტის ფორმატი არასწორია";
+    }
+
+    if (!form.shippingCity.trim()) {
+      e.shippingCity = "ქალაქი სავალდებულოა";
+    } else if (!CITY_REGEX.test(form.shippingCity.trim())) {
+      e.shippingCity = "მხოლოდ ასოები დაშვებულია";
+    }
+
+    if (!form.shippingAddressLine1.trim()) {
+      e.shippingAddressLine1 = "მისამართი სავალდებულოა";
+    } else if (form.shippingAddressLine1.trim().length < 3) {
+      e.shippingAddressLine1 = "მინიმუმ 3 სიმბოლო";
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -73,12 +122,11 @@ export default function CheckoutPage() {
     try {
       const result = await createOrder({
         contactName: form.contactName.trim(),
-        contactPhone: form.contactPhone.trim(),
+        contactPhone: `+995${form.contactPhone}`,
         contactEmail: form.contactEmail.trim().toLowerCase(),
         shippingCity: form.shippingCity.trim(),
         shippingAddressLine1: form.shippingAddressLine1.trim(),
         shippingAddressLine2: form.shippingAddressLine2.trim() || undefined,
-        shippingPostalCode: form.shippingPostalCode.trim() || undefined,
         customerNotes: form.customerNotes.trim() || undefined,
         items: items.map((i) => ({
           productId: i.productId,
@@ -148,13 +196,19 @@ export default function CheckoutPage() {
               </Field>
 
               <Field label="ტელეფონი *" error={errors.contactPhone}>
-                <input
-                  type="tel"
-                  value={form.contactPhone}
-                  onChange={(e) => set("contactPhone", e.target.value)}
-                  className={inputCls(!!errors.contactPhone)}
-                  placeholder="+995 5XX XX XX XX"
-                />
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-black/10 bg-gray-50 text-sm text-muted-foreground select-none">
+                    +995
+                  </span>
+                  <input
+                    type="tel"
+                    value={form.contactPhone}
+                    onChange={(e) => set("contactPhone", e.target.value)}
+                    className={`${inputCls(!!errors.contactPhone)} rounded-l-none`}
+                    placeholder="5XX XX XX XX"
+                    maxLength={9}
+                  />
+                </div>
               </Field>
 
               <Field label="ელ-ფოსტა *" error={errors.contactEmail}>
@@ -201,15 +255,7 @@ export default function CheckoutPage() {
                 />
               </Field>
 
-              <Field label="საფოსტო ინდექსი">
-                <input
-                  type="text"
-                  value={form.shippingPostalCode}
-                  onChange={(e) => set("shippingPostalCode", e.target.value)}
-                  className={inputCls(false)}
-                  placeholder="0100"
-                />
-              </Field>
+
 
               <Field label="შენიშვნა">
                 <textarea
@@ -236,11 +282,10 @@ export default function CheckoutPage() {
             {/* Shipping summary */}
             <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-2 text-sm">
               <h2 className="font-medium text-base mb-3">მიწოდების მისამართი</h2>
-              <p>{form.contactName} · {form.contactPhone}</p>
+              <p>{form.contactName} · +995{form.contactPhone}</p>
               <p>{form.contactEmail}</p>
               <p>{form.shippingCity}, {form.shippingAddressLine1}</p>
               {form.shippingAddressLine2 && <p>{form.shippingAddressLine2}</p>}
-              {form.shippingPostalCode && <p>ინდექსი: {form.shippingPostalCode}</p>}
               {form.customerNotes && <p className="text-muted-foreground">შენიშვნა: {form.customerNotes}</p>}
             </div>
 

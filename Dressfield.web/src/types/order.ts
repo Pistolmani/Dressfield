@@ -90,7 +90,6 @@ export interface CreateOrderRequest {
   shippingCity: string;
   shippingAddressLine1: string;
   shippingAddressLine2?: string;
-  shippingPostalCode?: string;
   customerNotes?: string;
   items: CartItemRequest[];
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { ArrowRight, Upload, Eye, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,15 +13,16 @@ export default async function HomePage() {
 
   return (
     <div className="flex-1">
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative bg-black text-white overflow-hidden isolate">
-        {/* Fill height better for scattered physics */}
-        <div className="absolute inset-0 z-0">
-          <InteractiveHeroGallery images={heroImages} count={14} className="opacity-80" />
-          {/* Edge gradient to blend seamlessly and ensure text is somewhat readable, but pointer-events-none lets user drag */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-black/95 pointer-events-none" />
+      {/* ── FIXED HERO BACKGROUND ────────────────────────── */}
+      <div className="fixed inset-0 z-0 bg-black pointer-events-none">
+        <div className="absolute inset-0 pointer-events-auto">
+          <InteractiveHeroGallery images={heroImages} count={18} className="opacity-80" />
         </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-black/95 pointer-events-none" />
+      </div>
 
+      {/* ── HERO ─────────────────────────────────────────── */}
+      <section className="relative z-10 text-white isolate pointer-events-none">
         {/* The content wrapper passes pointer events through so images can be clicked, but text captures them */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center pointer-events-none min-h-[85vh] flex flex-col justify-center items-center">
           <Logo className="h-12 w-auto mx-auto mb-8 text-white pointer-events-auto" />
@@ -59,7 +59,7 @@ export default async function HomePage() {
 
       {/* ── FEATURED PRODUCTS ────────────────────────────── */}
       {featured.length > 0 && (
-        <section className="bg-background py-14 sm:py-16">
+        <section className="relative z-10 bg-background py-14 sm:py-16 shadow-[0_-20px_40px_rgba(0,0,0,0.5)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-8">
               <div>
@@ -96,7 +96,7 @@ export default async function HomePage() {
       )}
 
       {/* ── CUSTOM ORDER CTA ─────────────────────────────── */}
-      <section className="bg-foreground py-14 sm:py-16">
+      <section className="relative z-10 bg-foreground py-14 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div className="text-white">
@@ -116,6 +116,7 @@ export default async function HomePage() {
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
                       {i + 1}
                     </span>
+                    <Icon className="h-4 w-4 text-white/75 shrink-0" />
                     <span className="text-sm sm:text-base text-white/90">{text}</span>
                   </li>
                 ))}
@@ -141,7 +142,10 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── FOOTER SPACER ─────────────────────────────────── */}
+      {/* This transparent space allows the fixed dynamic background to peek through at the end of the scroll */}
+      <section className="relative h-[35vh] pointer-events-none" aria-hidden="true" />
+
     </div>
   );
 }
-

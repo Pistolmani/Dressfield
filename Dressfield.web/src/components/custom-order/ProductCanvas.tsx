@@ -25,6 +25,8 @@ interface ProductCanvasProps {
 type FabricModule = typeof import("fabric");
 type FabricCanvas = import("fabric").fabric.Canvas;
 type FabricImage  = import("fabric").fabric.Image;
+type FabricCanvasObject = import("fabric").fabric.Object & { _designId?: string };
+type FabricDesignImage = FabricImage & { _designId?: string };
 
 export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>(
   function ProductCanvas({ product, designs, activeSide }, ref) {
@@ -113,7 +115,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     const loadBackground = useCallback((fabric: FabricModule, fc: FabricCanvas, svgUrl: string, onDone: () => void) => {
       fabric.fabric.loadSVGFromURL(svgUrl, (objects, options) => {
         // Remove any existing background
-        const existing = fc.getObjects().filter((o) => !(o as any)._designId);
+        const existing = fc.getObjects().filter((o) => !(o as FabricCanvasObject)._designId);
         existing.forEach((o) => fc.remove(o));
 
         const svg = fabric.fabric.util.groupSVGElements(objects, options);
@@ -134,12 +136,13 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     // Init canvas and reload when side or product changes
     useEffect(() => {
       if (!fabricModule || !canvasElRef.current) return;
+      const designObjs = designObjsRef.current;
 
       // Dispose old
       if (fabricRef.current) {
         fabricRef.current.dispose();
         fabricRef.current = null;
-        designObjsRef.current.clear();
+        designObjs.clear();
       }
 
       setIsLoading(true);
@@ -202,7 +205,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         observer.disconnect();
         fc.dispose();
         fabricRef.current = null;
-        designObjsRef.current.clear();
+        designObjs.clear();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fabricModule, product.svgTemplate, product.svgTemplateBack, activeSide]);
@@ -241,7 +244,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
           fabric.fabric.Image.fromURL(
             matchingDesign.url,
             (img) => {
-              (img as any)._designId = id;
+              (img as FabricDesignImage)._designId = id;
               img.set({
                 ...(oldProps ? oldProps : {
                   left: zone.x + zone.width / 2,
@@ -259,7 +262,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
               fc.add(img);
               fc.setActiveObject(img);
               fc.renderAll();
-              designObjsRef.current.set(id, img as any);
+              designObjsRef.current.set(id, img as FabricImage);
             },
             { crossOrigin: "anonymous" }
           );

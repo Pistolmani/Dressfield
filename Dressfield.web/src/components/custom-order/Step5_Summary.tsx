@@ -1,9 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Confetti } from "@/components/ui/confetti";
 import { PricingSummary } from "@/components/custom-order/PricingSummary";
 import {
   PRODUCT_TYPES,
@@ -33,18 +35,29 @@ export function Step5Summary({
   selectedColor = null,
 }: Step5SummaryProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  const product    = PRODUCT_TYPES.find((p) => p.id === selectedProduct)!;
-  const embrSize   = EMBROIDERY_SIZES.find((s) => s.id === embroiderySize)!;
+  const product  = PRODUCT_TYPES.find((p) => p.id === selectedProduct)!;
+  const embrSize = EMBROIDERY_SIZES.find((s) => s.id === embroiderySize)!;
 
   const handleSubmit = () => {
     toast.success("შეკვეთა მიღებულია! მალე დაგიკავშირდებით.", { duration: 5000 });
+    setShowConfetti(true);
     setSubmitted(true);
   };
+
+  // Auto-hide confetti after 2.5s
+  useEffect(() => {
+    if (showConfetti) {
+      const timer = setTimeout(() => setShowConfetti(false), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfetti]);
 
   if (submitted) {
     return (
       <div className="flex flex-col items-center gap-6 py-12 text-center">
+        {showConfetti && <Confetti />}
         <CheckCircle2 className="h-16 w-16 text-accent" />
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold text-foreground">შეკვეთა მიღებულია!</h2>
@@ -78,7 +91,7 @@ export function Step5Summary({
           </div>
         </div>
 
-        {/* Clothing size — only for products that have sizes */}
+        {/* Clothing size */}
         {clothingSize && (
           <div className="flex items-center justify-between p-4">
             <p className="text-sm text-gray-500">ტანსაცმლის ზომა</p>

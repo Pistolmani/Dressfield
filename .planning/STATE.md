@@ -38,6 +38,9 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 - [x] Verified backend compile after hardening (`dotnet build` success)
 - [x] Verified NuGet vulnerable package audit (`dotnet list ... --vulnerable` reported none)
 - [x] Verified runtime behavior without DB: API starts and `/api/health` returns 503 instead of crashing
+- [x] Completed frontend QA + bug-fix pass for custom-order/admin/order-confirmation flows
+- [x] Fixed lint blockers (`react-hooks/purity`, `set-state-in-effect`, `no-explicit-any`) in key frontend files
+- [x] Verified frontend quality checks: `npm run lint` clean, `npx tsc --noEmit` clean, `npm run build` successful static export
 
 ## Previous Phases (Completed)
 

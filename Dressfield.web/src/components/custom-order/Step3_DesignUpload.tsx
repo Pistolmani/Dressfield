@@ -1,10 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X, Images, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
 import { ImageToolbar } from "@/components/custom-order/ImageToolbar";
 import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanvas";

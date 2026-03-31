@@ -15,7 +15,6 @@ interface Step2SizeAndColorProps {
 }
 
 export function Step2SizeAndColor({
-  selectedProduct,
   skipSize,
   selectedSize,
   onSizeSelect,
