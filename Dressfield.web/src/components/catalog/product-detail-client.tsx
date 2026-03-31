@@ -117,11 +117,11 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
           <section className="space-y-6">
             <nav className="text-sm text-muted-foreground">
               <Link href="/" className="hover:text-foreground">
-                áƒ›áƒ—áƒáƒ•áƒáƒ áƒ˜
+                მთავარი
               </Link>{" "}
               /{" "}
               <Link href="/products" className="hover:text-foreground">
-                áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ”áƒ‘áƒ˜
+                პროდუქტები
               </Link>{" "}
               / <span>{product.name}</span>
             </nav>
@@ -201,14 +201,14 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                   {addedFeedback ? (
                     <>
                       <Check className="h-4 w-4 mr-2" />
-                      áƒ“áƒáƒ›áƒáƒ¢áƒ”áƒ‘áƒ£áƒšáƒ˜áƒ
+                      დამატებულია
                     </>
                   ) : (
-                    'áƒ™áƒáƒšáƒáƒ—áƒáƒ¨áƒ˜ áƒ“áƒáƒ›áƒáƒ¢áƒ”áƒ‘áƒ'
+                    "კალათაში დამატება"
                   )}
                 </Button>
                 <Button variant="outline" className="h-11 flex-1">
-                  áƒ˜áƒœáƒ“áƒ˜áƒ•áƒ˜áƒ“áƒ£áƒáƒšáƒ£áƒ áƒ˜ áƒ¨áƒ”áƒ™áƒ•áƒ”áƒ—áƒ
+                  ინდივიდუალური შეკვეთა
                 </Button>
               </div>
             </div>
@@ -220,7 +220,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                 className="flex w-full items-center justify-between px-5 py-4 text-left"
               >
                 <span className="font-ui text-2xl font-semibold">
-                  áƒ¡áƒ áƒ£áƒšáƒ˜ áƒáƒ¦áƒ¬áƒ”áƒ áƒ
+                  სრული აღწერა
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 transition-transform ${
@@ -240,4 +240,3 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
     </div>
   );
 }
-

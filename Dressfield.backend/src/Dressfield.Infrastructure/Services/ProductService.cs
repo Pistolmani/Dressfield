@@ -21,9 +21,14 @@ public class ProductService : IProductService
     public async Task<IReadOnlyCollection<ProductSummaryDto>> GetAdminAsync(string? search) =>
         await BuildSummaryQuery(true, search).ToListAsync();
 
-    public Task<ProductDetailDto?> GetActiveByIdAsync(int id) => BuildDetailQuery(false).FirstOrDefaultAsync(x => x.Id == id);
-    public Task<ProductDetailDto?> GetActiveBySlugAsync(string slug) => BuildDetailQuery(false).FirstOrDefaultAsync(x => x.Slug == slug);
-    public Task<ProductDetailDto?> GetAdminByIdAsync(int id) => BuildDetailQuery(true).FirstOrDefaultAsync(x => x.Id == id);
+    public async Task<ProductDetailDto?> GetActiveByIdAsync(int id) =>
+        MapDetail(await BuildDetailEntityQuery(false).FirstOrDefaultAsync(x => x.Id == id));
+
+    public async Task<ProductDetailDto?> GetActiveBySlugAsync(string slug) =>
+        MapDetail(await BuildDetailEntityQuery(false).FirstOrDefaultAsync(x => x.Slug == slug));
+
+    public async Task<ProductDetailDto?> GetAdminByIdAsync(int id) =>
+        MapDetail(await BuildDetailEntityQuery(true).FirstOrDefaultAsync(x => x.Id == id));
 
     public async Task<ProductDetailDto> CreateAsync(CreateProductRequest request)
     {
@@ -117,7 +122,7 @@ public class ProductService : IProductService
                 x.IsFeatured));
     }
 
-    private IQueryable<ProductDetailDto> BuildDetailQuery(bool includeInactive)
+    private IQueryable<Product> BuildDetailEntityQuery(bool includeInactive)
     {
         var query = _db.Products
             .AsNoTracking()
@@ -130,18 +135,34 @@ public class ProductService : IProductService
             query = query.Where(x => x.IsActive);
         }
 
-        return query.Select(x => new ProductDetailDto(
-            x.Id,
-            x.Name,
-            x.Slug,
-            x.ShortDescription,
-            x.Description,
-            x.BasePrice,
-            x.Sku,
-            x.IsActive,
-            x.IsFeatured,
-            x.Images.OrderBy(i => i.SortOrder).Select(i => new ProductImageDto(i.Id, i.ImageUrl, i.AltText, i.SortOrder, i.IsPrimary)).ToList(),
-            x.Variants.OrderBy(v => v.Name).Select(v => new ProductVariantDto(v.Id, v.Name, v.Value, v.Sku, v.PriceAdjustment, v.StockQuantity, v.IsActive)).ToList()));
+        return query;
+    }
+
+    private static ProductDetailDto? MapDetail(Product? product)
+    {
+        if (product is null)
+        {
+            return null;
+        }
+
+        return new ProductDetailDto(
+            product.Id,
+            product.Name,
+            product.Slug,
+            product.ShortDescription,
+            product.Description,
+            product.BasePrice,
+            product.Sku,
+            product.IsActive,
+            product.IsFeatured,
+            product.Images
+                .OrderBy(i => i.SortOrder)
+                .Select(i => new ProductImageDto(i.Id, i.ImageUrl, i.AltText, i.SortOrder, i.IsPrimary))
+                .ToList(),
+            product.Variants
+                .OrderBy(v => v.Name)
+                .Select(v => new ProductVariantDto(v.Id, v.Name, v.Value, v.Sku, v.PriceAdjustment, v.StockQuantity, v.IsActive))
+                .ToList());
     }
 
     private async Task EnsureSlugIsUniqueAsync(string slug, int? currentId)

@@ -51,14 +51,34 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ProductDetailDto>> Create([FromBody] CreateProductRequest request)
     {
-        var product = await _productService.CreateAsync(request);
-        return CreatedAtAction(nameof(GetAdminById), new { id = product.Id }, product);
+        try
+        {
+            var product = await _productService.CreateAsync(request);
+            return CreatedAtAction(nameof(GetAdminById), new { id = product.Id }, product);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<ProductDetailDto>> Update(int id, [FromBody] UpdateProductRequest request) =>
-        Ok(await _productService.UpdateAsync(id, request));
+    public async Task<ActionResult<ProductDetailDto>> Update(int id, [FromBody] UpdateProductRequest request)
+    {
+        try
+        {
+            return Ok(await _productService.UpdateAsync(id, request));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]

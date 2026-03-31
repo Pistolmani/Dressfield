@@ -26,9 +26,11 @@ export function NavLinks({ className, onNavigate }: { className?: string; onNavi
             href={link.href}
             onClick={onNavigate}
             className={cn(
-              "text-3xl font-light tracking-wide transition-opacity hover:opacity-60",
-              "font-[family-name:var(--font-brand)]",
-              isActive ? "text-white underline underline-offset-4" : "text-white/80",
+              "inline-flex items-center justify-center rounded-full px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] transition-all duration-200",
+              "font-[family-name:var(--font-brand-text)]",
+              isActive
+                ? "bg-white text-[#1b1512] shadow-[0_12px_30px_-18px_rgba(0,0,0,0.55)]"
+                : "text-white/74 hover:bg-white/8 hover:text-white",
               className
             )}
           >

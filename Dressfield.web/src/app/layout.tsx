@@ -13,10 +13,10 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const notoGeorgian = Noto_Sans_Georgian({
+const notoGeorgianFallback = Noto_Sans_Georgian({
   subsets: ["georgian"],
   weight: ["400", "700"],
-  variable: "--font-georgian",
+  variable: "--font-georgian-fallback",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
@@ -61,7 +61,7 @@ export default function RootLayout({
       className={cn(
         "h-full antialiased",
         inter.variable,
-        notoGeorgian.variable
+        notoGeorgianFallback.variable
       )}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">

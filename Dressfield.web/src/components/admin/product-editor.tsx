@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -77,6 +78,41 @@ function mapProductToForm(product: ProductDetailDto): ProductPayload {
         : [],
     variants: [],
   };
+}
+
+function getSaveErrorMessage(error: unknown) {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data;
+
+    if (typeof data === "string" && data.trim()) {
+      return data;
+    }
+
+    if (data && typeof data === "object") {
+      const message = "message" in data && typeof data.message === "string" ? data.message : null;
+      if (message) {
+        return message;
+      }
+
+      const title = "title" in data && typeof data.title === "string" ? data.title : null;
+      if (title) {
+        return title;
+      }
+
+      if ("errors" in data && data.errors && typeof data.errors === "object") {
+        for (const value of Object.values(data.errors)) {
+          if (Array.isArray(value)) {
+            const firstMessage = value.find((item) => typeof item === "string" && item.trim());
+            if (typeof firstMessage === "string") {
+              return firstMessage;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return "პროდუქტის შენახვა ვერ მოხერხდა";
 }
 
 function normalizeForm(form: ProductPayload): ProductPayload {
@@ -180,7 +216,7 @@ function ProductEditorForm({
       toast.success("პროდუქტი შენახულია");
       router.push("/admin/products");
     },
-    onError: () => toast.error("პროდუქტის შენახვა ვერ მოხერხდა"),
+    onError: (error) => toast.error(getSaveErrorMessage(error)),
   });
 
   function updateImage(index: number, patch: Partial<ProductImagePayload>) {

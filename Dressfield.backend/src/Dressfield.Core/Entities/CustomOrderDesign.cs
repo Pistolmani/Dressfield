@@ -10,7 +10,7 @@ public class CustomOrderDesign
     // Canvas placement options — all nullable, filled by the canvas editor in Phase 3 Plan 4
     public string? Placement { get; set; }   // "chest" | "back" | "sleeve" | "full-front"
     public string? Size { get; set; }         // "S" | "M" | "L" | "XL"
-    public string? ThreadColor { get; set; }  // hex e.g. "#7C3AED"
+    public string? ThreadColor { get; set; }  
 
     // Canvas geometry — percentage-based position & cm dimensions
     public decimal? Width { get; set; }

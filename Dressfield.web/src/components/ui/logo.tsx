@@ -11,14 +11,14 @@ export function Logo({ className }: LogoProps) {
       aria-label="DressField"
       role="img"
     >
-      <circle cx="7" cy="16" r="6" fill="#7C3AED" />
+      <circle cx="7" cy="16" r="6" fill="currentColor" />
       <text
         x="17"
         y="24"
         fontFamily="Inter, ui-sans-serif, system-ui, sans-serif"
         fontSize="26"
         fill="currentColor"
-        letterSpacing="-0.3"
+        letterSpacing="-0.45"
       >
         <tspan fontWeight="800">DRESS</tspan>
         <tspan fontWeight="400">Field</tspan>

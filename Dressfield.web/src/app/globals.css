@@ -10,10 +10,18 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Grotesk Georgian";
+  src: url("/fonts/grotesk-georgian.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+10A0-10FF, U+1C90-1CBF, U+2D00-2D2F;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* ── Monochrome Black & White palette ── */
   --surface: #ffffff;
   --accent: #000000;
   --accent-hover: #333333;
@@ -28,41 +36,34 @@
   --header-text: #ffffff;
   --footer-bg: #000000;
   --footer-text: #ffffff;
-  --radius: 0.5rem;
+  --radius: 0.9rem;
 
-  /* Backgrounds */
-  --background: #ffffff;       /* Pure white */
-  --foreground: #000000;       /* Pure black */
+  --background: #ffffff;
+  --foreground: #000000;
 
-  /* Surfaces */
   --card: #ffffff;
   --card-foreground: #000000;
   --popover: #ffffff;
   --popover-foreground: #000000;
 
-  /* Borders & inputs */
   --border: #e5e5e5;
   --input: #e5e5e5;
   --ring: #000000;
 
-  /* Muted / secondary text */
   --muted: #f5f5f5;
   --muted-foreground: #666666;
 
-  /* shadcn primitives */
   --primary: #000000;
   --primary-foreground: #ffffff;
   --secondary: #f5f5f5;
   --secondary-foreground: #000000;
 
-  /* Charts */
   --chart-1: #000000;
   --chart-2: #333333;
   --chart-3: #666666;
   --chart-4: #999999;
   --chart-5: #cccccc;
 
-  /* Sidebar */
   --sidebar: #fafafa;
   --sidebar-foreground: #000000;
   --sidebar-primary: #000000;
@@ -90,10 +91,11 @@
   --color-header-text: var(--header-text);
   --color-footer-bg: var(--footer-bg);
   --color-footer-text: var(--footer-text);
-  --font-ui: "Twsborg", var(--font-georgian), sans-serif;
+  --font-georgian-ui: "Grotesk Georgian", var(--font-georgian-fallback), sans-serif;
+  --font-ui: var(--font-georgian-ui), "Twsborg", sans-serif;
   --font-sans: var(--font-ui);
-  --font-georgian: var(--font-georgian);
-  --font-brand: var(--font-ui);
+  --font-georgian: var(--font-georgian-ui);
+  --font-brand: "Twsborg", sans-serif;
   --font-brand-text: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-ui);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -131,25 +133,23 @@
 
 body {
   font-family: var(--font-ui);
-  font-size: 1.2rem;
-  letter-spacing: 0.025em;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.55;
+  letter-spacing: 0.012em;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at 10% 12%, rgba(0, 0, 0, 0.05), transparent 24%),
+    radial-gradient(circle at 88% 8%, rgba(0, 0, 0, 0.035), transparent 24%),
+    radial-gradient(circle at 50% 110%, rgba(0, 0, 0, 0.03), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
 }
 
-/* Form elements — match body font. font-size:inherit applies to raw <label> elements;
-   the shadcn Label component has an explicit text-* class that takes precedence. */
-label {
-  font-family: var(--font-ui);
-  font-size: inherit;
-  letter-spacing: 0.03em;
+::selection {
+  background: rgba(0, 0, 0, 0.14);
 }
 
-input,
-select,
-textarea {
-  font-family: var(--font-ui);
-  font-size: inherit;
-  letter-spacing: 0.02em;
+img {
+  display: block;
 }
 
 h1,
@@ -204,6 +204,37 @@ h6 {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.985 0 0);
+}
+
+@layer utilities {
+  .page-shell {
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1rem;
+  }
+
+  .panel-surface {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.84);
+    border-radius: 2rem;
+    box-shadow: 0 26px 80px -40px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(18px);
+  }
+
+  .eyebrow {
+    color: var(--muted-foreground);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+  }
+
+  .display-title {
+    font-family: var(--font-ui);
+    font-size: clamp(3rem, 8vw, 5.75rem);
+    line-height: 0.92;
+    letter-spacing: 0.03em;
+  }
 }
 
 @layer base {

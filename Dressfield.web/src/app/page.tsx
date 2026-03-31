@@ -26,21 +26,21 @@ export default async function HomePage() {
           {/* Dark overlay for text legibility */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/85" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
-          <Logo className="h-12 sm:h-16 w-auto mx-auto mb-8 text-white" />
-          <h1 className="font-ui text-6xl sm:text-7xl lg:text-8xl font-bold tracking-[0.04em] leading-tight max-w-3xl mx-auto">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 text-center">
+          <Logo className="h-10 sm:h-12 w-auto mx-auto mb-6 text-white" />
+          <h1 className="font-ui text-4xl sm:text-5xl lg:text-6xl font-bold tracking-[0.03em] leading-tight max-w-3xl mx-auto">
             ქართული ნაქარგი,{" "}
             <span className="text-white">შენი სტილით</span>
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-white/60 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-5 text-base sm:text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
             ავტვირთე შენი დიზაინი, ნახე live preview და შეუკვეთე
             ინდივიდუალური ნაქარგი.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/custom-order">
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-white/90 px-8 py-4 text-base font-semibold"
+                className="bg-white text-black hover:bg-white/90 px-6 py-3 text-sm font-semibold"
               >
                 <Upload className="h-4 w-4 mr-2" />
                 ჩემი დიზაინი
@@ -49,7 +49,7 @@ export default async function HomePage() {
             <Link href="/products">
               <Button
                 size="lg"
-                className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 text-base font-semibold"
+                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 text-sm font-semibold"
               >
                 მზა პროდუქცია
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -61,14 +61,14 @@ export default async function HomePage() {
 
       {/* ── FEATURED PRODUCTS ────────────────────────────── */}
       {featured.length > 0 && (
-        <section className="bg-background py-16 sm:py-20">
+        <section className="bg-background py-14 sm:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-10">
+            <div className="flex items-end justify-between mb-8">
               <div>
                 <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground mb-2">
                   კოლექცია
                 </p>
-                <h2 className="font-ui text-5xl font-bold tracking-[0.04em]">
+                <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-[0.03em]">
                   პოპულარული პროდუქტები
                 </h2>
               </div>
@@ -98,43 +98,43 @@ export default async function HomePage() {
       )}
 
       {/* ── CUSTOM ORDER CTA ─────────────────────────────── */}
-      <section className="bg-foreground py-16 sm:py-20">
+      <section className="bg-foreground py-14 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div className="text-white">
               <p className="text-xs uppercase tracking-[0.24em] text-white/50 mb-4">
                 ინდივიდუალური შეკვეთა
               </p>
-              <h2 className="font-ui text-5xl sm:text-6xl font-bold tracking-[0.04em] mb-6">
+              <h2 className="font-ui text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[0.03em] mb-5">
                 შეიქმენი შენი უნიკალური ნაქარგი
               </h2>
-              <ol className="space-y-4 mb-10">
+              <ol className="space-y-3 mb-8">
                 {[
                   { icon: Upload, text: "ავტვირთე შენი დიზაინი ან სურათი" },
                   { icon: Eye, text: "ნახე live preview პროდუქტზე" },
                   { icon: ShoppingBag, text: "შეუკვეთე და მიიღე სახლში" },
                 ].map(({ icon: Icon, text }, i) => (
                   <li key={i} className="flex items-center gap-4">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
                       {i + 1}
                     </span>
-                    <span className="text-white/90">{text}</span>
+                    <span className="text-sm sm:text-base text-white/90">{text}</span>
                   </li>
                 ))}
               </ol>
               <Link href="/custom-order">
                 <Button
                   size="lg"
-                  className="bg-white text-black hover:bg-white/90 font-semibold px-8"
+                  className="bg-white text-black hover:bg-white/90 font-semibold px-6 text-sm"
                 >
                   დაიწყე ახლავე
                 </Button>
               </Link>
             </div>
             <div className="hidden lg:flex items-center justify-center">
-              <div className="w-80 h-80 rounded-3xl bg-white/10 border border-white/20 flex items-center justify-center">
+              <div className="w-72 h-72 rounded-3xl bg-white/10 border border-white/20 flex items-center justify-center">
                 <div className="text-center text-white/40">
-                  <Upload className="h-16 w-16 mx-auto mb-4" />
+                  <Upload className="h-14 w-14 mx-auto mb-3" />
                   <p className="text-sm">Design Preview Mockup</p>
                 </div>
               </div>
@@ -146,5 +146,4 @@ export default async function HomePage() {
     </div>
   );
 }
-
 

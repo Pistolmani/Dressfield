@@ -15,7 +15,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const addItem = useCartStore((state) => state.addItem);
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-black/8 bg-white shadow-sm transition-shadow hover:shadow-lg">
+    <article className="overflow-hidden rounded-[1.6rem] border border-black/8 bg-white shadow-sm transition-shadow hover:shadow-lg">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
           <img
@@ -31,10 +31,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         </div>
       </Link>
 
-      <div className="space-y-4 p-5">
-        <div className="space-y-2">
+      <div className="space-y-3 p-4">
+        <div className="space-y-1.5">
           <Link href={`/products/${product.slug}`} className="block">
-            <h3 className="font-ui text-3xl font-semibold tracking-[0.04em]">
+            <h3 className="font-ui text-2xl font-semibold tracking-[0.03em]">
               {product.name}
             </h3>
           </Link>
@@ -44,11 +44,11 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <span className="font-ui text-2xl font-semibold text-accent">
+          <span className="font-ui text-xl font-semibold text-accent">
             {formatPrice(product.basePrice)}
           </span>
           <Button
-            className="bg-accent px-4 text-white hover:bg-accent-hover"
+            className="bg-accent px-3 text-xs text-white hover:bg-accent-hover"
             onClick={() =>
               addItem({
                 productId: product.id,

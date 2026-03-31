@@ -3,9 +3,15 @@ import type { Metadata } from "next";
 import { ProductDetailClient } from "@/components/catalog/product-detail-client";
 import { getStaticProductBySlug, getStaticProducts } from "@/lib/catalog";
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
-  const products = await getStaticProducts();
-  return products.map((product) => ({ slug: product.slug }));
+  try {
+    const products = await getStaticProducts();
+    return products.map((product) => ({ slug: product.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
