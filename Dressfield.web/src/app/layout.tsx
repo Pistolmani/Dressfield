@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CursorTrail } from "@/components/ui/CursorTrail";
 import { PageTransition } from "@/components/ui/page-transition";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -67,6 +68,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
+          <MetaPixel />
           <CursorTrail />
           <Header />
           <main className="flex-1"><PageTransition>{children}</PageTransition></main>

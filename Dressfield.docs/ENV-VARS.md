@@ -5,6 +5,7 @@
 | Variable | Required | Secret | Default | Description |
 |----------|----------|--------|---------|-------------|
 | `NEXT_PUBLIC_API_URL` | Yes | No | `http://localhost:5000` | Backend API base URL |
+| `NEXT_PUBLIC_META_PIXEL_ID` | No | No | â€” | Meta Pixel ID for browser event tracking (`PageView`, `ViewContent`, `AddToCart`, `InitiateCheckout`, `Purchase`) |
 
 ## Backend (Dressfield.API)
 

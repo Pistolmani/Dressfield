@@ -147,6 +147,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomOrderService, CustomOrderService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 // Storage service â€” Azure Blob in production, local filesystem only in development
 var azureConnectionString = builder.Configuration["AzureStorage:ConnectionString"];

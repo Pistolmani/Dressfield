@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/catalog";
+import { trackAddToCart } from "@/lib/analytics";
 import type { ProductSummaryDto } from "@/types/catalog";
 
 const fallbackImage =
@@ -13,6 +14,23 @@ const fallbackImage =
 
 export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const addItem = useCartStore((state) => state.addItem);
+  
+  function handleAddToCart() {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.basePrice,
+      quantity: 1,
+      imageUrl: product.primaryImageUrl || undefined,
+    });
+
+    trackAddToCart({
+      contentId: String(product.id),
+      contentName: product.name,
+      value: product.basePrice,
+      quantity: 1,
+    });
+  }
 
   return (
     <article className="overflow-hidden rounded-[1.6rem] border border-black/8 bg-white shadow-sm transition-shadow hover:shadow-lg">
@@ -49,15 +67,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
           </span>
           <Button
             className="bg-accent px-3 text-xs text-white hover:bg-accent-hover"
-            onClick={() =>
-              addItem({
-                productId: product.id,
-                name: product.name,
-                price: product.basePrice,
-                quantity: 1,
-                imageUrl: product.primaryImageUrl || undefined,
-              })
-            }
+            onClick={handleAddToCart}
           >
             კალათაში დამატება
           </Button>

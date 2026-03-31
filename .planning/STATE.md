@@ -41,6 +41,9 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 - [x] Completed frontend QA + bug-fix pass for custom-order/admin/order-confirmation flows
 - [x] Fixed lint blockers (`react-hooks/purity`, `set-state-in-effect`, `no-explicit-any`) in key frontend files
 - [x] Verified frontend quality checks: `npm run lint` clean, `npx tsc --noEmit` clean, `npm run build` successful static export
+- [x] Added Phase 6 backend summary endpoint for admin dashboard KPIs (`GET /api/admin/dashboard/summary`)
+- [x] Added Meta Pixel infrastructure and funnel event hooks (`PageView`, `ViewContent`, `AddToCart`, `InitiateCheckout`, `Purchase`)
+- [x] Added route-level SEO metadata polish (`/products` metadata + `noindex` on checkout/order result pages)
 
 ## Previous Phases (Completed)
 

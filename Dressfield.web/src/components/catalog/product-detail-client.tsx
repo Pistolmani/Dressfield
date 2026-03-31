@@ -2,11 +2,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { ChevronDown, Minus, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cart-store";
+import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import type { ProductDetailDto } from "@/types/catalog";
 
 const fallbackImage =
@@ -76,9 +77,25 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
       quantity,
       imageUrl: selectedImage.imageUrl,
     });
+
+    trackAddToCart({
+      contentId: String(product.id),
+      contentName: product.name,
+      value: totalPrice * quantity,
+      quantity,
+    });
+
     setAddedFeedback(true);
     setTimeout(() => setAddedFeedback(false), 1500);
   }, [addItem, product.id, product.name, selectedVariantItems, totalPrice, quantity, selectedImage.imageUrl]);
+
+  useEffect(() => {
+    trackViewContent({
+      contentId: String(product.id),
+      contentName: product.name,
+      value: product.basePrice,
+    });
+  }, [product.id, product.name, product.basePrice]);
 
   return (
     <div className="bg-background py-10 sm:py-12">

@@ -9,6 +9,7 @@ import { CheckCircle2, Clock, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { getMyOrderById } from "@/lib/orders";
+import { trackPurchase } from "@/lib/analytics";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { formatPrice } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ function ConfirmationContent() {
 
   const id = orderId ? Number(orderId) : 0;
   const pollStartRef = useRef<number | null>(null);
+  const hasTrackedPurchaseRef = useRef(false);
 
   const { data: order } = useQuery({
     queryKey: ["my-order", id],
@@ -48,6 +50,17 @@ function ConfirmationContent() {
       localStorage.removeItem("dressfield_pending_order_id");
     }
   }, [isPending, order]);
+
+  useEffect(() => {
+    if (isMock || !order || isPending || hasTrackedPurchaseRef.current) return;
+
+    trackPurchase({
+      orderId: String(order.id),
+      value: order.totalAmount,
+    });
+
+    hasTrackedPurchaseRef.current = true;
+  }, [isMock, order, isPending]);
 
   return (
     <div className="min-h-[70vh] bg-background flex flex-col items-center justify-center px-4 text-center">

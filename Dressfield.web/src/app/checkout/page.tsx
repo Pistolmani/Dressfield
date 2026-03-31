@@ -1,12 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
 import { createOrder } from "@/lib/orders";
+import { trackInitiateCheckout } from "@/lib/analytics";
 import { formatPrice } from "@/lib/utils";
 
 type Step = "form" | "review";
@@ -47,12 +48,30 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const hasTrackedInitiateCheckoutRef = useRef(false);
 
   useEffect(() => {
     if (items.length === 0) {
       router.replace("/cart");
     }
   }, [items.length, router]);
+
+  useEffect(() => {
+    if (items.length === 0 || hasTrackedInitiateCheckoutRef.current) {
+      return;
+    }
+
+    const subtotal = totalPrice();
+    const total = subtotal + SHIPPING_COST;
+
+    trackInitiateCheckout({
+      contentIds: Array.from(new Set(items.map((item) => String(item.productId)))),
+      value: total,
+      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+    });
+
+    hasTrackedInitiateCheckoutRef.current = true;
+  }, [items, totalPrice]);
 
   function set(field: keyof FormData, value: string) {
     // Smart sanitization per field
