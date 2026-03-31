@@ -3,6 +3,7 @@ using Dressfield.Application.Interfaces;
 using Dressfield.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace Dressfield.API.Controllers;
@@ -22,6 +23,7 @@ public class CustomOrdersController : ControllerBase
 
     /// <summary>Submit a new custom order. Works for both guests and logged-in users.</summary>
     [HttpPost]
+    [EnableRateLimiting("orders")]
     public async Task<ActionResult<CustomOrderDetailDto>> Create([FromBody] CreateCustomOrderRequest request)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -7,6 +7,7 @@ using Dressfield.Infrastructure.Data;
 using Dressfield.Infrastructure.Services;
 using Dressfield.Application.DTOs;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -122,6 +123,13 @@ builder.Services.AddRateLimiter(options =>
         o.QueueLimit  = 0;
     });
 
+    options.AddFixedWindowLimiter("upload", o =>
+    {
+        o.Window      = TimeSpan.FromMinutes(1);
+        o.PermitLimit = 12;
+        o.QueueLimit  = 0;
+    });
+
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
@@ -166,6 +174,7 @@ else
 
 builder.Services.AddValidatorsFromAssemblyContaining<Dressfield.Application.DTOs.RegisterRequest>();
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

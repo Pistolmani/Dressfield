@@ -25,6 +25,16 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 - [x] Order status audit log
 - [x] Health check and correlation ID middleware
 
+## Recent Updates (2026-03-31)
+
+- [x] Added FluentValidation auto-validation pipeline in API startup
+- [x] Added rate limiting to auth refresh, upload endpoint, and custom-order creation
+- [x] Added upload magic-byte file signature checks (JPEG/PNG/WEBP)
+- [x] Stopped trusting client `TotalPrice` for custom orders (server now computes persisted total)
+- [x] Verified backend compile after hardening (`dotnet build` success)
+- [x] Verified NuGet vulnerable package audit (`dotnet list ... --vulnerable` reported none)
+- [ ] Runtime availability blocker in local environment: backend startup currently fails when MySQL is unreachable
+
 ## Previous Phases (Completed)
 
 **Phase 4: Cart & Checkout** — COMPLETE (commits b70270a..d6cf650, 2026-03-28)
@@ -86,4 +96,4 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 None.
 
 ---
-*Last updated: 2026-03-30 — Phase 5 complete. Next focus: Phase 6 (Analytics & SEO Polish).*
+*Last updated: 2026-03-31 — Security hardening pass recorded; next focus remains Phase 6 (Analytics & SEO Polish).*

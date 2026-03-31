@@ -21,6 +21,7 @@ Customers can discover embroidered products, customize their own designs with a 
 - [x] Order confirmation and shipping emails
 - [x] Customer order history and admin order management
 - [x] Responsive Georgian-language storefront with updated premium visual direction
+- [x] Baseline API hardening (validation pipeline, rate limits, secure upload signature checks)
 
 ### Active
 
@@ -95,4 +96,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-30 after Phase 5 completion*
+*Last updated: 2026-03-31 after security hardening pass*

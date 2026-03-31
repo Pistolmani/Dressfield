@@ -10,6 +10,14 @@ namespace Dressfield.Infrastructure.Services;
 public class CustomOrderService : ICustomOrderService
 {
     private readonly DressfieldDbContext _db;
+    private static readonly IReadOnlyDictionary<string, decimal> EmbroiderySizeExtraPrices =
+        new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["S"] = 0m,
+            ["M"] = 10m,
+            ["L"] = 20m,
+            ["XL"] = 35m
+        };
 
     public CustomOrderService(DressfieldDbContext db)
     {
@@ -69,12 +77,22 @@ public class CustomOrderService : ICustomOrderService
 
     public async Task<CustomOrderDetailDto> CreateAsync(CreateCustomOrderRequest request, string? userId)
     {
+        decimal baseProductPrice = 0m;
+
         if (request.BaseProductId.HasValue)
         {
-            var productExists = await _db.Products.AnyAsync(p => p.Id == request.BaseProductId.Value && p.IsActive);
-            if (!productExists)
+            var baseProduct = await _db.Products
+                .AsNoTracking()
+                .Where(p => p.Id == request.BaseProductId.Value && p.IsActive)
+                .Select(p => new { p.BasePrice })
+                .FirstOrDefaultAsync();
+            if (baseProduct is null)
                 throw new KeyNotFoundException("არჩეული პროდუქტი ვერ მოიძებნა");
+
+            baseProductPrice = baseProduct.BasePrice;
         }
+
+        var calculatedTotalPrice = baseProductPrice + CalculateEmbroideryExtra(request.Designs);
 
         var order = new CustomOrder
         {
@@ -83,10 +101,10 @@ public class CustomOrderService : ICustomOrderService
             ContactName = request.ContactName.Trim(),
             ContactPhone = request.ContactPhone.Trim(),
             ContactEmail = request.ContactEmail.Trim().ToLowerInvariant(),
-            TotalPrice = request.TotalPrice,
+            TotalPrice = calculatedTotalPrice,
             CustomerNotes = request.CustomerNotes?.Trim(),
             Status = CustomOrderStatus.Pending,
-            Designs = request.Designs.Select((d, i) => new CustomOrderDesign
+            Designs = request.Designs.Select(d => new CustomOrderDesign
             {
                 DesignImageUrl = d.DesignImageUrl.Trim(),
                 Placement = d.Placement?.Trim(),
@@ -154,4 +172,21 @@ public class CustomOrderService : ICustomOrderService
             o.Status,
             o.TotalPrice,
             o.CreatedAt);
+
+    private static decimal CalculateEmbroideryExtra(IReadOnlyCollection<CreateCustomOrderDesignRequest> designs) =>
+        designs
+            .Select(d => ResolveEmbroideryExtra(d.Size))
+            .DefaultIfEmpty(0m)
+            .Max();
+
+    private static decimal ResolveEmbroideryExtra(string? size)
+    {
+        if (string.IsNullOrWhiteSpace(size))
+            return 0m;
+
+        var normalized = size.Trim().ToUpperInvariant();
+        return EmbroiderySizeExtraPrices.TryGetValue(normalized, out var extraPrice)
+            ? extraPrice
+            : 0m;
+    }
 }

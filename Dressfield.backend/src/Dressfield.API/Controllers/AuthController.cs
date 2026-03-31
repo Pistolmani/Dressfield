@@ -39,6 +39,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Refresh()
     {
         var refreshToken = Request.Cookies["refreshToken"];
