@@ -1,6 +1,15 @@
+export interface DesignTransform {
+  left: number;
+  top: number;
+  scaleX: number;
+  scaleY: number;
+  angle: number;
+}
+
 export interface DesignItem {
   id: string;
   url: string;
+  transform?: DesignTransform;
 }
 
 export const PRODUCT_TYPES = [

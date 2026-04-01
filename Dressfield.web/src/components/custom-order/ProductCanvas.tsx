@@ -4,7 +4,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import { Skeleton } from "@/components/ui/skeleton";
 import { ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { DesignItem, ProductType } from "@/config/custom-order";
+import type { DesignItem, DesignTransform, ProductType } from "@/config/custom-order";
 
 const CANVAS_SIZE = 520;
 
@@ -20,6 +20,7 @@ interface ProductCanvasProps {
   product: ProductType;
   designs: DesignItem[];
   activeSide: "front" | "back";
+  onDesignTransformChange?: (id: string, transform: DesignTransform) => void;
 }
 
 type FabricModule = typeof import("fabric");
@@ -29,7 +30,7 @@ type FabricCanvasObject = import("fabric").fabric.Object & { _designId?: string 
 type FabricDesignImage = FabricImage & { _designId?: string };
 
 export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>(
-  function ProductCanvas({ product, designs, activeSide }, ref) {
+  function ProductCanvas({ product, designs, activeSide, onDesignTransformChange }, ref) {
     const canvasElRef    = useRef<HTMLCanvasElement>(null);
     const fabricRef      = useRef<FabricCanvas | null>(null);
     const designObjsRef  = useRef<Map<string, FabricImage>>(new Map());
@@ -97,14 +98,22 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
           const imgW = img.width  || 100;
           const imgH = img.height || 100;
-          const scale = Math.min((zone.width * 0.8) / imgW, (zone.height * 0.8) / imgH);
+          const defaultScale = Math.min((zone.width * 0.8) / imgW, (zone.height * 0.8) / imgH);
+          const transform = item.transform;
+          const left = transform?.left ?? zone.x + zone.width / 2;
+          const top = transform?.top ?? zone.y + zone.height / 2;
+          const scaleX = transform?.scaleX ?? defaultScale;
+          const scaleY = transform?.scaleY ?? defaultScale;
+          const angle = transform?.angle ?? 0;
 
           (img as FabricImage & { _designId: string })._designId = item.id;
 
           img.set({
-            left: zone.x + zone.width  / 2,
-            top:  zone.y + zone.height / 2,
-            scaleX: scale, scaleY: scale,
+            left,
+            top,
+            scaleX,
+            scaleY,
+            angle,
             originX: "center", originY: "center",
             selectable: true, evented: true,
             hasControls: true, hasBorders: true,
@@ -184,6 +193,20 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         if (obj) obj.scaleY = obj.scaleX;
       });
 
+      const persistTransform = (obj?: FabricCanvasObject) => {
+        if (!obj?._designId || !onDesignTransformChange) return;
+        onDesignTransformChange(obj._designId, {
+          left: obj.left ?? 0,
+          top: obj.top ?? 0,
+          scaleX: obj.scaleX ?? 1,
+          scaleY: obj.scaleY ?? 1,
+          angle: obj.angle ?? 0,
+        });
+      };
+
+      // Persist once interaction finishes (not on every move frame) to keep dragging smooth.
+      fc.on("object:modified", (e) => persistTransform(e.target as FabricCanvasObject | undefined));
+
       // Mouse wheel zoom
       fc.on("mouse:wheel", (opt) => {
         const delta = (opt.e as WheelEvent).deltaY;
@@ -221,7 +244,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         designObjs.clear();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fabricModule, product.svgTemplate, product.svgTemplateBack, activeSide]);
+    }, [fabricModule, product.svgTemplate, product.svgTemplateBack, activeSide, onDesignTransformChange]);
     // Sync designs array: add new, remove deleted
     useEffect(() => {
       const fc     = fabricRef.current;

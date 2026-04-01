@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
 import { ImageToolbar } from "@/components/custom-order/ImageToolbar";
 import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanvas";
-import type { DesignItem, ProductType } from "@/config/custom-order";
+import type { DesignItem, DesignTransform, ProductType } from "@/config/custom-order";
 
 interface Step3DesignUploadProps {
   product: ProductType;
@@ -18,6 +18,7 @@ interface Step3DesignUploadProps {
   onDesignAdd: (url: string) => void;
   onDesignRemove: (id: string) => void;
   onDesignReplace: (id: string, newUrl: string) => void;
+  onDesignTransformChange: (id: string, transform: DesignTransform) => void;
   onSideChange: (side: "front" | "back") => void;
 }
 
@@ -28,6 +29,7 @@ export function Step3DesignUpload({
   onDesignAdd,
   onDesignRemove,
   onDesignReplace,
+  onDesignTransformChange,
   onSideChange,
 }: Step3DesignUploadProps) {
   const canvasRef = useRef<ProductCanvasHandle | null>(null);
@@ -203,6 +205,7 @@ export function Step3DesignUpload({
             product={product}
             designs={designs}
             activeSide={activeSide}
+            onDesignTransformChange={onDesignTransformChange}
           />
         </div>
       </div>

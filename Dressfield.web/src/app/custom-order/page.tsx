@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/custom-order/StepIndicator";
 import { Step1ProductSelector } from "@/components/custom-order/Step1_ProductSelector";
@@ -13,11 +13,25 @@ import {
   PRODUCT_COLORS,
   getSkippedSteps,
   type DesignItem,
+  type DesignTransform,
   type ProductTypeId,
   type ClothingSize,
   type EmbroiderySizeId,
   type ProductColor,
 } from "@/config/custom-order";
+
+function isSameTransform(a: DesignTransform | undefined, b: DesignTransform) {
+  if (!a) return false;
+
+  const epsilon = 0.001;
+  return (
+    Math.abs(a.left - b.left) < epsilon &&
+    Math.abs(a.top - b.top) < epsilon &&
+    Math.abs(a.scaleX - b.scaleX) < epsilon &&
+    Math.abs(a.scaleY - b.scaleY) < epsilon &&
+    Math.abs(a.angle - b.angle) < epsilon
+  );
+}
 
 export default function CustomOrderPage() {
   const [step, setStep] = useState(1);
@@ -91,6 +105,24 @@ export default function CustomOrderPage() {
     setFrontDesigns((prev) => replaceIn(prev));
     setBackDesigns((prev) => replaceIn(prev));
   }
+
+  const updateDesignTransform = useCallback((id: string, transform: DesignTransform) => {
+    const applyTransform = (prev: DesignItem[]) => {
+      let changed = false;
+      const next = prev.map((design) => {
+        if (design.id !== id) return design;
+        if (isSameTransform(design.transform, transform)) return design;
+
+        changed = true;
+        return { ...design, transform };
+      });
+
+      return changed ? next : prev;
+    };
+
+    setFrontDesigns((prev) => applyTransform(prev));
+    setBackDesigns((prev) => applyTransform(prev));
+  }, []);
 
   // Step completion check
   const isStepComplete = (): boolean => {
@@ -186,6 +218,7 @@ export default function CustomOrderPage() {
               onDesignAdd={addDesign}
               onDesignRemove={removeDesign}
               onDesignReplace={replaceDesignUrl}
+              onDesignTransformChange={updateDesignTransform}
               onSideChange={setActiveSide}
             />
           )}
