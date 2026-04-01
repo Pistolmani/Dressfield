@@ -9,6 +9,9 @@ import {
   type ReactNode,
 } from "react";
 import api, { setAccessToken } from "./api";
+import { getServerCart, syncServerCart } from "@/lib/cart-api";
+import { mapServerCartToLocal, mergeCarts } from "@/lib/cart-merge";
+import { setCartSyncSuppressed, useCartStore } from "@/stores/cart-store";
 import type { User, LoginRequest, RegisterRequest, AuthResponse } from "@/types/auth";
 
 interface AuthContextType {
@@ -31,31 +34,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   }, []);
 
+  const hydrateCartAfterAuth = useCallback(async (mode: "merge" | "replace") => {
+    setCartSyncSuppressed(true);
+
+    try {
+      const serverCart = await getServerCart();
+      const localItems = useCartStore.getState().items;
+      const serverItemsAsLocal = mapServerCartToLocal(serverCart.items);
+
+      if (mode === "replace") {
+        useCartStore.getState().setItems(serverItemsAsLocal);
+        return;
+      }
+
+      const merged = mergeCarts(localItems, serverCart.items);
+      useCartStore.getState().setItems(merged);
+      await syncServerCart(merged);
+    } catch {
+      // Keep local cart as the fallback source of truth when sync fails.
+    } finally {
+      setCartSyncSuppressed(false);
+    }
+  }, []);
+
   useEffect(() => {
     api
       .post<AuthResponse>("/api/auth/refresh")
-      .then(({ data }) => handleAuthResponse(data))
+      .then(async ({ data }) => {
+        handleAuthResponse(data);
+        await hydrateCartAfterAuth("replace");
+      })
       .catch(() => {
         setAccessToken(null);
         setUser(null);
       })
       .finally(() => setLoading(false));
-  }, [handleAuthResponse]);
+  }, [handleAuthResponse, hydrateCartAfterAuth]);
 
   const login = useCallback(
     async (data: LoginRequest) => {
       const { data: res } = await api.post<AuthResponse>("/api/auth/login", data);
       handleAuthResponse(res);
+      await hydrateCartAfterAuth("merge");
     },
-    [handleAuthResponse]
+    [handleAuthResponse, hydrateCartAfterAuth]
   );
 
   const register = useCallback(
     async (data: RegisterRequest) => {
       const { data: res } = await api.post<AuthResponse>("/api/auth/register", data);
       handleAuthResponse(res);
+      await hydrateCartAfterAuth("merge");
     },
-    [handleAuthResponse]
+    [handleAuthResponse, hydrateCartAfterAuth]
   );
 
   const logout = useCallback(async () => {

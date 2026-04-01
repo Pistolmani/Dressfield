@@ -1,17 +1,27 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { ProductDetailClient } from "@/components/catalog/product-detail-client";
 import { getStaticProductBySlug, getStaticProducts } from "@/lib/catalog";
 
 export const dynamicParams = false;
 
+const STATIC_FALLBACK_SLUG = "catalog-preview";
+
 export async function generateStaticParams() {
   try {
     const products = await getStaticProducts();
-    return products.map((product) => ({ slug: product.slug }));
+    const slugs = products
+      .map((product) => product.slug.trim())
+      .filter((slug): slug is string => slug.length > 0);
+
+    if (slugs.length > 0) {
+      return slugs.map((slug) => ({ slug }));
+    }
   } catch {
-    return [];
+    // Keep export builds deterministic when API is unavailable.
   }
+
+  return [{ slug: STATIC_FALLBACK_SLUG }];
 }
 
 export async function generateMetadata({
@@ -21,18 +31,29 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getStaticProductBySlug(slug);
-  if (!product) return {};
 
-  const primaryImage = product.images.find((i) => i.isPrimary) ?? product.images[0];
+  if (!product) {
+    if (slug === STATIC_FALLBACK_SLUG) {
+      return {
+        title: "Catalog Preview - DressField",
+        description:
+          "Static preview route generated because product API was unavailable during build.",
+      };
+    }
+
+    return {};
+  }
+
+  const primaryImage = product.images.find((image) => image.isPrimary) ?? product.images[0];
   const description =
     product.shortDescription ??
-    `${product.name} — ₾${product.basePrice.toFixed(2)} — DressField-ზე`;
+    `${product.name} - GEL ${product.basePrice.toFixed(2)} - DressField`;
 
   return {
-    title: `${product.name} — DressField`,
+    title: `${product.name} - DressField`,
     description,
     openGraph: {
-      title: `${product.name} — DressField`,
+      title: `${product.name} - DressField`,
       description,
       siteName: "DressField",
       locale: "ka_GE",
@@ -56,7 +77,21 @@ export default async function ProductDetailPage({
   const { slug } = await params;
   const product = await getStaticProductBySlug(slug);
 
-  if (!product) notFound();
+  if (!product) {
+    if (slug === STATIC_FALLBACK_SLUG) {
+      return (
+        <main className="mx-auto max-w-3xl px-4 py-16 text-center">
+          <h1 className="text-3xl font-semibold tracking-tight">Catalog Preview</h1>
+          <p className="mt-4 text-muted-foreground">
+            Product detail pages will be generated from live product slugs when the API is
+            available during build.
+          </p>
+        </main>
+      );
+    }
+
+    notFound();
+  }
 
   return (
     <>
@@ -69,7 +104,7 @@ export default async function ProductDetailPage({
             name: product.name,
             description: product.shortDescription ?? product.description,
             sku: product.sku,
-            image: product.images.map((i) => i.imageUrl),
+            image: product.images.map((image) => image.imageUrl),
             offers: {
               "@type": "Offer",
               price: product.basePrice,

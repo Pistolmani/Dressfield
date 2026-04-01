@@ -3,6 +3,7 @@ import type {
   CheckoutResponse,
   CreateOrderRequest,
   OrderDetailDto,
+  OrderStatusLookupDto,
   OrderStatus,
   OrderSummaryDto,
   UpdateOrderStatusRequest,
@@ -20,6 +21,16 @@ export async function getMyOrders(): Promise<OrderSummaryDto[]> {
 
 export async function getMyOrderById(id: number): Promise<OrderDetailDto> {
   const { data } = await api.get<OrderDetailDto>(`/api/orders/my/${id}`);
+  return data;
+}
+
+export async function getPublicOrderStatus(
+  orderId: number,
+  orderKey: string
+): Promise<OrderStatusLookupDto> {
+  const { data } = await api.get<OrderStatusLookupDto>('/api/orders/status', {
+    params: { orderId, key: orderKey },
+  });
   return data;
 }
 

@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { getAccessToken } from "@/lib/api";
+import { syncServerCart } from "@/lib/cart-api";
 
 export interface CartItem {
   productId: number;
@@ -13,6 +15,7 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
+  setItems: (items: CartItem[]) => void;
   addItem: (item: CartItem) => void;
   removeItem: (productId: number, variantId?: number) => void;
   updateQuantity: (productId: number, variantId: number | undefined, quantity: number) => void;
@@ -25,17 +28,34 @@ function itemKey(productId: number, variantId?: number) {
   return `${productId}-${variantId ?? 0}`;
 }
 
+let suppressSync = false;
+let syncTimer: ReturnType<typeof setTimeout> | null = null;
+let lastSyncedSnapshot = "[]";
+
+export function setCartSyncSuppressed(value: boolean) {
+  suppressSync = value;
+
+  if (value && syncTimer) {
+    clearTimeout(syncTimer);
+    syncTimer = null;
+  }
+}
+
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
 
+      setItems: (items) =>
+        set({
+          items: items.map((item) => ({ ...item })),
+        }),
+
       addItem: (item) =>
         set((state) => {
           const key = itemKey(item.productId, item.variantId);
-          const existing = state.items.find(
-            (i) => itemKey(i.productId, i.variantId) === key
-          );
+          const existing = state.items.find((i) => itemKey(i.productId, i.variantId) === key);
+
           if (existing) {
             return {
               items: state.items.map((i) =>
@@ -45,6 +65,7 @@ export const useCartStore = create<CartState>()(
               ),
             };
           }
+
           return { items: [...state.items, item] };
         }),
 
@@ -68,9 +89,35 @@ export const useCartStore = create<CartState>()(
 
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
 
-      totalPrice: () =>
-        get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+      totalPrice: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
     { name: "dressfield-cart" }
   )
 );
+
+useCartStore.subscribe((state, prevState) => {
+  if (state.items === prevState.items) return;
+  if (suppressSync) return;
+  if (!getAccessToken()) return;
+
+  const snapshot = JSON.stringify(
+    state.items.map((item) => ({
+      productId: item.productId,
+      variantId: item.variantId ?? null,
+      quantity: item.quantity,
+    }))
+  );
+
+  if (snapshot === lastSyncedSnapshot) return;
+
+  if (syncTimer) clearTimeout(syncTimer);
+
+  syncTimer = setTimeout(async () => {
+    try {
+      await syncServerCart(useCartStore.getState().items);
+      lastSyncedSnapshot = snapshot;
+    } catch {
+      // Keep local cart untouched; next mutation retries sync.
+    }
+  }, 500);
+});

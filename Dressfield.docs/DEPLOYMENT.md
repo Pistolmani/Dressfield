@@ -1,81 +1,120 @@
 # Dressfield Deployment Guide
 
-## Frontend (Hostinger)
+## Current Target Mode (Locked)
 
-**Type:** Static files (Next.js static export)
+- Mode: **Pre-launch dry run**
+- Scope: **Local full stack only** (frontend + backend + local MySQL)
+- Payments: **Mock payment only** (do not enable real BOG iPay in this phase)
+- Production cutover: **separate phase** after dry-run signoff
 
-### Build
+---
+
+## 1) Frontend (Static Export)
+
+### Build (deterministic)
+
 ```bash
 cd Dressfield.web
+npm run clean
 npm run build
 ```
-Output: `out/` directory with static HTML/CSS/JS
 
-### Deploy
-1. FTP/SFTP to Hostinger `public_html/`
-2. Upload contents of `out/` to `public_html/`
-3. Ensure `.htaccess` handles routing:
+Expected output: fresh `Dressfield.web/out/` directory (static HTML/CSS/JS).
 
-```apache
-RewriteEngine On
-RewriteBase /
-RewriteRule ^index\.html$ - [L]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.html [L]
+### Serve static artifact locally
+
+```bash
+cd Dressfield.web
+npm run serve:static
 ```
 
-### Environment
-- `NEXT_PUBLIC_API_URL` — Backend API URL (baked at build time)
+Default local URL: `http://localhost:3000`
+
+### Local frontend environment
+
+Copy template and fill values:
+
+```bash
+cd Dressfield.web
+copy .env.example .env.local
+```
+
+Required for dry run:
+- `NEXT_PUBLIC_API_URL=http://localhost:5000`
+- `NEXT_PUBLIC_SITE_URL=http://localhost:3000`
+
+Optional for dry run:
+- `NEXT_PUBLIC_META_PIXEL_ID` (leave empty if Pixel not being validated)
 
 ---
 
-## Backend (Azure App Service)
+## 2) Backend (ASP.NET Core API)
 
-**Type:** ASP.NET Core Web API (.NET 9)
-**Tier:** Basic B1 (Always On enabled)
+### Local configuration
+
+Use `appsettings.Development.json` for local run.  
+Reference template file: `src/Dressfield.API/appsettings.Development.example.json`
+
+Important dry-run rules:
+- Keep `BogIPay:ClientId` and `BogIPay:ClientSecret` empty to stay in **mock payment** mode.
+- Keep `AzureStorage:ConnectionString` empty in development to use local storage fallback.
+- Keep `ConnectionStrings:DefaultConnection` pointed to local MySQL.
 
 ### Build
+
 ```bash
 cd Dressfield.backend
-dotnet publish src/Dressfield.API -c Release -o ./publish
+dotnet build Dressfield.sln
 ```
 
-### Deploy
-1. Create Azure App Service (Linux, .NET 9)
-2. Configure Application Settings:
-   - `ConnectionStrings__DefaultConnection` — MySQL connection string
-   - `Jwt__Secret` — Min 32 char secret key
-   - `Jwt__Issuer` — `https://api.dressfield.ge`
-   - `Jwt__Audience` — `https://dressfield.ge`
-   - `Cors__Origins__0` — `https://dressfield.ge`
-   - `AzureStorage__ConnectionString` — Azure Blob Storage connection string
-   - `AzureStorage__ContainerName` — `designs` (or your preferred container)
-   - `AzureStorage__PublicBaseUrl` — optional CDN/base URL for public assets
-3. Deploy via GitHub Actions or Azure CLI
+### Run
 
-### Image Storage Notes
-- In production, image uploads are expected to use Azure Blob Storage.
-- If `AzureStorage__ConnectionString` is missing outside development, API startup now fails fast by design.
-- Quick verification endpoint after deploy: `POST /api/upload/design` with a test image and confirm URL host points to Azure/CDN.
+```bash
+cd Dressfield.backend
+dotnet run --project src/Dressfield.API
+```
 
-### Health Check
-- Endpoint: `/api/health`
-- Configure in Azure Portal > Health Check
+Expected local URL: `http://localhost:5000`
+
+### Health check
+
+```bash
+curl http://localhost:5000/api/health
+```
+
+Expected: HTTP 200 with database check healthy.
 
 ---
 
-## Environments
+## 3) Local Dry-Run Sequence (End-to-End)
 
-| Environment | Frontend | Backend | Database |
-|------------|----------|---------|----------|
-| Development | localhost:3000 | localhost:5000 | localhost MySQL |
-| Production | dressfield.ge (Hostinger) | api.dressfield.ge (Azure) | Hostinger MySQL |
+1. Start local MySQL.
+2. Start backend at `http://localhost:5000`.
+3. Build frontend static output (`npm run clean && npm run build`).
+4. Serve static `out/` (`npm run serve:static`).
+5. Execute smoke scenarios:
+   - Browse products
+   - Add to cart (single toast stream)
+   - Checkout (mock payment path)
+   - Order confirmation/failure pages
+   - Admin login + dashboard + orders + custom orders
 
 ---
 
-## SSL
-- Frontend: Hostinger provides free SSL
-- Backend: Azure App Service provides managed SSL
-- Ensure all cookies use `Secure` flag in production
+## 4) CI Note
+
+CI frontend job uses `npm run build`, and because static export is now enforced in config, artifact generation is deterministic for `out/`.
+
+---
+
+## 5) Production Cutover (Not in This Batch)
+
+The following are intentionally deferred:
+- Hostinger public deployment
+- Azure App Service production deploy
+- Real BOG iPay keys and callback validation in production
+- SMTP production configuration
+- Final DNS/SSL hard cutover
+
+Only proceed after local dry-run signoff.
 

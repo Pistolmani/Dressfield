@@ -77,6 +77,12 @@ export interface OrderDetailDto {
   items: OrderItemDto[];
 }
 
+export interface OrderStatusLookupDto {
+  orderId: number;
+  status: OrderStatus;
+  updatedAt: string;
+}
+
 export interface CartItemRequest {
   productId: number;
   variantId?: number;

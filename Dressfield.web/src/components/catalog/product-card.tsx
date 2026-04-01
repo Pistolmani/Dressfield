@@ -1,4 +1,4 @@
-﻿/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/catalog";
 import { trackAddToCart } from "@/lib/analytics";
+import { toast } from "sonner";
 import type { ProductSummaryDto } from "@/types/catalog";
 
 const fallbackImage =
@@ -29,6 +30,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
       contentName: product.name,
       value: product.basePrice,
       quantity: 1,
+    });
+
+    toast.success(`${product.name} კალათაში დაემატა`, {
+      duration: 2500,
     });
   }
 

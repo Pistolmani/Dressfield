@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/footer";
 import { CursorTrail } from "@/components/ui/CursorTrail";
 import { PageTransition } from "@/components/ui/page-transition";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -73,6 +74,7 @@ export default function RootLayout({
           <Header />
           <main className="flex-1"><PageTransition>{children}</PageTransition></main>
           <Footer />
+          <Toaster position="bottom-right" richColors />
         </Providers>
       </body>
     </html>

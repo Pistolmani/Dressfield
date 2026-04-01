@@ -85,6 +85,9 @@ export function CursorTrail() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Skip entirely on touch-only / no-hover devices (mobile)
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
     function resize() {
       if (!canvas) return;
       canvas.width  = window.innerWidth;

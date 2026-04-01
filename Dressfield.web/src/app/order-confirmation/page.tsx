@@ -1,100 +1,252 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Clock, Package } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Package, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { getMyOrderById } from "@/lib/orders";
+import { getMyOrderById, getPublicOrderStatus } from "@/lib/orders";
 import { trackPurchase } from "@/lib/analytics";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { formatPrice } from "@/lib/utils";
+import type { OrderStatus } from "@/types/order";
+
+type PollPhase = "polling" | "slow" | "timedOut";
+
+const SLOW_THRESHOLD_MS = 120_000;
+const TIMEOUT_THRESHOLD_MS = 300_000;
+const POLL_INTERVAL_MS = 3_000;
+const PHASE_TICK_MS = 5_000;
+
+function isPendingStatus(status: OrderStatus | undefined) {
+  return status === "AwaitingPayment" || status === "Pending";
+}
+
+function isTerminalStatus(status: OrderStatus | undefined) {
+  return (
+    status === "Paid" ||
+    status === "Processing" ||
+    status === "Shipped" ||
+    status === "Delivered" ||
+    status === "Cancelled" ||
+    status === "Refunded"
+  );
+}
 
 function ConfirmationContent() {
   const params = useSearchParams();
   const isMock = params.get("mock") === "1";
   const { user } = useAuth();
+  const [phase, setPhase] = useState<PollPhase>("polling");
 
-  // Prefer URL param; fall back to localStorage in case user navigated away mid-redirect
-  const orderId = params.get("orderId")
-    ?? (typeof window !== "undefined" ? localStorage.getItem("dressfield_pending_order_id") : null);
+  const orderIdParam = params.get("orderId");
+  const orderKeyParam = params.get("key");
+
+  const orderId =
+    orderIdParam ??
+    (typeof window !== "undefined" ? localStorage.getItem("dressfield_pending_order_id") : null);
+
+  const orderKey =
+    orderKeyParam ??
+    (typeof window !== "undefined" ? localStorage.getItem("dressfield_pending_order_key") : null);
 
   const id = orderId ? Number(orderId) : 0;
+  const canPollAsUser = !!user && id > 0;
+  const canPollAsGuest = !user && id > 0 && !!orderKey;
+  const canPoll = canPollAsUser || canPollAsGuest;
+
   const pollStartRef = useRef<number | null>(null);
+  const pollSessionRef = useRef<string>("");
   const hasTrackedPurchaseRef = useRef(false);
 
-  const { data: order } = useQuery({
-    queryKey: ["my-order", id],
-    queryFn: () => getMyOrderById(id),
-    enabled: !!user && id > 0,
-    refetchInterval: (query) => {
-      if (pollStartRef.current === null) {
-        pollStartRef.current = Date.now();
-      }
+  const pollSessionKey = `${id}:${orderKey ?? ""}:${user?.id ?? "guest"}`;
 
-      // Poll every 3s while awaiting payment, stop after 2 minutes
-      const status = query.state.data?.status;
-      const isPending = status === "AwaitingPayment" || status === "Pending";
-      const timedOut = Date.now() - pollStartRef.current > 120_000;
-      return isPending && !timedOut ? 3000 : false;
+  const ensurePollSession = useCallback(() => {
+    if (pollSessionRef.current !== pollSessionKey) {
+      pollSessionRef.current = pollSessionKey;
+      pollStartRef.current = Date.now();
+      setPhase("polling");
+      return;
+    }
+
+    if (pollStartRef.current === null) {
+      pollStartRef.current = Date.now();
+      setPhase("polling");
+    }
+  }, [pollSessionKey]);
+
+  const updatePhaseFromElapsed = useCallback(() => {
+    if (!canPoll) return;
+
+    ensurePollSession();
+    if (pollStartRef.current === null) return;
+
+    const elapsed = Date.now() - pollStartRef.current;
+    const nextPhase: PollPhase =
+      elapsed > TIMEOUT_THRESHOLD_MS
+        ? "timedOut"
+        : elapsed > SLOW_THRESHOLD_MS
+          ? "slow"
+          : "polling";
+
+    setPhase((prev) => (prev === nextPhase ? prev : nextPhase));
+  }, [canPoll, ensurePollSession]);
+
+  useEffect(() => {
+    if (orderIdParam && typeof window !== "undefined") {
+      localStorage.setItem("dressfield_pending_order_id", orderIdParam);
+    }
+    if (orderKeyParam && typeof window !== "undefined") {
+      localStorage.setItem("dressfield_pending_order_key", orderKeyParam);
+    }
+  }, [orderIdParam, orderKeyParam]);
+
+  const myOrderQuery = useQuery({
+    queryKey: ["my-order", id, pollSessionKey],
+    queryFn: () => getMyOrderById(id),
+    enabled: canPollAsUser,
+    refetchInterval: (query) => {
+      ensurePollSession();
+      updatePhaseFromElapsed();
+
+      if (pollStartRef.current === null) return false;
+      const elapsed = Date.now() - pollStartRef.current;
+      if (elapsed > TIMEOUT_THRESHOLD_MS) return false;
+
+      return isPendingStatus(query.state.data?.status) || !query.state.data
+        ? POLL_INTERVAL_MS
+        : false;
     },
   });
 
-  const isPending = order?.status === "AwaitingPayment" || order?.status === "Pending";
+  const guestStatusQuery = useQuery({
+    queryKey: ["order-public-status", id, orderKey, pollSessionKey],
+    queryFn: () => getPublicOrderStatus(id, orderKey!),
+    enabled: canPollAsGuest,
+    refetchInterval: (query) => {
+      ensurePollSession();
+      updatePhaseFromElapsed();
+
+      if (pollStartRef.current === null) return false;
+      const elapsed = Date.now() - pollStartRef.current;
+      if (elapsed > TIMEOUT_THRESHOLD_MS) return false;
+
+      return isPendingStatus(query.state.data?.status) || !query.state.data
+        ? POLL_INTERVAL_MS
+        : false;
+    },
+  });
+
+  const status = myOrderQuery.data?.status ?? guestStatusQuery.data?.status;
+  const isCancelled = status === "Cancelled";
+  const isPending = canPoll && (isPendingStatus(status) || !status);
 
   useEffect(() => {
-    if (!isPending && order && typeof window !== "undefined") {
+    if (!isPending) return;
+
+    const interval = window.setInterval(() => {
+      updatePhaseFromElapsed();
+    }, PHASE_TICK_MS);
+
+    return () => window.clearInterval(interval);
+  }, [isPending, pollSessionKey, status, canPoll, updatePhaseFromElapsed]);
+
+  useEffect(() => {
+    if (!isPending && isTerminalStatus(status) && typeof window !== "undefined") {
       localStorage.removeItem("dressfield_pending_order_id");
+      localStorage.removeItem("dressfield_pending_order_key");
     }
-  }, [isPending, order]);
+  }, [isPending, status]);
 
   useEffect(() => {
-    if (isMock || !order || isPending || hasTrackedPurchaseRef.current) return;
+    if (isMock || !myOrderQuery.data || isPending || hasTrackedPurchaseRef.current) return;
 
     trackPurchase({
-      orderId: String(order.id),
-      value: order.totalAmount,
+      orderId: String(myOrderQuery.data.id),
+      value: myOrderQuery.data.totalAmount,
     });
 
     hasTrackedPurchaseRef.current = true;
-  }, [isMock, order, isPending]);
+  }, [isMock, myOrderQuery.data, isPending]);
+
+  if (!orderId || id <= 0) {
+    return (
+      <div className="min-h-[70vh] bg-background flex flex-col items-center justify-center px-4 text-center">
+        <AlertTriangle className="h-20 w-20 text-amber-500 mb-6" />
+        <h1 className="font-ui text-4xl font-semibold mb-2">შეკვეთის ნომერი ვერ მოიძებნა</h1>
+        <p className="text-muted-foreground max-w-md mb-6">
+          სცადეთ ელ-ფოსტის შემოწმება ან დაბრუნდით მთავარ გვერდზე.
+        </p>
+        <Link href="/">
+          <Button className="bg-accent text-white hover:bg-accent-hover">
+            მთავარ გვერდზე დაბრუნება
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const hasErrors =
+    myOrderQuery.isError || guestStatusQuery.isError || (!canPollAsUser && !canPollAsGuest);
 
   return (
     <div className="min-h-[70vh] bg-background flex flex-col items-center justify-center px-4 text-center">
-      {isPending ? (
-        <Clock className="h-20 w-20 text-orange-400 mb-6" />
+      {isCancelled ? (
+        <XCircle className="h-20 w-20 text-red-500 mb-6" />
+      ) : isPending ? (
+        phase === "timedOut" ? (
+          <AlertTriangle className="h-20 w-20 text-amber-500 mb-6" />
+        ) : (
+          <Clock className="h-20 w-20 text-orange-400 mb-6" />
+        )
       ) : (
         <CheckCircle2 className="h-20 w-20 text-green-500 mb-6" />
       )}
 
       <h1 className="font-ui text-5xl font-semibold mb-2">
-        {isPending ? "გადახდა მუშავდება..." : "შეკვეთა წარმატებით გაფორმდა!"}
+        {isCancelled
+          ? "გადახდა უარყოფილია"
+          : isPending
+            ? phase === "timedOut"
+              ? "გადახდა ჯერ კიდევ მუშავდება"
+              : "გადახდა მუშავდება..."
+            : "შეკვეთა წარმატებით გაფორმდა!"}
       </h1>
 
-      {orderId && (
-        <p className="text-muted-foreground text-lg mb-2">
-          თქვენი შეკვეთის ნომერია{" "}
-          <span className="font-semibold text-foreground">#{orderId}</span>
-        </p>
-      )}
+      <p className="text-muted-foreground text-lg mb-2">
+        თქვენი შეკვეთის ნომერია <span className="font-semibold text-foreground">#{orderId}</span>
+      </p>
 
-      {order && (
+      {status && (
         <div className="mb-4">
-          <OrderStatusBadge status={order.status} />
+          <OrderStatusBadge status={status} />
         </div>
       )}
 
-      <p className="text-muted-foreground max-w-md mb-6">
-        {isPending
-          ? "გადახდა დადასტურების პროცესშია. გთხოვთ დაელოდოთ."
-          : "გადახდის დადასტურების შემდეგ მიიღებთ შეკვეთის დეტალებს ელ-ფოსტაზე."}
-      </p>
+      {isPending && phase === "slow" && (
+        <div className="mb-4 max-w-xl rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          გადახდის დადასტურება ჩვეულებრივზე მეტ დროს მოითხოვს. მიიღებთ დადასტურების ელ-ფოსტას.
+        </div>
+      )}
 
-      {/* Order summary */}
-      {order && order.items.length > 0 && (
+      {isPending && phase === "timedOut" ? (
+        <p className="text-muted-foreground max-w-md mb-6">
+          გადახდა ჯერ კიდევ მუშავდება. შეამოწმეთ ელ-ფოსტა ან შეკვეთების ისტორია.
+        </p>
+      ) : isCancelled ? (
+        <p className="text-muted-foreground max-w-md mb-6">
+          ტრანზაქცია არ დადასტურდა. შეგიძლიათ თავიდან სცადოთ.
+        </p>
+      ) : (
+        <p className="text-muted-foreground max-w-md mb-6">
+          გადახდის დადასტურების შემდეგ მიიღებთ შეკვეთის დეტალებს ელ-ფოსტაზე.
+        </p>
+      )}
+
+      {myOrderQuery.data && myOrderQuery.data.items.length > 0 && (
         <div className="w-full max-w-md rounded-2xl border border-black/8 bg-white text-left mb-6">
           <div className="px-4 py-3 border-b border-black/8">
             <p className="text-sm font-medium flex items-center gap-2">
@@ -103,7 +255,7 @@ function ConfirmationContent() {
             </p>
           </div>
           <div className="divide-y divide-black/5">
-            {order.items.map((item) => (
+            {myOrderQuery.data.items.map((item) => (
               <div key={item.id} className="px-4 py-3 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                   {item.productImageUrl && (
@@ -129,14 +281,16 @@ function ConfirmationContent() {
           </div>
           <div className="px-4 py-3 border-t border-black/8 flex justify-between text-sm">
             <span className="font-semibold">სულ</span>
-            <span className="font-semibold text-accent">{formatPrice(order.totalAmount)}</span>
+            <span className="font-semibold text-accent">
+              {formatPrice(myOrderQuery.data.totalAmount)}
+            </span>
           </div>
         </div>
       )}
 
       {isMock && (
         <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-6">
-          (Dev: mock payment — no real transaction)
+          (Dev: mock payment - no real transaction)
         </p>
       )}
 
@@ -146,15 +300,30 @@ function ConfirmationContent() {
             <Button variant="outline">შეკვეთის დეტალები</Button>
           </Link>
         )}
+        {isPending && phase === "timedOut" ? (
+          <Link href="/orders">
+            <Button variant="outline">შეკვეთების ისტორია</Button>
+          </Link>
+        ) : isCancelled ? (
+          <Link href="/products">
+            <Button variant="outline">თავიდან სცადე</Button>
+          </Link>
+        ) : null}
         <Link href="/">
           <Button className="bg-accent text-white hover:bg-accent-hover">
             მთავარ გვერდზე დაბრუნება
           </Button>
         </Link>
         <Link href="/products">
-          <Button variant="outline">საყიდლები გაგრძელება</Button>
+          <Button variant="outline">საყიდლების გაგრძელება</Button>
         </Link>
       </div>
+
+      {hasErrors && (
+        <p className="mt-4 text-sm text-amber-700">
+          შეკვეთის სტატუსის განახლება ამ ეტაპზე ვერ მოხერხდა. გადაამოწმეთ ელ-ფოსტა.
+        </p>
+      )}
     </div>
   );
 }

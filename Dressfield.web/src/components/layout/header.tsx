@@ -12,7 +12,7 @@ import { Logo } from "@/components/ui/logo";
 import { useCartStore } from "@/stores/cart-store";
 
 export function Header() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const cartCount = useCartStore((s) => s.totalItems());
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -53,12 +53,14 @@ export function Header() {
                     ჩემი შეკვეთები
                   </Button>
                 </Link>
-                <Link href="/admin">
-                  <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
-                    <User className="h-4 w-4 mr-1.5" />
-                    {user.firstName}
-                  </Button>
-                </Link>
+                {isAdmin && (
+                  <Link href="/admin">
+                    <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
+                      <User className="h-4 w-4 mr-1.5" />
+                      {user.firstName}
+                    </Button>
+                  </Link>
+                )}
               </>
             ) : (
               <Link href="/auth/login">
