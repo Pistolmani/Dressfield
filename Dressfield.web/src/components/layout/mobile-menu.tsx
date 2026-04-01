@@ -13,12 +13,15 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex flex-col h-full bg-black text-white px-8 py-10">
+    <div className="flex h-full flex-col bg-black px-8 pb-10 pt-16 text-white sm:pt-14">
 
       {/* Nav links */}
-      <nav className="flex flex-col gap-6 mt-4">
+      <nav className="mt-2 flex flex-col gap-6 pr-10">
         <NavLinks
-          className="text-4xl text-white/90 hover:text-white hover:opacity-100"
+          baseClassName="inline-flex items-center justify-start py-1 font-ui text-4xl tracking-wide transition-colors"
+          activeClassName="text-white"
+          inactiveClassName="text-white/70 hover:text-white"
+          className="w-full"
           onNavigate={onClose}
         />
       </nav>

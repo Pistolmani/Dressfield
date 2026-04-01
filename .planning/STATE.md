@@ -23,6 +23,12 @@ Current focus: Phase 7 - Security, Launch Integration, and Deployment Cutover.
 - [x] Added development env templates (`.env.example`, `appsettings.Development.example.json`).
 - [x] Fixed EF translation issue in order detail lookups (`/api/orders/my/{id}`).
 - [x] Fixed EF translation issue in custom order detail lookups (`/api/custom-orders/*/{id}`).
+- [x] Stabilized custom-order background removal flow with guarded async handling and non-breaking fallback behavior.
+- [x] Added smooth blocking loading overlay (animated dots) during background removal to prevent conflicting interactions.
+- [x] Prevented side-switch race conditions and duplicate/broken design artifacts while removal is in progress.
+- [x] Persisted design transforms (position/scale/rotation) across side flips and image replacement.
+- [x] Improved customizer drag stability by reducing over-frequent persistence updates.
+- [x] Removed global cursor-trail animation for better runtime performance and cleaner UX.
 - [x] Completed launch-readiness QA gate:
   - `dotnet build` + `dotnet test` passing
   - `npm test` + `npm run lint` + `npx tsc --noEmit` + `npm run build` passing

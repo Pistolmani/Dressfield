@@ -26,7 +26,7 @@ export default async function HomePage() {
         {/* The content wrapper passes pointer events through so images can be clicked, but text captures them */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center pointer-events-none min-h-[85vh] flex flex-col justify-center items-center">
           <Logo className="h-12 w-auto mx-auto mb-8 text-white pointer-events-auto" />
-          <h1 className="font-ui text-4xl sm:text-5xl lg:text-7xl font-bold tracking-[0.03em] leading-tight max-w-4xl mx-auto pointer-events-auto drop-shadow-2xl text-shadow-xl text-white">
+          <h1 className="font-ui mx-auto max-w-3xl px-2 text-4xl font-bold leading-tight tracking-[0.03em] text-balance text-white drop-shadow-2xl text-shadow-xl pointer-events-auto sm:max-w-4xl sm:px-0 sm:text-5xl lg:text-7xl">
             ქართული ნაქარგი,{" "}
             <span className="text-white/90">შენი სტილით</span>
           </h1>
