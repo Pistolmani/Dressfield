@@ -18,6 +18,8 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<OrderStatusLog> OrderStatusLogs => Set<OrderStatusLog>();
     public DbSet<PendingEmail> PendingEmails => Set<PendingEmail>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -133,6 +135,22 @@ public class DressfieldDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Subject).HasMaxLength(300).IsRequired();
             entity.Property(e => e.LastError).HasMaxLength(1000);
             entity.HasIndex(e => new { e.Status, e.NextRetryAt });
+        });
+
+        builder.Entity<Cart>(entity =>
+        {
+            entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+            entity.HasIndex(e => e.UserId).IsUnique();
+            entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(e => e.Items).WithOne(i => i.Cart).HasForeignKey(i => i.CartId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<CartItem>(entity =>
+        {
+            entity.Property(e => e.Quantity).IsRequired();
+            entity.Property(e => e.VariantId).HasDefaultValue(0).IsRequired();
+            entity.HasIndex(e => new { e.CartId, e.ProductId, e.VariantId }).IsUnique();
+            entity.HasOne(e => e.Product).WithMany().HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

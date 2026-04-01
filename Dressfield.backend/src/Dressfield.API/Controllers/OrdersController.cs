@@ -73,6 +73,22 @@ public class OrdersController : ControllerBase
         return order is null ? NotFound() : Ok(order);
     }
 
+    /// <summary>
+    /// GET /api/orders/status?orderId=1&amp;key=... â€” public status lookup for payment return flow.
+    /// </summary>
+    [HttpGet("status")]
+    [EnableRateLimiting("orders")]
+    public async Task<IActionResult> GetPublicStatus(
+        [FromQuery] int orderId,
+        [FromQuery(Name = "key")] string? orderKey)
+    {
+        if (orderId <= 0 || string.IsNullOrWhiteSpace(orderKey))
+            return NotFound();
+
+        var status = await _orders.GetPublicStatusAsync(orderId, orderKey);
+        return status is null ? NotFound() : Ok(status);
+    }
+
     // ── Admin endpoints ───────────────────────────────────────────────────────
 
     /// <summary>GET /api/orders/admin?status=Pending — all orders, optionally filtered.</summary>

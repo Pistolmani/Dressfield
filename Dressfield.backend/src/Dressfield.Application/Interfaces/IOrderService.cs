@@ -13,6 +13,7 @@ public interface IOrderService
     // Customer
     Task<IReadOnlyCollection<OrderSummaryDto>> GetByUserAsync(string userId);
     Task<OrderDetailDto?> GetByIdForUserAsync(int id, string userId);
+    Task<OrderStatusLookupDto?> GetPublicStatusAsync(int orderId, string orderKey);
 
     // Checkout — works for guests and logged-in users
     Task<CheckoutResponse> CreateAsync(CreateOrderRequest request, string? userId);

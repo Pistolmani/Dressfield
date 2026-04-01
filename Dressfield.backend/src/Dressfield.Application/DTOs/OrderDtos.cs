@@ -27,6 +27,11 @@ public record OrderSummaryDto(
     int ItemCount,
     DateTime CreatedAt);
 
+public record OrderStatusLookupDto(
+    int OrderId,
+    OrderStatus Status,
+    DateTime UpdatedAt);
+
 public record OrderDetailDto(
     int Id,
     string? UserId,
