@@ -42,8 +42,16 @@ public class CustomOrderService : ICustomOrderService
             .ToListAsync();
     }
 
-    public Task<CustomOrderDetailDto?> GetAdminByIdAsync(int id) =>
-        BuildDetailQuery().FirstOrDefaultAsync(o => o.Id == id);
+    public async Task<CustomOrderDetailDto?> GetAdminByIdAsync(int id)
+    {
+        var order = await _db.CustomOrders
+            .AsNoTracking()
+            .Include(o => o.BaseProduct)
+            .Include(o => o.Designs)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        return order is null ? null : MapDetail(order);
+    }
 
     public async Task UpdateStatusAsync(int id, UpdateCustomOrderStatusRequest request)
     {
@@ -70,8 +78,16 @@ public class CustomOrderService : ICustomOrderService
             .ToListAsync();
     }
 
-    public Task<CustomOrderDetailDto?> GetByIdForUserAsync(int id, string userId) =>
-        BuildDetailQuery().FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+    public async Task<CustomOrderDetailDto?> GetByIdForUserAsync(int id, string userId)
+    {
+        var order = await _db.CustomOrders
+            .AsNoTracking()
+            .Include(o => o.BaseProduct)
+            .Include(o => o.Designs)
+            .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+        return order is null ? null : MapDetail(order);
+    }
 
     // ── Public ───────────────────────────────────────────────────────────────
 
@@ -126,39 +142,35 @@ public class CustomOrderService : ICustomOrderService
 
     // ── Private helpers ──────────────────────────────────────────────────────
 
-    private IQueryable<CustomOrderDetailDto> BuildDetailQuery() =>
-        _db.CustomOrders
-            .AsNoTracking()
-            .Include(o => o.BaseProduct)
-            .Include(o => o.Designs)
-            .Select(o => new CustomOrderDetailDto(
-                o.Id,
-                o.UserId,
-                o.BaseProductId,
-                o.BaseProduct != null ? o.BaseProduct.Name : null,
-                o.ContactName,
-                o.ContactPhone,
-                o.ContactEmail,
-                o.Status,
-                o.TotalPrice,
-                o.CustomerNotes,
-                o.AdminNotes,
-                o.CreatedAt,
-                o.UpdatedAt,
-                o.Designs
-                    .OrderBy(d => d.SortOrder)
-                    .Select(d => new CustomOrderDesignDto(
-                        d.Id,
-                        d.DesignImageUrl,
-                        d.Placement,
-                        d.Size,
-                        d.ThreadColor,
-                        d.Width,
-                        d.Height,
-                        d.PositionX,
-                        d.PositionY,
-                        d.SortOrder))
-                    .ToList()));
+    private static CustomOrderDetailDto MapDetail(CustomOrder o) =>
+        new(
+            o.Id,
+            o.UserId,
+            o.BaseProductId,
+            o.BaseProduct?.Name,
+            o.ContactName,
+            o.ContactPhone,
+            o.ContactEmail,
+            o.Status,
+            o.TotalPrice,
+            o.CustomerNotes,
+            o.AdminNotes,
+            o.CreatedAt,
+            o.UpdatedAt,
+            o.Designs
+                .OrderBy(d => d.SortOrder)
+                .Select(d => new CustomOrderDesignDto(
+                    d.Id,
+                    d.DesignImageUrl,
+                    d.Placement,
+                    d.Size,
+                    d.ThreadColor,
+                    d.Width,
+                    d.Height,
+                    d.PositionX,
+                    d.PositionY,
+                    d.SortOrder))
+                .ToList());
 
     private static CustomOrderSummaryDto MapToSummary(CustomOrder o) =>
         new(

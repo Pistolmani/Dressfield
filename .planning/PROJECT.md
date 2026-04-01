@@ -23,13 +23,17 @@ Customers can discover embroidered products, customize their own designs with a 
 - [x] Responsive Georgian-language storefront with updated premium visual direction
 - [x] Baseline API hardening (validation pipeline, rate limits, secure upload signature checks)
 - [x] Advanced API hardening (centralized exception handling, DB health checks, pluggable malware scanning pipeline)
+- [x] Authenticated cart sync across devices (server cart + merge logic)
+- [x] Meta Pixel funnel tracking wired in frontend
+- [x] Admin dashboard summary stats endpoint and UI integration
+- [x] Backend and frontend test infrastructure with CI test gates
 
 ### Active
 
-- [ ] Authenticated cart sync across devices
-- [ ] Meta Pixel tracking for Facebook/Instagram ad conversions
-- [ ] Admin dashboard summary stats
-- [ ] Final launch hardening and deployment polish
+- [ ] Final manual cross-device QA pass (desktop + mobile interaction checks)
+- [ ] Production deployment cutover (Azure backend + Hostinger frontend)
+- [ ] Live BOG payment credential wiring and real callback verification
+- [ ] Final security and observability pass in production configuration
 - [ ] Keep SEO coverage aligned with the current flat-catalog scope
 
 ### Out of Scope
@@ -97,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-31 after security hardening pass*
+*Last updated: 2026-04-01 after cart-sync, test infra, and launch-readiness QA updates*
