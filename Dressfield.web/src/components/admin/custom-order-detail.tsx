@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,8 @@ import {
 } from "@/types/custom-order";
 
 const statusOptions: CustomOrderStatus[] = [0, 1, 2, 3, 4, 5, 6];
+const API_BASE =
+  (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function getStatusBadgeClass(status: CustomOrderStatus) {
   switch (status) {
@@ -41,6 +43,68 @@ function getStatusBadgeClass(status: CustomOrderStatus) {
     case 6:
       return "bg-gray-200 text-gray-700";
   }
+}
+
+function isAbsoluteUrl(url: string) {
+  return /^https?:\/\//i.test(url) || url.startsWith("//");
+}
+
+function toAbsoluteUrl(url: string) {
+  if (url.startsWith("//")) return `https:${url}`;
+  if (isAbsoluteUrl(url)) return url;
+  return `${API_BASE}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
+function resolveImageSources(url: string) {
+  const normalized = url.trim();
+  if (!normalized) return [];
+
+  const sources: string[] = [toAbsoluteUrl(normalized)];
+
+  try {
+    const parsed = new URL(sources[0]);
+    const fileName = parsed.pathname.split("/").pop();
+    const isLegacyUploadPath =
+      parsed.pathname.startsWith("/uploads/") &&
+      !parsed.pathname.startsWith("/uploads/designs/");
+
+    if (fileName && isLegacyUploadPath) {
+      sources.push(`${API_BASE}/uploads/designs/${fileName}`);
+    }
+  } catch {
+    // Keep primary source only.
+  }
+
+  return Array.from(new Set(sources));
+}
+
+function DesignPreviewImage({ url }: { url: string }) {
+  const sources = useMemo(() => resolveImageSources(url), [url]);
+  const [index, setIndex] = useState(0);
+  const src = sources[index] ?? sources[0];
+
+  if (!src || index >= sources.length) {
+    return (
+      <div className="flex h-[200px] w-full items-center justify-center rounded-2xl border border-dashed border-black/15 bg-muted/30 text-xs text-muted-foreground">
+        სურათი ვერ მოიძებნა
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt="დიზაინი"
+      className="h-[200px] w-full rounded-2xl object-cover"
+      onError={() => {
+        if (index < sources.length - 1) {
+          setIndex((prev) => prev + 1);
+        } else {
+          setIndex(sources.length);
+        }
+      }}
+    />
+  );
 }
 
 export function CustomOrderDetail({ id }: { id: number }) {
@@ -135,20 +199,20 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
           </div>
 
           <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-            <h2 className="font-ui text-3xl font-semibold">
-              დიზაინები
-            </h2>
+            <h2 className="font-ui text-3xl font-semibold">დიზაინები</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {order.designs.map((design) => (
                 <div key={design.id} className="space-y-3 rounded-3xl border border-black/8 p-4">
-                  <img
-                    src={design.designImageUrl}
-                    alt="დიზაინი"
-                    className="h-[200px] w-full rounded-2xl object-cover"
-                  />
+                  <DesignPreviewImage url={design.designImageUrl} />
                   <div className="space-y-1 text-sm">
-                    <p><span className="text-muted-foreground">განთავსება:</span> {getPlacementLabel(design.placement)}</p>
-                    <p><span className="text-muted-foreground">ზომა:</span> {getSizeLabel(design.size)}</p>
+                    <p>
+                      <span className="text-muted-foreground">განთავსება:</span>{" "}
+                      {getPlacementLabel(design.placement)}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">ზომა:</span>{" "}
+                      {getSizeLabel(design.size)}
+                    </p>
                     <p className="flex items-center gap-2">
                       <span className="text-muted-foreground">ძაფის ფერი:</span>
                       {design.threadColor ? (
@@ -163,10 +227,18 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
                         "-"
                       )}
                     </p>
-                    <p><span className="text-muted-foreground">სიგანე:</span> {design.width ?? "-"}%</p>
-                    <p><span className="text-muted-foreground">სიმაღლე:</span> {design.height ?? "-"}%</p>
-                    <p><span className="text-muted-foreground">X:</span> {design.positionX ?? "-"}%</p>
-                    <p><span className="text-muted-foreground">Y:</span> {design.positionY ?? "-"}%</p>
+                    <p>
+                      <span className="text-muted-foreground">სიგანე:</span> {design.width ?? "-"}%
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">სიმაღლე:</span> {design.height ?? "-"}%
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">X:</span> {design.positionX ?? "-"}%
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Y:</span> {design.positionY ?? "-"}%
+                    </p>
                   </div>
                 </div>
               ))}
@@ -175,20 +247,14 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
 
           {order.customerNotes ? (
             <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-              <h2 className="font-ui text-3xl font-semibold">
-                მომხმარებლის შენიშვნა
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                {order.customerNotes}
-              </p>
+              <h2 className="font-ui text-3xl font-semibold">მომხმარებლის შენიშვნა</h2>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">{order.customerNotes}</p>
             </div>
           ) : null}
         </div>
 
         <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm h-fit">
-          <h2 className="font-ui text-3xl font-semibold">
-            სტატუსის განახლება
-          </h2>
+          <h2 className="font-ui text-3xl font-semibold">სტატუსის განახლება</h2>
           <div className="mt-4 space-y-4">
             <div>
               <p className="mb-2 text-sm text-muted-foreground">მიმდინარე სტატუსი</p>

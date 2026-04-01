@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { ProductCard } from "@/components/catalog/product-card";
 import { getStaticProducts } from "@/lib/catalog";
-import { InteractiveHeroGallery } from "@/components/ui/interactive-hero-gallery";
+import { HeroGalleryClient } from "@/components/ui/hero-gallery-client";
 
 export default async function HomePage() {
   const products = await getStaticProducts().catch(() => [] as Awaited<ReturnType<typeof getStaticProducts>>);
@@ -16,7 +16,7 @@ export default async function HomePage() {
       {/* ── FIXED HERO BACKGROUND ────────────────────────── */}
       <div className="fixed inset-0 z-0 bg-black pointer-events-none">
         <div className="absolute inset-0 pointer-events-auto">
-          <InteractiveHeroGallery images={heroImages} count={18} className="opacity-80" />
+          <HeroGalleryClient images={heroImages} count={18} className="opacity-80" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-black/95 pointer-events-none" />
       </div>

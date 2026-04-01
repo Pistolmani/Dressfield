@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X, Images, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
 import { ImageToolbar } from "@/components/custom-order/ImageToolbar";
@@ -30,6 +31,8 @@ export function Step3DesignUpload({
   onSideChange,
 }: Step3DesignUploadProps) {
   const canvasRef = useRef<ProductCanvasHandle | null>(null);
+  const waitToastAtRef = useRef(0);
+  const [isRemovingBg, setIsRemovingBg] = useState(false);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -45,29 +48,42 @@ export function Step3DesignUpload({
     onDrop,
     accept: { "image/*": [] },
     multiple: true,
+    disabled: isRemovingBg,
   });
 
-  // Background removal should replace the active design, not append a new one.
-  function handleBgRemoved(newUrl: string, replacedUrl: string) {
-    const activeDesignId = canvasRef.current?.getActiveDesignId();
-    if (activeDesignId) {
-      onDesignReplace(activeDesignId, newUrl);
+  // Background removal should replace the target design, never append duplicates.
+  function handleBgRemoved(newUrl: string, replacedUrl: string, designId: string | null) {
+    if (designId) {
+      onDesignReplace(designId, newUrl);
       return;
     }
 
-    const fallbackMatch = [...designs].reverse().find((design) => design.url === replacedUrl)
-      ?? designs[designs.length - 1];
-
+    const fallbackMatch = [...designs].reverse().find((design) => design.url === replacedUrl);
     if (fallbackMatch) {
       onDesignReplace(fallbackMatch.id, newUrl);
       return;
     }
 
-    onDesignAdd(newUrl);
+    if (newUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(newUrl);
+    }
+  }
+
+  function handleSideChangeRequest(side: "front" | "back") {
+    if (isRemovingBg) {
+      const now = Date.now();
+      if (now - waitToastAtRef.current > 1200) {
+        waitToastAtRef.current = now;
+        toast.error("გთხოვ დაელოდე ფონის წაშლის დასრულებას");
+      }
+      return;
+    }
+
+    onSideChange(side);
   }
 
   return (
-    <div className="space-y-4">
+    <div className="relative space-y-4">
       <div>
         <h2 className="text-3xl font-semibold text-gray-600">
           ატვირთე შენი დიზაინი
@@ -143,6 +159,7 @@ export function Step3DesignUpload({
               canvasRef={canvasRef}
               designImageUrl={designs[designs.length - 1]?.url ?? ""}
               onBgRemoved={handleBgRemoved}
+              onRemovingChange={setIsRemovingBg}
             />
           )}
         </div>
@@ -154,23 +171,25 @@ export function Step3DesignUpload({
           {product.hasBack && (
             <div className="flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1">
               <button
-                onClick={() => onSideChange("front")}
+                onClick={() => handleSideChangeRequest("front")}
                 className={cn(
                   "flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium transition-all",
                   activeSide === "front"
                     ? "bg-black text-white shadow"
-                    : "text-gray-500 hover:text-gray-700"
+                    : "text-gray-500 hover:text-gray-700",
+                  isRemovingBg && "opacity-50 cursor-not-allowed"
                 )}
               >
                 წინა
               </button>
               <button
-                onClick={() => onSideChange("back")}
+                onClick={() => handleSideChangeRequest("back")}
                 className={cn(
                   "flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium transition-all",
                   activeSide === "back"
                     ? "bg-black text-white shadow"
-                    : "text-gray-500 hover:text-gray-700"
+                    : "text-gray-500 hover:text-gray-700",
+                  isRemovingBg && "opacity-50 cursor-not-allowed"
                 )}
               >
                 <RotateCcw className="h-3.5 w-3.5" />
@@ -187,6 +206,26 @@ export function Step3DesignUpload({
           />
         </div>
       </div>
+
+      {isRemovingBg && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-[2px]"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="rounded-2xl border border-black/10 bg-white px-5 py-4 text-center shadow-lg">
+            <p className="text-sm font-semibold text-foreground">ფონის წაშლა მიმდინარეობს</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              გთხოვ დაელოდე დასრულებას
+            </p>
+            <div className="mt-3 flex items-center justify-center gap-1.5">
+              <span className="loading-dot h-2.5 w-2.5 rounded-full bg-accent" style={{ animationDelay: "0ms" }} />
+              <span className="loading-dot h-2.5 w-2.5 rounded-full bg-accent" style={{ animationDelay: "140ms" }} />
+              <span className="loading-dot h-2.5 w-2.5 rounded-full bg-accent" style={{ animationDelay: "280ms" }} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

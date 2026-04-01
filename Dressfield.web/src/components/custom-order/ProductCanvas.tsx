@@ -34,6 +34,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     const fabricRef      = useRef<FabricCanvas | null>(null);
     const designObjsRef  = useRef<Map<string, FabricImage>>(new Map());
     const urlMapRef      = useRef<Map<string, string>>(new Map());
+    const canvasSessionRef = useRef(0);
     const containerRef   = useRef<HTMLDivElement>(null);
     const [fabricModule, setFabricModule] = useState<FabricModule | null>(null);
     const [isLoading, setIsLoading]       = useState(true);
@@ -80,11 +81,20 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       import("fabric").then((mod) => setFabricModule(mod));
     }, []);
     // Helper: add one design to canvas
-    const addDesignObj = useCallback((fabric: FabricModule, fc: FabricCanvas, item: DesignItem, zone: { x: number; y: number; width: number; height: number }) => {
+    const addDesignObj = useCallback((fabric: FabricModule, fc: FabricCanvas, item: DesignItem, zone: { x: number; y: number; width: number; height: number }, sessionId: number) => {
       urlMapRef.current.set(item.id, item.url);
       fabric.fabric.Image.fromURL(
         item.url,
         (img) => {
+          if (canvasSessionRef.current !== sessionId || fabricRef.current !== fc) return;
+
+          // Never allow duplicate canvas objects for the same design id.
+          fc.getObjects().forEach((obj) => {
+            if ((obj as FabricCanvasObject)._designId === item.id) {
+              fc.remove(obj);
+            }
+          });
+
           const imgW = img.width  || 100;
           const imgH = img.height || 100;
           const scale = Math.min((zone.width * 0.8) / imgW, (zone.height * 0.8) / imgH);
@@ -146,6 +156,8 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       }
 
       setIsLoading(true);
+      const sessionId = canvasSessionRef.current + 1;
+      canvasSessionRef.current = sessionId;
 
       const initialWidth = containerRef.current?.clientWidth || CANVAS_SIZE;
       const initialScale = initialWidth / CANVAS_SIZE;
@@ -162,7 +174,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       loadBackground(fabricModule, fc, svgUrl, () => {
         // Re-add all current designs
-        designs.forEach((d) => addDesignObj(fabricModule, fc, d, zone));
+        designs.forEach((d) => addDesignObj(fabricModule, fc, d, zone, sessionId));
         setIsLoading(false);
       });
 
@@ -203,6 +215,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       return () => {
         observer.disconnect();
+        canvasSessionRef.current += 1;
         fc.dispose();
         fabricRef.current = null;
         designObjs.clear();
@@ -214,6 +227,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       const fc     = fabricRef.current;
       const fabric = fabricModule;
       if (!fc || !fabric || isLoading) return;
+      const sessionId = canvasSessionRef.current;
 
       const zone = activeSide === "back" ? product.designZoneBack : product.designZone;
 
@@ -244,6 +258,14 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
           fabric.fabric.Image.fromURL(
             matchingDesign.url,
             (img) => {
+              if (canvasSessionRef.current !== sessionId || fabricRef.current !== fc) return;
+
+              fc.getObjects().forEach((canvasObj) => {
+                if ((canvasObj as FabricCanvasObject)._designId === id) {
+                  fc.remove(canvasObj);
+                }
+              });
+
               (img as FabricDesignImage)._designId = id;
               img.set({
                 ...(oldProps ? oldProps : {
@@ -272,7 +294,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       // Add new
       designs.forEach((d) => {
         if (!canvasIds.has(d.id)) {
-          addDesignObj(fabric, fc, d, zone);
+          addDesignObj(fabric, fc, d, zone, sessionId);
         }
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps

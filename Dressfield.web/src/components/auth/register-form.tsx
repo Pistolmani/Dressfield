@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const registerSchema = z
   .object({
@@ -44,9 +45,37 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
+  });
+
+  const phoneField = register("phone", {
+    onChange: (event) => {
+      const raw = String(event.target.value ?? "");
+      if (!raw) return;
+
+      let normalized = raw.replace(/[^\d+]/g, "");
+      normalized = normalized.replace(/^\++/, "+");
+
+      if (normalized.startsWith("995")) normalized = `+${normalized}`;
+      else if (normalized.startsWith("5")) normalized = `+995${normalized}`;
+      else if (normalized.startsWith("0")) normalized = `+995${normalized.slice(1)}`;
+
+      if (!normalized.startsWith("+995")) {
+        const withoutPlus = normalized.replace(/^\+/, "");
+        normalized = `+995${withoutPlus.replace(/^995/, "")}`;
+      }
+
+      event.target.value = normalized;
+    },
+    onBlur: (event) => {
+      if (String(event.target.value ?? "").trim() === "+995") {
+        setValue("phone", "");
+      }
+    },
   });
 
   const onSubmit = async (data: RegisterForm) => {
@@ -58,11 +87,24 @@ export function RegisterForm() {
         email: data.email,
         password: data.password,
         confirmPassword: data.confirmPassword,
-        phone: data.phone || undefined,
+        phone:
+          data.phone?.trim() && data.phone.trim() !== "+995"
+            ? data.phone.trim()
+            : undefined,
       });
       toast.success("რეგისტრაცია წარმატებულია");
       router.push("/");
-    } catch {
+    } catch (error) {
+      const detail =
+        axios.isAxiosError(error) &&
+        typeof error.response?.data?.detail === "string"
+          ? error.response.data.detail
+          : undefined;
+
+      if (detail) {
+        toast.error(detail);
+        return;
+      }
       toast.error("რეგისტრაცია ვერ მოხერხდა");
     } finally {
       setLoading(false);
@@ -102,7 +144,17 @@ export function RegisterForm() {
 
       <div className="space-y-2">
         <Label htmlFor="phone" className="text-lg">ტელეფონი (არასავალდებულო)</Label>
-        <Input id="phone" placeholder="+995 5XX XXX XXX" className="h-12" {...register("phone")} />
+        <Input
+          id="phone"
+          placeholder="+995 5XX XXX XXX"
+          className="h-12"
+          {...phoneField}
+          onFocus={(event) => {
+            if (!event.currentTarget.value && !getValues("phone")) {
+              setValue("phone", "+995 ");
+            }
+          }}
+        />
         {errors.phone && (
           <p className="text-sm text-destructive">{errors.phone.message}</p>
         )}
