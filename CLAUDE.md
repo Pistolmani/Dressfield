@@ -26,8 +26,8 @@ Key commands: `/gsd:help`, `/gsd:next`, `/gsd:progress`, `/gsd:debug`, `/gsd:rev
 Dressfield is an e-commerce website for a Georgian embroidery business. Customers browse pre-made embroidered products and order custom embroidery by uploading designs with a live preview mockup. Payments via Bank of Georgia iPay.
 
 **Tech Stack:**
-- Frontend: Next.js 15 + TypeScript (static export → Hostinger)
-- Backend: ASP.NET Core 8 Web API (→ Azure App Service)
+- Frontend: Next.js 15 + TypeScript (static export → Hostinger) — **This repo**
+- Backend: ASP.NET Core 8 Web API (→ Azure App Service) — **[Separate repo](https://github.com/Pistolmani/Dressfield-api)**
 - Database: MySQL 8 + Entity Framework Core (→ Hostinger)
 - Payments: Bank of Georgia iPay (Helix.BankOfGeorgia.IpayClient)
 - CSS/UI: Tailwind CSS + shadcn/ui
@@ -37,7 +37,7 @@ Dressfield is an e-commerce website for a Georgian embroidery business. Customer
 **Language:** Georgian only for MVP
 
 ## Project Structure
-- `Dressfield.backend/` — ASP.NET Core Web API (API, Core, Application, Infrastructure layers)
+- **Backend:** [Dressfield-api](https://github.com/Pistolmani/Dressfield-api) — Separate repo: ASP.NET Core 8 Web API (API, Core, Application, Infrastructure layers)
 - `Dressfield.web/` — Next.js frontend (static export)
 - `Dressfield.docs/` — Architecture docs and references
 - `Dressfield.BussinesStrategy/` — Business strategy
