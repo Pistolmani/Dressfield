@@ -1,0 +1,1214 @@
+2026-04-02 15:23:46.748 +04:00 [WRN] AzureStorage:ConnectionString is not configured. Using LocalStorageService (development only).
+2026-04-02 15:23:47.356 +04:00 [INF] User profile is available. Using 'C:\Users\piros\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-02 15:23:48.111 +04:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT GET_LOCK('__dressfield_dev_EFMigrationsLock', 259200)
+2026-04-02 15:23:48.180 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
+    `MigrationId` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
+    `ProductVersion` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`)
+) CHARACTER SET=utf8mb4;
+2026-04-02 15:23:48.208 +04:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='dressfield_dev' AND TABLE_NAME='__EFMigrationsHistory';
+2026-04-02 15:23:48.237 +04:00 [INF] Executed DbCommand (25ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `MigrationId`, `ProductVersion`
+FROM `__EFMigrationsHistory`
+ORDER BY `MigrationId`;
+2026-04-02 15:23:48.248 +04:00 [INF] No migrations were applied. The database is already up to date.
+2026-04-02 15:23:48.251 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT RELEASE_LOCK('__dressfield_dev_EFMigrationsLock')
+2026-04-02 15:23:48.489 +04:00 [INF] Executed DbCommand (20ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`ConcurrencyStamp`, `a`.`Name`, `a`.`NormalizedName`
+FROM `AspNetRoles` AS `a`
+WHERE `a`.`NormalizedName` = @__normalizedName_0
+LIMIT 1
+2026-04-02 15:23:48.528 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`ConcurrencyStamp`, `a`.`Name`, `a`.`NormalizedName`
+FROM `AspNetRoles` AS `a`
+WHERE `a`.`NormalizedName` = @__normalizedName_0
+LIMIT 1
+2026-04-02 15:23:48.547 +04:00 [INF] Executed DbCommand (6ms) [Parameters=[@__normalizedEmail_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`AccessFailedCount`, `a`.`ConcurrencyStamp`, `a`.`CreatedAt`, `a`.`Email`, `a`.`EmailConfirmed`, `a`.`FirstName`, `a`.`LastName`, `a`.`LockoutEnabled`, `a`.`LockoutEnd`, `a`.`NormalizedEmail`, `a`.`NormalizedUserName`, `a`.`PasswordHash`, `a`.`PhoneNumber`, `a`.`PhoneNumberConfirmed`, `a`.`SecurityStamp`, `a`.`TwoFactorEnabled`, `a`.`UserName`
+FROM `AspNetUsers` AS `a`
+WHERE `a`.`NormalizedEmail` = @__normalizedEmail_0
+LIMIT 2
+2026-04-02 15:23:48.603 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`ConcurrencyStamp`, `a`.`Name`, `a`.`NormalizedName`
+FROM `AspNetRoles` AS `a`
+WHERE `a`.`NormalizedName` = @__normalizedRoleName_0
+LIMIT 2
+2026-04-02 15:23:48.630 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 255), @__p_1='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`UserId`, `a`.`RoleId`
+FROM `AspNetUserRoles` AS `a`
+WHERE (`a`.`UserId` = @__p_0) AND (`a`.`RoleId` = @__p_1)
+LIMIT 1
+2026-04-02 15:23:48.737 +04:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://127.0.0.1:5000: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+ ---> System.Net.Sockets.SocketException (10048): Only one usage of each socket address (protocol/network address/port) is normally permitted.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2026-04-02 15:25:52.333 +04:00 [WRN] AzureStorage:ConnectionString is not configured. Using LocalStorageService (development only).
+2026-04-02 15:25:52.559 +04:00 [INF] User profile is available. Using 'C:\Users\piros\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-04-02 15:25:53.150 +04:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT GET_LOCK('__dressfield_dev_EFMigrationsLock', 259200)
+2026-04-02 15:25:53.207 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
+    `MigrationId` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
+    `ProductVersion` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`)
+) CHARACTER SET=utf8mb4;
+2026-04-02 15:25:53.226 +04:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='dressfield_dev' AND TABLE_NAME='__EFMigrationsHistory';
+2026-04-02 15:25:53.233 +04:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `MigrationId`, `ProductVersion`
+FROM `__EFMigrationsHistory`
+ORDER BY `MigrationId`;
+2026-04-02 15:25:53.243 +04:00 [INF] No migrations were applied. The database is already up to date.
+2026-04-02 15:25:53.245 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT RELEASE_LOCK('__dressfield_dev_EFMigrationsLock')
+2026-04-02 15:25:53.437 +04:00 [INF] Executed DbCommand (13ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`ConcurrencyStamp`, `a`.`Name`, `a`.`NormalizedName`
+FROM `AspNetRoles` AS `a`
+WHERE `a`.`NormalizedName` = @__normalizedName_0
+LIMIT 1
+2026-04-02 15:25:53.471 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`ConcurrencyStamp`, `a`.`Name`, `a`.`NormalizedName`
+FROM `AspNetRoles` AS `a`
+WHERE `a`.`NormalizedName` = @__normalizedName_0
+LIMIT 1
+2026-04-02 15:25:53.479 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedEmail_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`AccessFailedCount`, `a`.`ConcurrencyStamp`, `a`.`CreatedAt`, `a`.`Email`, `a`.`EmailConfirmed`, `a`.`FirstName`, `a`.`LastName`, `a`.`LockoutEnabled`, `a`.`LockoutEnd`, `a`.`NormalizedEmail`, `a`.`NormalizedUserName`, `a`.`PasswordHash`, `a`.`PhoneNumber`, `a`.`PhoneNumberConfirmed`, `a`.`SecurityStamp`, `a`.`TwoFactorEnabled`, `a`.`UserName`
+FROM `AspNetUsers` AS `a`
+WHERE `a`.`NormalizedEmail` = @__normalizedEmail_0
+LIMIT 2
+2026-04-02 15:25:53.515 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`Id`, `a`.`ConcurrencyStamp`, `a`.`Name`, `a`.`NormalizedName`
+FROM `AspNetRoles` AS `a`
+WHERE `a`.`NormalizedName` = @__normalizedRoleName_0
+LIMIT 2
+2026-04-02 15:25:53.532 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 255), @__p_1='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a`.`UserId`, `a`.`RoleId`
+FROM `AspNetUserRoles` AS `a`
+WHERE (`a`.`UserId` = @__p_0) AND (`a`.`RoleId` = @__p_1)
+LIMIT 1
+2026-04-02 15:25:53.591 +04:00 [INF] Now listening on: http://localhost:5000
+2026-04-02 15:25:53.594 +04:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-02 15:25:53.596 +04:00 [INF] Hosting environment: Development
+2026-04-02 15:25:53.597 +04:00 [INF] Content root path: C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API
+2026-04-02 15:26:08.300 +04:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/refresh - null 0
+2026-04-02 15:26:08.307 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - null null
+2026-04-02 15:26:08.307 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/5faf7cad-0ccd-48d0-87e7-f42ae724afc6.png - null null
+2026-04-02 15:26:08.307 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - null null
+2026-04-02 15:26:08.307 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - null null
+2026-04-02 15:26:08.307 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - null null
+2026-04-02 15:26:08.355 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:26:08.362 +04:00 [INF] The file /uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png was not modified
+2026-04-02 15:26:08.362 +04:00 [INF] The file /uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png was not modified
+2026-04-02 15:26:08.362 +04:00 [INF] The file /uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png was not modified
+2026-04-02 15:26:08.362 +04:00 [INF] The file /uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png was not modified
+2026-04-02 15:26:08.372 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - 304 null image/png 64.8191ms
+2026-04-02 15:26:08.372 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - 304 null image/png 65.5784ms
+2026-04-02 15:26:08.372 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - 304 null image/png 64.8796ms
+2026-04-02 15:26:08.372 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - 304 null image/png 64.8206ms
+2026-04-02 15:26:08.388 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - null null
+2026-04-02 15:26:08.394 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png - null null
+2026-04-02 15:26:08.397 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - null null
+2026-04-02 15:26:08.404 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png - null null
+2026-04-02 15:26:08.405 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/5faf7cad-0ccd-48d0-87e7-f42ae724afc6.png - 404 0 null 97.3613ms
+2026-04-02 15:26:08.408 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.AuthController.Refresh (Dressfield.API)'
+2026-04-02 15:26:08.408 +04:00 [INF] The file /uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png was not modified
+2026-04-02 15:26:08.409 +04:00 [INF] The file /uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png was not modified
+2026-04-02 15:26:08.413 +04:00 [INF] The file /uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png was not modified
+2026-04-02 15:26:08.416 +04:00 [INF] The file /uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png was not modified
+2026-04-02 15:26:08.422 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/5faf7cad-0ccd-48d0-87e7-f42ae724afc6.png, Response status code: 404
+2026-04-02 15:26:08.424 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - 304 null image/png 36.5963ms
+2026-04-02 15:26:08.425 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png - 304 null image/png 31.2328ms
+2026-04-02 15:26:08.426 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - 304 null image/png 29.1582ms
+2026-04-02 15:26:08.428 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png - 304 null image/png 23.2683ms
+2026-04-02 15:26:08.431 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - null null
+2026-04-02 15:26:08.449 +04:00 [INF] Route matched with {action = "Refresh", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Refresh() on controller Dressfield.API.Controllers.AuthController (Dressfield.API).
+2026-04-02 15:26:08.455 +04:00 [INF] The file /uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png was not modified
+2026-04-02 15:26:08.458 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - 304 null image/png 27.4888ms
+2026-04-02 15:26:08.473 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - null null
+2026-04-02 15:26:08.480 +04:00 [INF] The file /uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png was not modified
+2026-04-02 15:26:08.484 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - 304 null image/png 10.7412ms
+2026-04-02 15:26:08.602 +04:00 [INF] Executed DbCommand (3ms) [Parameters=[@__tokenHash_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `r`.`Id`, `r`.`CreatedAt`, `r`.`ExpiresAt`, `r`.`IsRevoked`, `r`.`Token`, `r`.`UserId`, `a`.`Id`, `a`.`AccessFailedCount`, `a`.`ConcurrencyStamp`, `a`.`CreatedAt`, `a`.`Email`, `a`.`EmailConfirmed`, `a`.`FirstName`, `a`.`LastName`, `a`.`LockoutEnabled`, `a`.`LockoutEnd`, `a`.`NormalizedEmail`, `a`.`NormalizedUserName`, `a`.`PasswordHash`, `a`.`PhoneNumber`, `a`.`PhoneNumberConfirmed`, `a`.`SecurityStamp`, `a`.`TwoFactorEnabled`, `a`.`UserName`
+FROM `RefreshTokens` AS `r`
+INNER JOIN `AspNetUsers` AS `a` ON `r`.`UserId` = `a`.`Id`
+WHERE ((`r`.`Token` = @__tokenHash_0) AND NOT (`r`.`IsRevoked`)) AND (`r`.`ExpiresAt` > UTC_TIMESTAMP(6))
+LIMIT 1
+2026-04-02 15:26:08.714 +04:00 [INF] Executed DbCommand (5ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+SET AUTOCOMMIT = 1;
+UPDATE `RefreshTokens` SET `IsRevoked` = @p0
+WHERE `Id` = @p1;
+SELECT ROW_COUNT();
+2026-04-02 15:26:08.750 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a0`.`Name`
+FROM `AspNetUserRoles` AS `a`
+INNER JOIN `AspNetRoles` AS `a0` ON `a`.`RoleId` = `a0`.`Id`
+WHERE `a`.`UserId` = @__userId_0
+2026-04-02 15:26:08.823 +04:00 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 255), @p4='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO `RefreshTokens` (`CreatedAt`, `ExpiresAt`, `IsRevoked`, `Token`, `UserId`)
+VALUES (@p0, @p1, @p2, @p3, @p4);
+SELECT `Id`
+FROM `RefreshTokens`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+2026-04-02 15:26:08.852 +04:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType0`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[Dressfield.Application.DTOs.UserDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:26:08.902 +04:00 [INF] Executed action Dressfield.API.Controllers.AuthController.Refresh (Dressfield.API) in 442.409ms
+2026-04-02 15:26:08.904 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.AuthController.Refresh (Dressfield.API)'
+2026-04-02 15:26:08.911 +04:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/refresh - 200 null application/json; charset=utf-8 615.4218ms
+2026-04-02 15:26:08.913 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/cart - null null
+2026-04-02 15:26:08.919 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:26:08.921 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/cart - 204 null null 8.3099ms
+2026-04-02 15:26:08.924 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/cart - null null
+2026-04-02 15:26:08.929 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:26:08.978 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.CartController.Get (Dressfield.API)'
+2026-04-02 15:26:08.983 +04:00 [INF] Route matched with {action = "Get", controller = "Cart"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Get() on controller Dressfield.API.Controllers.CartController (Dressfield.API).
+2026-04-02 15:26:09.130 +04:00 [INF] Executed DbCommand (4ms) [Parameters=[@__userId_0='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SELECT `c1`.`Id`, `c1`.`UpdatedAt`, `c1`.`UserId`, `c0`.`Id`, `c0`.`AddedAt`, `c0`.`CartId`, `c0`.`ProductId`, `c0`.`Quantity`, `c0`.`VariantId`
+FROM (
+    SELECT `c`.`Id`, `c`.`UpdatedAt`, `c`.`UserId`
+    FROM `Carts` AS `c`
+    WHERE `c`.`UserId` = @__userId_0
+    LIMIT 1
+) AS `c1`
+LEFT JOIN `CartItems` AS `c0` ON `c1`.`Id` = `c0`.`CartId`
+ORDER BY `c1`.`Id`
+2026-04-02 15:26:09.162 +04:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2026-04-02 15:26:09.226 +04:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `p`.`Id`, `p`.`BasePrice`, `p`.`CreatedAt`, `p`.`Description`, `p`.`IsActive`, `p`.`IsFeatured`, `p`.`Name`, `p`.`ShortDescription`, `p`.`Sku`, `p`.`Slug`, `p`.`UpdatedAt`, `p0`.`Id`, `p0`.`AltText`, `p0`.`ImageUrl`, `p0`.`IsPrimary`, `p0`.`ProductId`, `p0`.`SortOrder`, `p1`.`Id`, `p1`.`IsActive`, `p1`.`Name`, `p1`.`PriceAdjustment`, `p1`.`ProductId`, `p1`.`Sku`, `p1`.`StockQuantity`, `p1`.`Value`
+FROM `Products` AS `p`
+LEFT JOIN `ProductImages` AS `p0` ON `p`.`Id` = `p0`.`ProductId`
+LEFT JOIN `ProductVariants` AS `p1` ON `p`.`Id` = `p1`.`ProductId`
+WHERE `p`.`Id` IN (21, 20, 19, 9, 17, 18, 15) AND `p`.`IsActive`
+ORDER BY `p`.`Id`, `p0`.`Id`
+2026-04-02 15:26:09.238 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.CartDto'.
+2026-04-02 15:26:09.256 +04:00 [INF] Executed action Dressfield.API.Controllers.CartController.Get (Dressfield.API) in 270.5498ms
+2026-04-02 15:26:09.258 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.CartController.Get (Dressfield.API)'
+2026-04-02 15:26:09.259 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/cart - 200 null application/json; charset=utf-8 335.1112ms
+2026-04-02 15:37:34.559 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/products - null null
+2026-04-02 15:37:34.563 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:37:34.565 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/products - 204 null null 6.2588ms
+2026-04-02 15:37:34.588 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/products - null null
+2026-04-02 15:37:34.593 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:37:34.598 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API)'
+2026-04-02 15:37:34.614 +04:00 [INF] Route matched with {action = "GetActive", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IReadOnlyCollection`1[Dressfield.Application.DTOs.ProductSummaryDto]]] GetActive(System.String) on controller Dressfield.API.Controllers.ProductsController (Dressfield.API).
+2026-04-02 15:37:34.677 +04:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `p`.`Id`, `p`.`Name`, `p`.`Slug`, `p`.`ShortDescription`, `p`.`BasePrice`, (
+    SELECT `p0`.`ImageUrl`
+    FROM `ProductImages` AS `p0`
+    WHERE `p`.`Id` = `p0`.`ProductId`
+    ORDER BY `p0`.`SortOrder`
+    LIMIT 1), `p`.`IsActive`, `p`.`IsFeatured`
+FROM `Products` AS `p`
+WHERE `p`.`IsActive`
+ORDER BY `p`.`IsFeatured` DESC, `p`.`Name`
+2026-04-02 15:37:34.683 +04:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[Dressfield.Application.DTOs.ProductSummaryDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:37:34.692 +04:00 [INF] Executed action Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API) in 74.4221ms
+2026-04-02 15:37:34.693 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API)'
+2026-04-02 15:37:34.695 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/products - 200 null application/json; charset=utf-8 106.5754ms
+2026-04-02 15:37:34.814 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - null null
+2026-04-02 15:37:34.815 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - null null
+2026-04-02 15:37:34.839 +04:00 [INF] The file /uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png was not modified
+2026-04-02 15:37:34.839 +04:00 [INF] The file /uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png was not modified
+2026-04-02 15:37:34.841 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - 304 null image/png 26.9713ms
+2026-04-02 15:37:34.842 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - 304 null image/png 26.8515ms
+2026-04-02 15:40:30.782 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/admin/dashboard/summary - null null
+2026-04-02 15:40:30.785 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:30.785 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/orders/admin - null null
+2026-04-02 15:40:30.785 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/custom-orders/admin - null null
+2026-04-02 15:40:30.786 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/admin/dashboard/summary - 204 null null 3.7905ms
+2026-04-02 15:40:30.788 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:30.792 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:30.796 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/orders/admin - 204 null null 10.668ms
+2026-04-02 15:40:30.797 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/custom-orders/admin - 204 null null 11.3145ms
+2026-04-02 15:40:30.800 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - null null
+2026-04-02 15:40:30.806 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:30.809 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/admin - null null
+2026-04-02 15:40:30.811 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/custom-orders/admin - null null
+2026-04-02 15:40:30.812 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:30.812 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:30.816 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:30.821 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:30.821 +04:00 [INF] Route matched with {action = "GetSummary", controller = "AdminDashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetSummary() on controller Dressfield.API.Controllers.AdminDashboardController (Dressfield.API).
+2026-04-02 15:40:30.821 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.CustomOrdersController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:30.829 +04:00 [INF] Route matched with {action = "GetAdmin", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAdmin(System.Nullable`1[Dressfield.Core.Enums.OrderStatus]) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:40:30.829 +04:00 [INF] Route matched with {action = "GetAdmin", controller = "CustomOrders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IReadOnlyCollection`1[Dressfield.Application.DTOs.CustomOrderSummaryDto]]] GetAdmin(System.Nullable`1[Dressfield.Core.Enums.CustomOrderStatus]) on controller Dressfield.API.Controllers.CustomOrdersController (Dressfield.API).
+2026-04-02 15:40:30.847 +04:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `Orders` AS `o`
+2026-04-02 15:40:30.863 +04:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `c`.`Id`, `c`.`AdminNotes`, `c`.`BaseProductId`, `c`.`ContactEmail`, `c`.`ContactName`, `c`.`ContactPhone`, `c`.`CreatedAt`, `c`.`CustomerNotes`, `c`.`Status`, `c`.`TotalPrice`, `c`.`UpdatedAt`, `c`.`UserId`, `p`.`Id`, `p`.`BasePrice`, `p`.`CreatedAt`, `p`.`Description`, `p`.`IsActive`, `p`.`IsFeatured`, `p`.`Name`, `p`.`ShortDescription`, `p`.`Sku`, `p`.`Slug`, `p`.`UpdatedAt`
+FROM `CustomOrders` AS `c`
+LEFT JOIN `Products` AS `p` ON `c`.`BaseProductId` = `p`.`Id`
+ORDER BY `c`.`CreatedAt` DESC
+2026-04-02 15:40:30.866 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(SUM(`o`.`TotalAmount`), 0.0)
+FROM `Orders` AS `o`
+WHERE `o`.`Status` IN (2, 3, 4, 5)
+2026-04-02 15:40:30.866 +04:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`UserId`, `o`.`ContactName`, `o`.`ContactEmail`, `o`.`ContactPhone`, `o`.`ShippingCity`, `o`.`Status`, `o`.`TotalAmount`, (
+    SELECT COUNT(*)
+    FROM `OrderItems` AS `o0`
+    WHERE `o`.`Id` = `o0`.`OrderId`), `o`.`CreatedAt`
+FROM `Orders` AS `o`
+ORDER BY `o`.`CreatedAt` DESC
+2026-04-02 15:40:30.869 +04:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[Dressfield.Application.DTOs.CustomOrderSummaryDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:40:30.873 +04:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[Dressfield.Application.DTOs.OrderSummaryDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:40:30.887 +04:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Dressfield.Infrastructure.Data.DressfieldDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-02 15:40:30.892 +04:00 [INF] Executed action Dressfield.API.Controllers.CustomOrdersController.GetAdmin (Dressfield.API) in 57.7902ms
+2026-04-02 15:40:30.895 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.CustomOrdersController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:30.897 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/custom-orders/admin - 200 null application/json; charset=utf-8 85.8848ms
+2026-04-02 15:40:30.897 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetAdmin (Dressfield.API) in 65.817ms
+2026-04-02 15:40:30.898 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `CustomOrders` AS `c`
+WHERE `c`.`Status` IN (0, 1)
+2026-04-02 15:40:30.902 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:30.907 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/admin - 200 null application/json; charset=utf-8 97.4111ms
+2026-04-02 15:40:30.907 +04:00 [INF] Executed action Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API) in 82.4242ms
+2026-04-02 15:40:30.913 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:30.916 +04:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:30.934 +04:00 [ERR] Unhandled exception. TraceId: 0HNKGLAHBV6F0:00000001
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:30.961 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - 400 null application/json; charset=utf-8 161.3086ms
+2026-04-02 15:40:31.978 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - null null
+2026-04-02 15:40:31.980 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:31.982 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:31.983 +04:00 [INF] Route matched with {action = "GetSummary", controller = "AdminDashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetSummary() on controller Dressfield.API.Controllers.AdminDashboardController (Dressfield.API).
+2026-04-02 15:40:31.985 +04:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Dressfield.Infrastructure.Data.DressfieldDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-02 15:40:31.986 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `Orders` AS `o`
+2026-04-02 15:40:31.987 +04:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Dressfield.Infrastructure.Data.DressfieldDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-02 15:40:31.990 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `CustomOrders` AS `c`
+WHERE `c`.`Status` IN (0, 1)
+2026-04-02 15:40:31.992 +04:00 [INF] Executed action Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API) in 8.2315ms
+2026-04-02 15:40:31.993 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:31.994 +04:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:31.999 +04:00 [ERR] Unhandled exception. TraceId: 0HNKGLAHBV6F0:00000002
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:32.004 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - 400 null application/json; charset=utf-8 25.5866ms
+2026-04-02 15:40:39.448 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/products/admin - null null
+2026-04-02 15:40:39.451 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:39.451 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/products/admin - 204 null null 3.423ms
+2026-04-02 15:40:39.463 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/products/admin - null null
+2026-04-02 15:40:39.466 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:39.469 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.ProductsController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:39.474 +04:00 [INF] Route matched with {action = "GetAdmin", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IReadOnlyCollection`1[Dressfield.Application.DTOs.ProductSummaryDto]]] GetAdmin(System.String) on controller Dressfield.API.Controllers.ProductsController (Dressfield.API).
+2026-04-02 15:40:39.490 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `p`.`Id`, `p`.`Name`, `p`.`Slug`, `p`.`ShortDescription`, `p`.`BasePrice`, (
+    SELECT `p0`.`ImageUrl`
+    FROM `ProductImages` AS `p0`
+    WHERE `p`.`Id` = `p0`.`ProductId`
+    ORDER BY `p0`.`SortOrder`
+    LIMIT 1), `p`.`IsActive`, `p`.`IsFeatured`
+FROM `Products` AS `p`
+ORDER BY `p`.`IsFeatured` DESC, `p`.`Name`
+2026-04-02 15:40:39.495 +04:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[Dressfield.Application.DTOs.ProductSummaryDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:40:39.497 +04:00 [INF] Executed action Dressfield.API.Controllers.ProductsController.GetAdmin (Dressfield.API) in 20.4928ms
+2026-04-02 15:40:39.499 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.ProductsController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:39.502 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/products/admin - 200 null application/json; charset=utf-8 38.1251ms
+2026-04-02 15:40:43.382 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/orders/admin - null null
+2026-04-02 15:40:43.384 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:43.385 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/orders/admin - 204 null null 3.2436ms
+2026-04-02 15:40:43.387 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/admin - null null
+2026-04-02 15:40:43.389 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:43.391 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:43.392 +04:00 [INF] Route matched with {action = "GetAdmin", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAdmin(System.Nullable`1[Dressfield.Core.Enums.OrderStatus]) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:40:43.400 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`UserId`, `o`.`ContactName`, `o`.`ContactEmail`, `o`.`ContactPhone`, `o`.`ShippingCity`, `o`.`Status`, `o`.`TotalAmount`, (
+    SELECT COUNT(*)
+    FROM `OrderItems` AS `o0`
+    WHERE `o`.`Id` = `o0`.`OrderId`), `o`.`CreatedAt`
+FROM `Orders` AS `o`
+ORDER BY `o`.`CreatedAt` DESC
+2026-04-02 15:40:43.402 +04:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[Dressfield.Application.DTOs.OrderSummaryDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:40:43.404 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetAdmin (Dressfield.API) in 10.3848ms
+2026-04-02 15:40:43.405 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetAdmin (Dressfield.API)'
+2026-04-02 15:40:43.406 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/admin - 200 null application/json; charset=utf-8 18.9706ms
+2026-04-02 15:40:46.594 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/admin/dashboard/summary - null null
+2026-04-02 15:40:46.598 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:46.599 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/admin/dashboard/summary - 204 null null 4.6479ms
+2026-04-02 15:40:46.613 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - null null
+2026-04-02 15:40:46.618 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:46.620 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:46.622 +04:00 [INF] Route matched with {action = "GetSummary", controller = "AdminDashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetSummary() on controller Dressfield.API.Controllers.AdminDashboardController (Dressfield.API).
+2026-04-02 15:40:46.629 +04:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Dressfield.Infrastructure.Data.DressfieldDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-02 15:40:46.630 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `Orders` AS `o`
+2026-04-02 15:40:46.633 +04:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Dressfield.Infrastructure.Data.DressfieldDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-02 15:40:46.642 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `CustomOrders` AS `c`
+WHERE `c`.`Status` IN (0, 1)
+2026-04-02 15:40:46.646 +04:00 [INF] Executed action Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API) in 22.5695ms
+2026-04-02 15:40:46.648 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:46.649 +04:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:46.657 +04:00 [ERR] Unhandled exception. TraceId: 0HNKGLAHBV6F0:00000005
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:46.665 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - 400 null application/json; charset=utf-8 51.4967ms
+2026-04-02 15:40:47.736 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - null null
+2026-04-02 15:40:47.739 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:47.740 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:47.741 +04:00 [INF] Route matched with {action = "GetSummary", controller = "AdminDashboard"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetSummary() on controller Dressfield.API.Controllers.AdminDashboardController (Dressfield.API).
+2026-04-02 15:40:47.745 +04:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Dressfield.Infrastructure.Data.DressfieldDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-02 15:40:47.745 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `Orders` AS `o`
+2026-04-02 15:40:47.747 +04:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Dressfield.Infrastructure.Data.DressfieldDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-04-02 15:40:47.751 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM `CustomOrders` AS `c`
+WHERE `c`.`Status` IN (0, 1)
+2026-04-02 15:40:47.753 +04:00 [INF] Executed action Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API) in 9.9703ms
+2026-04-02 15:40:47.754 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.AdminDashboardController.GetSummary (Dressfield.API)'
+2026-04-02 15:40:47.755 +04:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:47.760 +04:00 [ERR] Unhandled exception. TraceId: 0HNKGLAHBV6F0:00000006
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Dressfield.Infrastructure.Services.AdminDashboardService.GetSummaryAsync() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AdminDashboardService.cs:line 58
+   at Dressfield.API.Controllers.AdminDashboardController.GetSummary() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AdminDashboardController.cs:line 22
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:40:47.765 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/admin/dashboard/summary - 400 null application/json; charset=utf-8 28.4055ms
+2026-04-02 15:40:57.024 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/orders/admin/18 - null null
+2026-04-02 15:40:57.027 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:57.028 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/orders/admin/18 - 204 null null 4.094ms
+2026-04-02 15:40:57.060 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/admin/18 - null null
+2026-04-02 15:40:57.065 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:40:57.067 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetAdminById (Dressfield.API)'
+2026-04-02 15:40:57.073 +04:00 [INF] Route matched with {action = "GetAdminById", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAdminById(Int32) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:40:57.115 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o1`.`Id`, `o1`.`AdminNotes`, `o1`.`BogOrderId`, `o1`.`BogOrderKey`, `o1`.`ContactEmail`, `o1`.`ContactName`, `o1`.`ContactPhone`, `o1`.`CreatedAt`, `o1`.`CustomerNotes`, `o1`.`ShippingAddressLine1`, `o1`.`ShippingAddressLine2`, `o1`.`ShippingCity`, `o1`.`ShippingCost`, `o1`.`ShippingPostalCode`, `o1`.`Status`, `o1`.`Subtotal`, `o1`.`TotalAmount`, `o1`.`UpdatedAt`, `o1`.`UserId`, `o0`.`Id`, `o0`.`LineTotal`, `o0`.`OrderId`, `o0`.`ProductId`, `o0`.`ProductImageUrl`, `o0`.`ProductName`, `o0`.`ProductSlug`, `o0`.`Quantity`, `o0`.`UnitPrice`, `o0`.`VariantName`
+FROM (
+    SELECT `o`.`Id`, `o`.`AdminNotes`, `o`.`BogOrderId`, `o`.`BogOrderKey`, `o`.`ContactEmail`, `o`.`ContactName`, `o`.`ContactPhone`, `o`.`CreatedAt`, `o`.`CustomerNotes`, `o`.`ShippingAddressLine1`, `o`.`ShippingAddressLine2`, `o`.`ShippingCity`, `o`.`ShippingCost`, `o`.`ShippingPostalCode`, `o`.`Status`, `o`.`Subtotal`, `o`.`TotalAmount`, `o`.`UpdatedAt`, `o`.`UserId`
+    FROM `Orders` AS `o`
+    WHERE `o`.`Id` = @__id_0
+    LIMIT 1
+) AS `o1`
+LEFT JOIN `OrderItems` AS `o0` ON `o1`.`Id` = `o0`.`OrderId`
+ORDER BY `o1`.`Id`
+2026-04-02 15:40:57.126 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderDetailDto'.
+2026-04-02 15:40:57.136 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetAdminById (Dressfield.API) in 60.3583ms
+2026-04-02 15:40:57.138 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetAdminById (Dressfield.API)'
+2026-04-02 15:40:57.139 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/admin/18 - 200 null application/json; charset=utf-8 78.5599ms
+2026-04-02 15:42:54.847 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/products - null null
+2026-04-02 15:42:54.850 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API)'
+2026-04-02 15:42:54.850 +04:00 [INF] Route matched with {action = "GetActive", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IReadOnlyCollection`1[Dressfield.Application.DTOs.ProductSummaryDto]]] GetActive(System.String) on controller Dressfield.API.Controllers.ProductsController (Dressfield.API).
+2026-04-02 15:42:54.858 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `p`.`Id`, `p`.`Name`, `p`.`Slug`, `p`.`ShortDescription`, `p`.`BasePrice`, (
+    SELECT `p0`.`ImageUrl`
+    FROM `ProductImages` AS `p0`
+    WHERE `p`.`Id` = `p0`.`ProductId`
+    ORDER BY `p0`.`SortOrder`
+    LIMIT 1), `p`.`IsActive`, `p`.`IsFeatured`
+FROM `Products` AS `p`
+WHERE `p`.`IsActive`
+ORDER BY `p`.`IsFeatured` DESC, `p`.`Name`
+2026-04-02 15:42:54.859 +04:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[Dressfield.Application.DTOs.ProductSummaryDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:42:54.861 +04:00 [INF] Executed action Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API) in 9.4086ms
+2026-04-02 15:42:54.862 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API)'
+2026-04-02 15:42:54.863 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/products - 200 null application/json; charset=utf-8 16.769ms
+2026-04-02 15:42:54.933 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - null null
+2026-04-02 15:42:54.933 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - null null
+2026-04-02 15:42:54.933 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - null null
+2026-04-02 15:42:54.933 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - null null
+2026-04-02 15:42:54.936 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - 404 0 null 3.1926ms
+2026-04-02 15:42:54.938 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - null null
+2026-04-02 15:42:54.939 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - null null
+2026-04-02 15:42:54.939 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - 404 0 null 5.9003ms
+2026-04-02 15:42:54.941 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - 404 0 null 8.1802ms
+2026-04-02 15:42:54.945 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - 404 0 null 11.7773ms
+2026-04-02 15:42:54.948 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png, Response status code: 404
+2026-04-02 15:42:54.951 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - 404 0 null 12.3228ms
+2026-04-02 15:42:54.953 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - 404 0 null 14.2235ms
+2026-04-02 15:42:54.956 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png, Response status code: 404
+2026-04-02 15:42:54.959 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png, Response status code: 404
+2026-04-02 15:42:54.962 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png, Response status code: 404
+2026-04-02 15:42:54.964 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - null null
+2026-04-02 15:42:54.967 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png, Response status code: 404
+2026-04-02 15:42:54.971 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png, Response status code: 404
+2026-04-02 15:42:54.974 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - null null
+2026-04-02 15:42:54.977 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png - null null
+2026-04-02 15:42:54.979 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - null null
+2026-04-02 15:42:54.983 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - 404 0 null 18.7401ms
+2026-04-02 15:42:54.985 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png - null null
+2026-04-02 15:42:54.987 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - null null
+2026-04-02 15:42:54.993 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - 404 0 null 18.8906ms
+2026-04-02 15:42:54.997 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png - 404 0 null 19.4342ms
+2026-04-02 15:42:55.000 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - 404 0 null 20.741ms
+2026-04-02 15:42:55.004 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png, Response status code: 404
+2026-04-02 15:42:55.007 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png - 404 0 null 21.9012ms
+2026-04-02 15:42:55.011 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - 404 0 null 23.2639ms
+2026-04-02 15:42:55.014 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png, Response status code: 404
+2026-04-02 15:42:55.017 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png, Response status code: 404
+2026-04-02 15:42:55.021 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png, Response status code: 404
+2026-04-02 15:42:55.023 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - null null
+2026-04-02 15:42:55.027 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png, Response status code: 404
+2026-04-02 15:42:55.030 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png, Response status code: 404
+2026-04-02 15:42:55.033 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - null null
+2026-04-02 15:42:55.036 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - null null
+2026-04-02 15:42:55.042 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - 404 0 null 19.5259ms
+2026-04-02 15:42:55.050 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - 404 0 null 16.382ms
+2026-04-02 15:42:55.052 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - 404 0 null 16.4585ms
+2026-04-02 15:42:55.055 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png, Response status code: 404
+2026-04-02 15:42:55.059 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png, Response status code: 404
+2026-04-02 15:42:55.063 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png, Response status code: 404
+2026-04-02 15:43:13.828 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/products - null null
+2026-04-02 15:43:13.831 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:43:13.832 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/products - 204 null null 3.9149ms
+2026-04-02 15:43:13.852 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/products - null null
+2026-04-02 15:43:13.855 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:43:13.861 +04:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '02/04/2026 11:41:08', Current time (UTC): '02/04/2026 11:43:13'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-02 15:43:13.868 +04:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '02/04/2026 11:41:08', Current time (UTC): '02/04/2026 11:43:13'.
+2026-04-02 15:43:13.870 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API)'
+2026-04-02 15:43:13.871 +04:00 [INF] Route matched with {action = "GetActive", controller = "Products"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IReadOnlyCollection`1[Dressfield.Application.DTOs.ProductSummaryDto]]] GetActive(System.String) on controller Dressfield.API.Controllers.ProductsController (Dressfield.API).
+2026-04-02 15:43:13.877 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `p`.`Id`, `p`.`Name`, `p`.`Slug`, `p`.`ShortDescription`, `p`.`BasePrice`, (
+    SELECT `p0`.`ImageUrl`
+    FROM `ProductImages` AS `p0`
+    WHERE `p`.`Id` = `p0`.`ProductId`
+    ORDER BY `p0`.`SortOrder`
+    LIMIT 1), `p`.`IsActive`, `p`.`IsFeatured`
+FROM `Products` AS `p`
+WHERE `p`.`IsActive`
+ORDER BY `p`.`IsFeatured` DESC, `p`.`Name`
+2026-04-02 15:43:13.881 +04:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[Dressfield.Application.DTOs.ProductSummaryDto, Dressfield.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-04-02 15:43:13.883 +04:00 [INF] Executed action Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API) in 9.5437ms
+2026-04-02 15:43:13.884 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.ProductsController.GetActive (Dressfield.API)'
+2026-04-02 15:43:13.885 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/products - 200 null application/json; charset=utf-8 33.5331ms
+2026-04-02 15:43:14.015 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - null null
+2026-04-02 15:43:14.019 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - 404 0 null 3.929ms
+2026-04-02 15:43:14.021 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - null null
+2026-04-02 15:43:14.023 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png, Response status code: 404
+2026-04-02 15:43:14.026 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - 404 0 null 5.2072ms
+2026-04-02 15:43:14.030 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - null null
+2026-04-02 15:43:14.032 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png, Response status code: 404
+2026-04-02 15:43:14.032 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - null null
+2026-04-02 15:43:14.037 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - 404 0 null 6.9161ms
+2026-04-02 15:43:14.038 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - null null
+2026-04-02 15:43:14.038 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - null null
+2026-04-02 15:43:14.038 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png - null null
+2026-04-02 15:43:14.038 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - null null
+2026-04-02 15:43:14.041 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - 404 0 null 9.498ms
+2026-04-02 15:43:14.044 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png, Response status code: 404
+2026-04-02 15:43:14.047 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - 404 0 null 9.3753ms
+2026-04-02 15:43:14.050 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - 404 0 null 11.8808ms
+2026-04-02 15:43:14.052 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png - 404 0 null 13.9831ms
+2026-04-02 15:43:14.055 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png - 404 0 null 16.9803ms
+2026-04-02 15:43:14.058 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png, Response status code: 404
+2026-04-02 15:43:14.064 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png, Response status code: 404
+2026-04-02 15:43:14.067 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png, Response status code: 404
+2026-04-02 15:43:14.070 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/67ed98d4-4059-4205-9c0e-3d00949990cb.png, Response status code: 404
+2026-04-02 15:43:14.073 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/77b8622f-a58b-4658-9f68-fc6ee1d766ec.png, Response status code: 404
+2026-04-02 15:43:14.118 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png - null null
+2026-04-02 15:43:14.118 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - null null
+2026-04-02 15:43:14.118 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - null null
+2026-04-02 15:43:14.118 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - null null
+2026-04-02 15:43:14.123 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png - 404 0 null 4.4337ms
+2026-04-02 15:43:14.125 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png - 404 0 null 7.175ms
+2026-04-02 15:43:14.128 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png - 404 0 null 10.0592ms
+2026-04-02 15:43:14.132 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - 404 0 null 13.2911ms
+2026-04-02 15:43:14.136 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/e8953d88-d3ff-4417-89be-760092135994.png, Response status code: 404
+2026-04-02 15:43:14.140 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/60ad0585-45ae-43a0-92e2-1c683c9492f6.png, Response status code: 404
+2026-04-02 15:43:14.144 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/d7843f13-3972-479c-9cde-3b93e4f78f91.png, Response status code: 404
+2026-04-02 15:43:14.148 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png, Response status code: 404
+2026-04-02 15:43:46.971 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - null null
+2026-04-02 15:43:46.971 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - null null
+2026-04-02 15:43:46.971 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - null null
+2026-04-02 15:43:46.972 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - null null
+2026-04-02 15:43:46.973 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - 404 0 null 2.5897ms
+2026-04-02 15:43:46.975 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - 404 0 null 4.0488ms
+2026-04-02 15:43:46.978 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - 404 0 null 6.1908ms
+2026-04-02 15:43:46.978 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - null null
+2026-04-02 15:43:46.980 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - 404 0 null 7.9242ms
+2026-04-02 15:43:46.982 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png, Response status code: 404
+2026-04-02 15:43:46.984 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png, Response status code: 404
+2026-04-02 15:43:46.986 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png, Response status code: 404
+2026-04-02 15:43:46.988 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - 404 0 null 9.956ms
+2026-04-02 15:43:46.990 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png, Response status code: 404
+2026-04-02 15:43:46.992 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - null null
+2026-04-02 15:43:46.994 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - null null
+2026-04-02 15:43:47.008 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png, Response status code: 404
+2026-04-02 15:43:47.026 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - 404 0 null 33.8165ms
+2026-04-02 15:43:47.030 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - 404 0 null 35.7369ms
+2026-04-02 15:43:47.038 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png, Response status code: 404
+2026-04-02 15:43:47.042 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png, Response status code: 404
+2026-04-02 15:44:04.123 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - null null
+2026-04-02 15:44:04.123 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - null null
+2026-04-02 15:44:04.124 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - null null
+2026-04-02 15:44:04.124 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - null null
+2026-04-02 15:44:04.124 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - null null
+2026-04-02 15:44:04.124 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - null null
+2026-04-02 15:44:04.126 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png - 404 0 null 3.287ms
+2026-04-02 15:44:04.129 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png - 404 0 null 5.6047ms
+2026-04-02 15:44:04.132 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png - 404 0 null 8.5816ms
+2026-04-02 15:44:04.145 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/660c6e70-585b-447e-91ed-efdca825dbf7.png, Response status code: 404
+2026-04-02 15:44:04.137 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png - 404 0 null 12.6408ms
+2026-04-02 15:44:04.138 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png - 404 0 null 13.9456ms
+2026-04-02 15:44:04.140 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/96974bdb-b3ba-4206-a59a-48acd9d896b9.png, Response status code: 404
+2026-04-02 15:44:04.142 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/1beca7f2-5a76-479c-8e11-7e8caeaf9867.png, Response status code: 404
+2026-04-02 15:44:04.135 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png - 404 0 null 10.8484ms
+2026-04-02 15:44:04.149 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/b758e9af-509a-4eeb-a14c-d3bd81d59d17.png, Response status code: 404
+2026-04-02 15:44:04.151 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/58aa0117-6d58-46d4-8f76-998ed65e6ecf.png, Response status code: 404
+2026-04-02 15:44:04.152 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - null null
+2026-04-02 15:44:04.155 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/037393e9-2aad-40d2-99a1-fa9fddebdb81.png, Response status code: 404
+2026-04-02 15:44:04.160 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png - 404 0 null 7.6994ms
+2026-04-02 15:44:04.163 +04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/uploads/designs/59c09b3a-2a37-498b-afe4-cb9207dde00b.png, Response status code: 404
+2026-04-02 15:44:04.982 +04:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/orders - null null
+2026-04-02 15:44:04.985 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:04.985 +04:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/orders - 204 null null 3.6496ms
+2026-04-02 15:44:04.987 +04:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/orders - application/json 416
+2026-04-02 15:44:04.990 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:04.991 +04:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '02/04/2026 11:41:08', Current time (UTC): '02/04/2026 11:44:04'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-04-02 15:44:04.993 +04:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '02/04/2026 11:41:08', Current time (UTC): '02/04/2026 11:44:04'.
+2026-04-02 15:44:04.994 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.Create (Dressfield.API)'
+2026-04-02 15:44:04.998 +04:00 [INF] Route matched with {action = "Create", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(Dressfield.Application.DTOs.CreateOrderRequest) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:05.046 +04:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2026-04-02 15:44:05.058 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `p`.`Id`, `p`.`BasePrice`, `p`.`CreatedAt`, `p`.`Description`, `p`.`IsActive`, `p`.`IsFeatured`, `p`.`Name`, `p`.`ShortDescription`, `p`.`Sku`, `p`.`Slug`, `p`.`UpdatedAt`, `p0`.`Id`, `p0`.`IsActive`, `p0`.`Name`, `p0`.`PriceAdjustment`, `p0`.`ProductId`, `p0`.`Sku`, `p0`.`StockQuantity`, `p0`.`Value`, `p1`.`Id`, `p1`.`AltText`, `p1`.`ImageUrl`, `p1`.`IsPrimary`, `p1`.`ProductId`, `p1`.`SortOrder`
+FROM `Products` AS `p`
+LEFT JOIN `ProductVariants` AS `p0` ON `p`.`Id` = `p0`.`ProductId`
+LEFT JOIN `ProductImages` AS `p1` ON `p`.`Id` = `p1`.`ProductId`
+WHERE `p`.`Id` IN (9, 17, 18, 15, 21, 20, 19) AND `p`.`IsActive`
+ORDER BY `p`.`Id`, `p0`.`Id`
+2026-04-02 15:44:05.164 +04:00 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (Size = 1000), @p1='?' (Size = 100), @p2='?' (Size = 64), @p3='?' (Size = 200), @p4='?' (Size = 100), @p5='?' (Size = 30), @p6='?' (DbType = DateTime), @p7='?' (Size = 1000), @p8='?' (Size = 200), @p9='?' (Size = 200), @p10='?' (Size = 100), @p11='?' (DbType = Decimal), @p12='?' (Size = 20), @p13='?' (DbType = Int32), @p14='?' (DbType = Decimal), @p15='?' (DbType = Decimal), @p16='?' (DbType = DateTime), @p17='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO `Orders` (`AdminNotes`, `BogOrderId`, `BogOrderKey`, `ContactEmail`, `ContactName`, `ContactPhone`, `CreatedAt`, `CustomerNotes`, `ShippingAddressLine1`, `ShippingAddressLine2`, `ShippingCity`, `ShippingCost`, `ShippingPostalCode`, `Status`, `Subtotal`, `TotalAmount`, `UpdatedAt`, `UserId`)
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+SELECT `Id`
+FROM `Orders`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+2026-04-02 15:44:05.172 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@p18='?' (DbType = Decimal), @p19='?' (DbType = Int32), @p20='?' (DbType = Int32), @p21='?' (Size = 500), @p22='?' (Size = 150), @p23='?' (Size = 160), @p24='?' (DbType = Int32), @p25='?' (DbType = Decimal), @p26='?' (Size = 200), @p27='?' (DbType = Decimal), @p28='?' (DbType = Int32), @p29='?' (DbType = Int32), @p30='?' (Size = 500), @p31='?' (Size = 150), @p32='?' (Size = 160), @p33='?' (DbType = Int32), @p34='?' (DbType = Decimal), @p35='?' (Size = 200), @p36='?' (DbType = Decimal), @p37='?' (DbType = Int32), @p38='?' (DbType = Int32), @p39='?' (Size = 500), @p40='?' (Size = 150), @p41='?' (Size = 160), @p42='?' (DbType = Int32), @p43='?' (DbType = Decimal), @p44='?' (Size = 200), @p45='?' (DbType = Decimal), @p46='?' (DbType = Int32), @p47='?' (DbType = Int32), @p48='?' (Size = 500), @p49='?' (Size = 150), @p50='?' (Size = 160), @p51='?' (DbType = Int32), @p52='?' (DbType = Decimal), @p53='?' (Size = 200), @p54='?' (DbType = Decimal), @p55='?' (DbType = Int32), @p56='?' (DbType = Int32), @p57='?' (Size = 500), @p58='?' (Size = 150), @p59='?' (Size = 160), @p60='?' (DbType = Int32), @p61='?' (DbType = Decimal), @p62='?' (Size = 200), @p63='?' (DbType = Decimal), @p64='?' (DbType = Int32), @p65='?' (DbType = Int32), @p66='?' (Size = 500), @p67='?' (Size = 150), @p68='?' (Size = 160), @p69='?' (DbType = Int32), @p70='?' (DbType = Decimal), @p71='?' (Size = 200), @p72='?' (DbType = Decimal), @p73='?' (DbType = Int32), @p74='?' (DbType = Int32), @p75='?' (Size = 500), @p76='?' (Size = 150), @p77='?' (Size = 160), @p78='?' (DbType = Int32), @p79='?' (DbType = Decimal), @p80='?' (Size = 200)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO `OrderItems` (`LineTotal`, `OrderId`, `ProductId`, `ProductImageUrl`, `ProductName`, `ProductSlug`, `Quantity`, `UnitPrice`, `VariantName`)
+VALUES (@p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);
+SELECT `Id`
+FROM `OrderItems`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+
+INSERT INTO `OrderItems` (`LineTotal`, `OrderId`, `ProductId`, `ProductImageUrl`, `ProductName`, `ProductSlug`, `Quantity`, `UnitPrice`, `VariantName`)
+VALUES (@p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35);
+SELECT `Id`
+FROM `OrderItems`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+
+INSERT INTO `OrderItems` (`LineTotal`, `OrderId`, `ProductId`, `ProductImageUrl`, `ProductName`, `ProductSlug`, `Quantity`, `UnitPrice`, `VariantName`)
+VALUES (@p36, @p37, @p38, @p39, @p40, @p41, @p42, @p43, @p44);
+SELECT `Id`
+FROM `OrderItems`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+
+INSERT INTO `OrderItems` (`LineTotal`, `OrderId`, `ProductId`, `ProductImageUrl`, `ProductName`, `ProductSlug`, `Quantity`, `UnitPrice`, `VariantName`)
+VALUES (@p45, @p46, @p47, @p48, @p49, @p50, @p51, @p52, @p53);
+SELECT `Id`
+FROM `OrderItems`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+
+INSERT INTO `OrderItems` (`LineTotal`, `OrderId`, `ProductId`, `ProductImageUrl`, `ProductName`, `ProductSlug`, `Quantity`, `UnitPrice`, `VariantName`)
+VALUES (@p54, @p55, @p56, @p57, @p58, @p59, @p60, @p61, @p62);
+SELECT `Id`
+FROM `OrderItems`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+
+INSERT INTO `OrderItems` (`LineTotal`, `OrderId`, `ProductId`, `ProductImageUrl`, `ProductName`, `ProductSlug`, `Quantity`, `UnitPrice`, `VariantName`)
+VALUES (@p63, @p64, @p65, @p66, @p67, @p68, @p69, @p70, @p71);
+SELECT `Id`
+FROM `OrderItems`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+
+INSERT INTO `OrderItems` (`LineTotal`, `OrderId`, `ProductId`, `ProductImageUrl`, `ProductName`, `ProductSlug`, `Quantity`, `UnitPrice`, `VariantName`)
+VALUES (@p72, @p73, @p74, @p75, @p76, @p77, @p78, @p79, @p80);
+SELECT `Id`
+FROM `OrderItems`
+WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+2026-04-02 15:44:05.180 +04:00 [WRN] [MockPayment] Simulating BOG session for order 20 (₾605.00). Configure BogIPay:ClientId/Secret for real payments.
+2026-04-02 15:44:05.184 +04:00 [INF] Executed DbCommand (2ms) [Parameters=[@p2='?' (DbType = Int32), @p0='?' (Size = 100), @p1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET AUTOCOMMIT = 1;
+UPDATE `Orders` SET `BogOrderId` = @p0, `Status` = @p1
+WHERE `Id` = @p2;
+SELECT ROW_COUNT();
+2026-04-02 15:44:05.186 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.CheckoutResponse'.
+2026-04-02 15:44:05.188 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.Create (Dressfield.API) in 187.9167ms
+2026-04-02 15:44:05.189 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.Create (Dressfield.API)'
+2026-04-02 15:44:05.190 +04:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/orders - 200 null application/json; charset=utf-8 203.5356ms
+2026-04-02 15:44:06.352 +04:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/refresh - null 0
+2026-04-02 15:44:06.356 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:06.357 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.AuthController.Refresh (Dressfield.API)'
+2026-04-02 15:44:06.358 +04:00 [INF] Route matched with {action = "Refresh", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Refresh() on controller Dressfield.API.Controllers.AuthController (Dressfield.API).
+2026-04-02 15:44:06.368 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__tokenHash_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `r`.`Id`, `r`.`CreatedAt`, `r`.`ExpiresAt`, `r`.`IsRevoked`, `r`.`Token`, `r`.`UserId`, `a`.`Id`, `a`.`AccessFailedCount`, `a`.`ConcurrencyStamp`, `a`.`CreatedAt`, `a`.`Email`, `a`.`EmailConfirmed`, `a`.`FirstName`, `a`.`LastName`, `a`.`LockoutEnabled`, `a`.`LockoutEnd`, `a`.`NormalizedEmail`, `a`.`NormalizedUserName`, `a`.`PasswordHash`, `a`.`PhoneNumber`, `a`.`PhoneNumberConfirmed`, `a`.`SecurityStamp`, `a`.`TwoFactorEnabled`, `a`.`UserName`
+FROM `RefreshTokens` AS `r`
+INNER JOIN `AspNetUsers` AS `a` ON `r`.`UserId` = `a`.`Id`
+WHERE ((`r`.`Token` = @__tokenHash_0) AND NOT (`r`.`IsRevoked`)) AND (`r`.`ExpiresAt` > UTC_TIMESTAMP(6))
+LIMIT 1
+2026-04-02 15:44:06.377 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:06.378 +04:00 [INF] Executed DbCommand (5ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+SET AUTOCOMMIT = 1;
+UPDATE `RefreshTokens` SET `IsRevoked` = @p0
+WHERE `Id` = @p1;
+SELECT ROW_COUNT();
+2026-04-02 15:44:06.381 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:06.385 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:06.387 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `a0`.`Name`
+FROM `AspNetUserRoles` AS `a`
+INNER JOIN `AspNetRoles` AS `a0` ON `a`.`RoleId` = `a0`.`Id`
+WHERE `a`.`UserId` = @__userId_0
+2026-04-02 15:44:06.389 +04:00 [INF] Executed action Dressfield.API.Controllers.AuthController.Refresh (Dressfield.API) in 28.96ms
+2026-04-02 15:44:06.390 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:06.391 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.AuthController.Refresh (Dressfield.API)'
+2026-04-02 15:44:06.396 +04:00 [ERR] An unhandled exception has occurred while executing the request.
+System.ArgumentNullException: Value cannot be null. (Parameter 's')
+   at System.ArgumentNullException.Throw(String paramName)
+   at System.Text.Encoding.GetBytes(String s)
+   at Dressfield.Infrastructure.Services.AuthService.GenerateAccessToken(ApplicationUser user, String role) in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AuthService.cs:line 144
+   at Dressfield.Infrastructure.Services.AuthService.GenerateAuthResponse(ApplicationUser user) in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AuthService.cs:line 126
+   at Dressfield.Infrastructure.Services.AuthService.RefreshTokenAsync(String refreshToken) in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AuthService.cs:line 77
+   at Dressfield.API.Controllers.AuthController.Refresh() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AuthController.cs:line 49
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:44:06.405 +04:00 [ERR] Unhandled exception. TraceId: 0HNKGLAHBV6FE:00000008
+System.ArgumentNullException: Value cannot be null. (Parameter 's')
+   at System.ArgumentNullException.Throw(String paramName)
+   at System.Text.Encoding.GetBytes(String s)
+   at Dressfield.Infrastructure.Services.AuthService.GenerateAccessToken(ApplicationUser user, String role) in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AuthService.cs:line 144
+   at Dressfield.Infrastructure.Services.AuthService.GenerateAuthResponse(ApplicationUser user) in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AuthService.cs:line 126
+   at Dressfield.Infrastructure.Services.AuthService.RefreshTokenAsync(String refreshToken) in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.Infrastructure\Services\AuthService.cs:line 77
+   at Dressfield.API.Controllers.AuthController.Refresh() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Controllers\AuthController.cs:line 49
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Program.<>c.<<<Main>$>b__0_9>d.MoveNext() in C:\Users\piros\OneDrive\Desktop\Dressfield Codex\Dressfield.backend\src\Dressfield.API\Program.cs:line 249
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+2026-04-02 15:44:06.412 +04:00 [INF] Executed DbCommand (1ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:06.412 +04:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/refresh - 500 null application/json; charset=utf-8 60.4101ms
+2026-04-02 15:44:06.416 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:06.422 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 28.1863ms
+2026-04-02 15:44:06.424 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:06.425 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 47.6019ms
+2026-04-02 15:44:09.440 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:09.443 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:09.444 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:09.445 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:09.449 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:09.452 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:09.453 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 6.4204ms
+2026-04-02 15:44:09.454 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:09.455 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 14.6043ms
+2026-04-02 15:44:12.461 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:12.463 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:12.464 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:12.465 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:12.468 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:12.470 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:12.472 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.7265ms
+2026-04-02 15:44:12.472 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:12.473 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 12.3989ms
+2026-04-02 15:44:15.477 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:15.479 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:15.480 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:15.480 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:15.484 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:15.486 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:15.488 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.2804ms
+2026-04-02 15:44:15.489 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:15.490 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 13.1948ms
+2026-04-02 15:44:18.494 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:18.497 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:18.497 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:18.498 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:18.502 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:18.504 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:18.505 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.2963ms
+2026-04-02 15:44:18.506 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:18.507 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 12.4166ms
+2026-04-02 15:44:21.515 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:21.518 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:21.519 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:21.520 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:21.524 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:21.525 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:21.527 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.5977ms
+2026-04-02 15:44:21.529 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:21.530 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 14.815ms
+2026-04-02 15:44:24.538 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:24.542 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:24.543 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:24.544 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:24.547 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:24.548 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:24.550 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 4.4835ms
+2026-04-02 15:44:24.551 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:24.552 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 13.4006ms
+2026-04-02 15:44:27.556 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:27.559 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:27.559 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:27.560 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:27.564 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:27.566 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:27.567 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.2247ms
+2026-04-02 15:44:27.568 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:27.569 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 13.0368ms
+2026-04-02 15:44:30.573 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:30.576 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:30.577 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:30.577 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:30.580 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:30.582 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:30.583 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 4.3873ms
+2026-04-02 15:44:30.584 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:30.585 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 11.6731ms
+2026-04-02 15:44:33.589 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:33.592 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:33.593 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:33.594 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:33.597 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:33.599 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:33.600 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 4.7307ms
+2026-04-02 15:44:33.601 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:33.602 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 13.3011ms
+2026-04-02 15:44:36.606 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:36.609 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:36.609 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:36.610 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:36.615 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:36.617 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:36.618 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 6.1383ms
+2026-04-02 15:44:36.620 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:36.622 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 15.5414ms
+2026-04-02 15:44:39.639 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:39.645 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:39.646 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:39.647 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:39.650 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:39.652 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:39.653 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 4.3721ms
+2026-04-02 15:44:39.654 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:39.655 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 15.8942ms
+2026-04-02 15:44:42.673 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:42.676 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:42.677 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:42.679 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:42.682 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:42.683 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:42.684 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 4.4038ms
+2026-04-02 15:44:42.686 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:42.687 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 13.7754ms
+2026-04-02 15:44:45.708 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:45.712 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:45.713 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:45.714 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:45.717 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:45.719 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:45.721 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 4.8659ms
+2026-04-02 15:44:45.722 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:45.722 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 14.7921ms
+2026-04-02 15:44:48.735 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:48.738 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:48.739 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:48.740 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:48.743 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:48.745 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:48.747 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.3188ms
+2026-04-02 15:44:48.748 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:48.749 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 13.9852ms
+2026-04-02 15:44:51.760 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:51.763 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:51.764 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:51.765 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:51.768 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:51.770 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:51.771 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.4536ms
+2026-04-02 15:44:51.773 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:51.774 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 14.4023ms
+2026-04-02 15:44:54.781 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:54.784 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:54.786 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:54.786 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:54.789 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:54.790 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:54.791 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 3.8311ms
+2026-04-02 15:44:54.792 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:54.793 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 11.7347ms
+2026-04-02 15:44:57.798 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:44:57.804 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:44:57.806 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:57.807 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:44:57.810 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:44:57.812 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:44:57.813 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 4.9221ms
+2026-04-02 15:44:57.815 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:44:57.816 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 17.6906ms
+2026-04-02 15:45:06.833 +04:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - null null
+2026-04-02 15:45:06.835 +04:00 [INF] CORS policy execution successful.
+2026-04-02 15:45:06.836 +04:00 [INF] Executing endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:45:06.837 +04:00 [INF] Route matched with {action = "GetPublicStatus", controller = "Orders"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetPublicStatus(Int32, System.String) on controller Dressfield.API.Controllers.OrdersController (Dressfield.API).
+2026-04-02 15:45:06.841 +04:00 [INF] Executed DbCommand (0ms) [Parameters=[@__orderId_0='?' (DbType = Int32), @__normalizedKey_1='?' (Size = 64)], CommandType='"Text"', CommandTimeout='30']
+SELECT `o`.`Id`, `o`.`Status`, `o`.`UpdatedAt`
+FROM `Orders` AS `o`
+WHERE (`o`.`Id` = @__orderId_0) AND (`o`.`BogOrderKey` = @__normalizedKey_1)
+LIMIT 1
+2026-04-02 15:45:06.843 +04:00 [INF] Executing OkObjectResult, writing value of type 'Dressfield.Application.DTOs.OrderStatusLookupDto'.
+2026-04-02 15:45:06.844 +04:00 [INF] Executed action Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API) in 5.9245ms
+2026-04-02 15:45:06.845 +04:00 [INF] Executed endpoint 'Dressfield.API.Controllers.OrdersController.GetPublicStatus (Dressfield.API)'
+2026-04-02 15:45:06.846 +04:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/orders/status?orderId=20&key=dffd03931c814e72bb1fd1ab0585adae - 200 null application/json; charset=utf-8 13.0448ms

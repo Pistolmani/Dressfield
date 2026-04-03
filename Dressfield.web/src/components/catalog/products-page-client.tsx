@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Grid3x3, List } from "lucide-react";
 import { ProductGrid } from "@/components/catalog/product-grid";
+import { ProductList } from "@/components/catalog/product-list";
 import { Button } from "@/components/ui/button";
 import {
   getProducts,
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 export function ProductsPageClient() {
   const [sort, setSort] = useState<ProductSort>("newest");
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const productsQuery = useQuery({
     queryKey: ["products"],
@@ -47,19 +49,47 @@ export function ProductsPageClient() {
               <p className="text-sm text-muted-foreground">ნაპოვნია <span className="font-semibold text-foreground">{filteredProducts.length}</span> პროდუქტი</p>
               <p className="text-sm text-muted-foreground">გვერდი {currentPage} / {totalPages}</p>
             </div>
-            <div className="w-full sm:w-64">
-              <select
-                value={sort}
-                onChange={(event) => {
-                  setSort(event.target.value as ProductSort);
-                  setPage(1);
-                }}
-                className="h-11 w-full rounded-xl border border-black/8 bg-white px-3 text-sm outline-none ring-0 focus:border-accent"
-              >
-                {productSortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3 w-full sm:w-auto">
+              <div className="w-full sm:w-64">
+                <select
+                  value={sort}
+                  onChange={(event) => {
+                    setSort(event.target.value as ProductSort);
+                    setPage(1);
+                  }}
+                  className="h-11 w-full rounded-xl border border-black/8 bg-white px-3 text-sm outline-none ring-0 focus:border-accent"
+                >
+                  {productSortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-2 bg-black/5 rounded-xl p-1.5">
+                <Button
+                  size="sm"
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  className={cn("h-9 w-9 p-0", viewMode === "grid" && "bg-accent hover:bg-accent")}
+                  onClick={() => {
+                    setViewMode("grid");
+                    setPage(1);
+                  }}
+                  title="Grid view"
+                >
+                  <Grid3x3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  className={cn("h-9 w-9 p-0", viewMode === "list" && "bg-accent hover:bg-accent")}
+                  onClick={() => {
+                    setViewMode("list");
+                    setPage(1);
+                  }}
+                  title="List view"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -67,7 +97,11 @@ export function ProductsPageClient() {
             <div className="rounded-3xl border border-dashed border-destructive/40 bg-white px-6 py-12 text-center text-destructive">პროდუქტების ჩატვირთვა ვერ მოხერხდა. გთხოვთ სცადოთ ხელახლა.</div>
           ) : (
             <>
-              <ProductGrid products={paginatedProducts} loading={productsQuery.isLoading} />
+              {viewMode === "grid" ? (
+                <ProductGrid products={paginatedProducts} loading={productsQuery.isLoading} />
+              ) : (
+                <ProductList products={paginatedProducts} loading={productsQuery.isLoading} />
+              )}
               {!productsQuery.isLoading && filteredProducts.length === 0 ? (
                 <div className="rounded-3xl border border-dashed border-black/12 bg-white px-6 py-12 text-center text-muted-foreground">პროდუქტები ჯერ არ არის დამატებული.</div>
               ) : null}

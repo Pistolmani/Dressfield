@@ -13,44 +13,38 @@ export default async function HomePage() {
 
   return (
     <div className="flex-1">
-      {/* ── FIXED HERO BACKGROUND ────────────────────────── */}
-      <div className="fixed inset-0 z-0 bg-black pointer-events-none">
-        <div className="absolute inset-0 pointer-events-auto">
-          <HeroGalleryClient images={heroImages} count={18} className="opacity-80" />
+      {/* ── HERO BACKGROUND ───────────────────────────── */}
+      <section className="relative bg-black overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="/hero-embroidery.jpg"
+            alt="Georgian embroidery collection"
+            className="h-full w-full object-cover opacity-40"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-black/95 pointer-events-none" />
-      </div>
 
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative z-10 text-white isolate pointer-events-none">
-        {/* The content wrapper passes pointer events through so images can be clicked, but text captures them */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center pointer-events-none min-h-[85vh] flex flex-col justify-center items-center">
-          <Logo className="h-12 w-auto mx-auto mb-8 text-white pointer-events-auto" />
-          <h1 className="font-ui mx-auto max-w-3xl px-2 text-4xl font-bold leading-tight tracking-[0.03em] text-balance text-white drop-shadow-2xl text-shadow-xl pointer-events-auto sm:max-w-4xl sm:px-0 sm:text-5xl lg:text-7xl">
-            ქართული ნაქარგი,{" "}
-            <span className="text-white/90">შენი სტილით</span>
+        {/* ── HERO CONTENT ──────────────────────────── */}
+        <div className="relative z-10 mx-auto flex min-h-[75vh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
+          <Logo className="mx-auto mb-8 h-14 w-auto text-white" />
+
+          <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+            ქართული ნაქარგი, შენი სტილით
           </h1>
-          <p className="mt-6 text-base sm:text-lg lg:text-xl text-white/90 max-w-xl mx-auto leading-relaxed pointer-events-auto drop-shadow-lg font-medium">
-            ატვირთე შენი დიზაინი, ნახე live preview და შეუკვეთე
-            ინდივიდუალური ნაქარგი.
+
+          <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
+            ატვირთე შენი დიზაინი, ნახე live preview და შეუკვეთე.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center pointer-events-auto">
+
+          {/* ── PRIMARY CTA ONLY ──────────────────── */}
+          <div className="mt-10 pointer-events-auto">
             <Link href="/custom-order">
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-white/90 px-8 py-6 text-base font-semibold shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 transition-transform"
+                className="bg-white text-black hover:bg-white/90 px-8 py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 <Upload className="h-5 w-5 mr-2" />
-                ჩემი დიზაინი
-              </Button>
-            </Link>
-            <Link href="/products">
-              <Button
-                size="lg"
-                className="bg-white/10 hover:bg-white/20 text-white px-8 py-6 text-base font-semibold border-white/10 backdrop-blur-md hover:scale-105 transition-transform"
-              >
-                მზა პროდუქცია
-                <ArrowRight className="h-5 w-5 ml-2" />
+                დაწყე
               </Button>
             </Link>
           </div>

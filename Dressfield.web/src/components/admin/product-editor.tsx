@@ -152,7 +152,17 @@ function ProductImageUploader({ image, index, isUploading, onChange, onRemove }:
           <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-black/10 bg-gray-50 px-4 py-6 text-center">
             {image.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={image.imageUrl} alt={image.altText || `Product image ${index + 1}`} className="h-36 w-full rounded-xl object-cover" />
+              <img
+                src={image.imageUrl}
+                alt={image.altText || `Product image ${index + 1}`}
+                className="h-36 w-full rounded-xl object-cover"
+                onError={(event) => {
+                  const img = event.currentTarget;
+                  if (img.dataset.fallbackApplied === "1") return;
+                  img.dataset.fallbackApplied = "1";
+                  img.src = "/hero-embroidery.jpg";
+                }}
+              />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
                 {isUploading ? <LoaderCircle className="h-8 w-8 animate-spin text-accent" /> : <UploadCloud className="h-8 w-8 text-accent" />}
@@ -196,6 +206,9 @@ function ProductEditorForm({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<ProductPayload>(initialForm);
+  const [basePriceInput, setBasePriceInput] = useState(
+    productId ? String(initialForm.basePrice ?? "") : ""
+  );
   const [slugTouched, setSlugTouched] = useState(Boolean(productId));
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -297,7 +310,16 @@ function ProductEditorForm({
   });
 
   function submitForm() {
-    const payload = normalizeForm(form);
+    const parsedPrice = Number.parseFloat(basePriceInput);
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      toast.error("ფასი სწორ ფორმატში შეავსე");
+      return;
+    }
+
+    const payload = normalizeForm({
+      ...form,
+      basePrice: parsedPrice,
+    });
 
     if (!payload.name || !payload.slug) {
       toast.error("აუცილებელი ველები შეავსე");
@@ -370,7 +392,26 @@ function ProductEditorForm({
           <h2 className="font-ui text-3xl font-semibold">ფასი და SKU</h2>
           <div className="space-y-2">
             <Label htmlFor="product-price">ფასი</Label>
-            <Input id="product-price" type="number" min="0" step="0.01" value={form.basePrice} onChange={(event) => setForm((current) => ({ ...current, basePrice: Number(event.target.value) }))} />
+            <Input
+              id="product-price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={basePriceInput}
+              placeholder="მაგ: 49.90"
+              onChange={(event) => {
+                const nextValue = event.target.value;
+                setBasePriceInput(nextValue);
+                if (nextValue.trim() === "") {
+                  return;
+                }
+
+                const parsed = Number.parseFloat(nextValue);
+                if (Number.isFinite(parsed)) {
+                  setForm((current) => ({ ...current, basePrice: parsed }));
+                }
+              }}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="product-sku">SKU</Label>

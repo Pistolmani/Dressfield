@@ -155,6 +155,12 @@ export function InteractiveHeroGallery({ images, className, count = 18 }: Intera
                   aria-hidden="true"
                   className="w-full h-full object-cover"
                   draggable={false}
+                  onError={(event) => {
+                    const img = event.currentTarget;
+                    if (img.dataset.fallbackApplied === "1") return;
+                    img.dataset.fallbackApplied = "1";
+                    img.src = "/hero-embroidery.jpg";
+                  }}
                 />
               </div>
             </motion.div>

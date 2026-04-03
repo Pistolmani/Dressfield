@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductDetailClient } from "@/components/catalog/product-detail-client";
-import { getStaticProductBySlug, getStaticProducts } from "@/lib/catalog";
+import { getProducts, getStaticProductBySlug } from "@/lib/catalog";
 
 export const dynamicParams = false;
 
@@ -9,13 +9,13 @@ const STATIC_FALLBACK_SLUG = "catalog-preview";
 
 export async function generateStaticParams() {
   try {
-    const products = await getStaticProducts();
+    const products = await getProducts();
     const slugs = products
       .map((product) => product.slug.trim())
       .filter((slug): slug is string => slug.length > 0);
 
     if (slugs.length > 0) {
-      return slugs.map((slug) => ({ slug }));
+      return Array.from(new Set(slugs)).map((slug) => ({ slug }));
     }
   } catch {
     // Keep export builds deterministic when API is unavailable.
