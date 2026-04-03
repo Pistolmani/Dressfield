@@ -179,34 +179,65 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
             {/* Variant Selectors */}
             {variantGroups.length > 0 ? (
               <div className="space-y-5 border-b border-black/8 pb-5">
-                {variantGroups.map((group) => (
-                  <div key={group.name} className="space-y-2.5">
-                    <label className="text-sm font-semibold text-foreground">
-                      {group.name} აირჩიეთ:
-                    </label>
-                    <div className="flex flex-wrap gap-3">
-                      {group.items.map((variant) => (
-                        <button
-                          key={variant.id}
-                          type="button"
-                          onClick={() =>
-                            setSelectedVariants((current) => ({
-                              ...current,
-                              [group.name]: variant.id,
-                            }))
-                          }
-                          className={`px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${
-                            selectedVariants[group.name] === variant.id
-                              ? "border-accent bg-accent text-white shadow-md"
-                              : "border-black/15 bg-white hover:border-black/25"
-                          }`}
-                        >
-                          {variant.value || variant.name}
-                        </button>
-                      ))}
+                {variantGroups.map((group) => {
+                  const selectedId = selectedVariants[group.name];
+                  const selectedItem = group.items.find((v) => v.id === selectedId);
+                  return (
+                    <div key={group.name} className="space-y-2.5">
+                      <div className="flex items-baseline justify-between">
+                        <label className="text-sm font-semibold text-foreground">
+                          {group.name}:
+                        </label>
+                        {selectedItem?.value && (
+                          <span className="text-sm text-muted-foreground font-medium">
+                            {selectedItem.value}
+                            {selectedItem.priceAdjustment !== 0 && (
+                              <span className="ml-1 text-accent">
+                                {selectedItem.priceAdjustment > 0 ? "+" : ""}
+                                {formatPrice(selectedItem.priceAdjustment)}
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {group.items.map((variant) => {
+                          const isSelected = selectedVariants[group.name] === variant.id;
+                          const outOfStock = variant.stockQuantity === 0;
+                          return (
+                            <button
+                              key={variant.id}
+                              type="button"
+                              disabled={outOfStock}
+                              onClick={() =>
+                                setSelectedVariants((current) => ({
+                                  ...current,
+                                  [group.name]: variant.id,
+                                }))
+                              }
+                              className={`relative flex items-center gap-1.5 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${
+                                isSelected
+                                  ? "border-accent bg-accent text-white shadow-sm"
+                                  : outOfStock
+                                  ? "border-black/10 bg-black/3 text-black/30 cursor-not-allowed line-through"
+                                  : "border-black/15 bg-white hover:border-accent/40"
+                              }`}
+                            >
+                              {isSelected && <Check className="h-3.5 w-3.5" />}
+                              {variant.value || variant.name}
+                              {variant.priceAdjustment !== 0 && !outOfStock && (
+                                <span className={`text-xs ${isSelected ? "text-white/80" : "text-accent"}`}>
+                                  {variant.priceAdjustment > 0 ? "+" : ""}
+                                  {formatPrice(variant.priceAdjustment)}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : null}
 
