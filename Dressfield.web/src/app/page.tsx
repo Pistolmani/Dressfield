@@ -22,6 +22,7 @@ export default async function HomePage() {
             className="h-full w-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
+          <HeroGalleryClient images={heroImages} count={18} className="opacity-60" />
         </div>
 
         {/* ── HERO CONTENT ──────────────────────────── */}
