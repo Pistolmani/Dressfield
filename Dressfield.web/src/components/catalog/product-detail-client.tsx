@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { ChevronDown, Minus, Plus, Check } from "lucide-react";
+import { ChevronDown, Minus, Plus, Check, Truck, Shield, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cart-store";
@@ -143,28 +143,48 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
               / <span>{product.name}</span>
             </nav>
 
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <h1 className="font-ui text-5xl sm:text-6xl font-semibold tracking-[0.04em]">
-                  {product.name}
-                </h1>
-                <p className="font-ui text-5xl font-semibold text-accent">
+            {/* Header with Title & Price */}
+            <div className="space-y-3 border-b border-black/8 pb-5">
+              <h1 className="font-ui text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+                {product.name}
+              </h1>
+              <div className="flex items-baseline gap-2">
+                <p className="font-ui text-4xl font-bold text-accent">
                   {formatPrice(totalPrice)}
                 </p>
-                {product.shortDescription ? (
-                  <p className="max-w-2xl text-base text-muted-foreground">
+                {product.shortDescription && (
+                  <p className="text-sm text-muted-foreground">
                     {product.shortDescription}
                   </p>
-                ) : null}
+                )}
               </div>
             </div>
 
+            {/* Availability & Shipping Info */}
+            <div className="grid grid-cols-3 gap-3 rounded-lg bg-black/2 p-4">
+              <div className="flex flex-col gap-1">
+                <p className="text-xs font-semibold text-foreground">ხელმისაწვდომი</p>
+                <p className="text-sm text-green-600 font-medium">მარაგი: ხელმისაწვდომი</p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Truck className="h-4 w-4 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">დღე 1-3</p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">100% ნატურალური</p>
+              </div>
+            </div>
+
+            {/* Variant Selectors */}
             {variantGroups.length > 0 ? (
-              <div className="space-y-5">
+              <div className="space-y-5 border-b border-black/8 pb-5">
                 {variantGroups.map((group) => (
-                  <div key={group.name} className="space-y-3">
-                    <p className="text-sm font-medium">{group.name}</p>
-                    <div className="flex flex-wrap gap-2">
+                  <div key={group.name} className="space-y-2.5">
+                    <label className="text-sm font-semibold text-foreground">
+                      {group.name} აირჩიეთ:
+                    </label>
+                    <div className="flex flex-wrap gap-3">
                       {group.items.map((variant) => (
                         <button
                           key={variant.id}
@@ -175,10 +195,10 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                               [group.name]: variant.id,
                             }))
                           }
-                          className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                          className={`px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${
                             selectedVariants[group.name] === variant.id
-                              ? "border-accent bg-accent text-white"
-                              : "border-black/10 bg-white hover:border-accent/40"
+                              ? "border-accent bg-accent text-white shadow-md"
+                              : "border-black/15 bg-white hover:border-black/25"
                           }`}
                         >
                           {variant.value || variant.name}
@@ -190,43 +210,69 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
               </div>
             ) : null}
 
-            <div className="flex flex-col gap-4 border-y border-black/8 py-5 sm:flex-row sm:items-center">
-              <div className="inline-flex w-fit items-center rounded-full border border-black/10 bg-white p-1">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                  className="rounded-full p-2 hover:bg-black/5"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="min-w-10 text-center text-sm font-medium">{quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity((current) => current + 1)}
-                  className="rounded-full p-2 hover:bg-black/5"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
+            {/* Quantity & Purchase Actions */}
+            <div className="space-y-4 border-b border-black/8 pb-5">
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">რაოდენობა:</p>
+                  <div className="inline-flex items-center rounded-lg border-2 border-black/15 bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                      className="p-2 hover:bg-black/5"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="min-w-12 text-center font-semibold">{quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((current) => current + 1)}
+                      className="p-2 hover:bg-black/5"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-1 flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col gap-3">
                 <Button
-                  className="h-11 flex-1 bg-accent text-white hover:bg-accent-hover"
+                  className="h-12 w-full bg-accent text-white text-base font-bold hover:bg-accent-hover shadow-md"
                   onClick={handleAddToCart}
                   disabled={addedFeedback}
                 >
                   {addedFeedback ? (
                     <>
-                      <Check className="h-4 w-4 mr-2" />
-                      დამატებულია
+                      <Check className="h-5 w-5 mr-2" />
+                      კალათაში დამატებულია
                     </>
                   ) : (
                     "კალათაში დამატება"
                   )}
                 </Button>
-                <Button variant="outline" className="h-11 flex-1">
+                <Button variant="outline" className="h-11 w-full font-medium">
                   ინდივიდუალური შეკვეთა
                 </Button>
+              </div>
+            </div>
+
+            {/* Trust Signals */}
+            <div className="space-y-3 border-b border-black/8 pb-5">
+              <div className="flex items-start gap-3">
+                <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">დაცული ყიდვა</p>
+                  <p className="text-xs text-muted-foreground">თქვენი ხარჯი დაცულია ჩვენი გარანტიით</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <RotateCcw className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">დაბრუნება 30 დღის შიგნით</p>
+                  <p className="text-xs text-muted-foreground">უსიტყო დაბრუნება თუ კმაყოფილი არ ხართ</p>
+                </div>
               </div>
             </div>
 
