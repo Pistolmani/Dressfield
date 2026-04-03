@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:"$Sreact.suspense"
+3:I[8436,["8409","static/chunks/8409-baa9df2477416543.js","8500","static/chunks/8500-3953cc33eeceb44e.js","9185","static/chunks/9185-1b593718cd845cb9.js","598","static/chunks/598-57219bc8ca107a12.js","1935","static/chunks/1935-28880e39b0f82ea7.js","4109","static/chunks/4109-11c6fe264e189170.js","6609","static/chunks/6609-a74e575102fe09fa.js","6918","static/chunks/app/admin/custom-orders/detail/page-9d112083fd980bd3.js"],"AdminCustomOrderDetailPageClient"]
+4:I[484,[],"OutletBoundary"]
+0:{"rsc":["$","$1","c",{"children":[["$","$2",null,{"fallback":["$","div",null,{"className":"max-w-7xl mx-auto px-4 py-8","children":["$","div",null,{"className":"rounded-3xl border border-black/8 bg-white p-6 text-sm text-muted-foreground","children":"იტვირთება..."}]}],"children":["$","$L3",null,{}]}],null,["$","$L4",null,{"children":["$","$2",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"tiHRAYffQLonLqyjsEnC6"}
+5:null

@@ -1,0 +1,4 @@
+{
+  "buildCommand": "cd Dressfield.web && bun run build",
+  "outputDirectory": "Dressfield.web/out"
+}
