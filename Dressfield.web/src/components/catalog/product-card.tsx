@@ -10,12 +10,11 @@ import { trackAddToCart } from "@/lib/analytics";
 import { toast } from "sonner";
 import type { ProductSummaryDto } from "@/types/catalog";
 
-const fallbackImage =
-  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80";
+const fallbackImage = "/hero-embroidery.jpg";
 
 export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const addItem = useCartStore((state) => state.addItem);
-  
+
   function handleAddToCart() {
     addItem({
       productId: product.id,
@@ -38,43 +37,50 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
   }
 
   return (
-    <article className="overflow-hidden rounded-[1.6rem] border border-black/8 bg-white shadow-sm transition-shadow hover:shadow-lg">
+    <article className="group overflow-hidden rounded-lg border border-black/8 bg-white shadow-sm transition-all duration-200 hover:shadow-md">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
           <img
             src={product.primaryImageUrl || fallbackImage}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.03]"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(event) => {
+              const img = event.currentTarget;
+              if (img.dataset.fallbackApplied === "1") return;
+              img.dataset.fallbackApplied = "1";
+              img.src = fallbackImage;
+            }}
           />
           {product.isFeatured ? (
-            <Badge className="absolute left-4 top-4 bg-accent text-white hover:bg-accent">
+            <Badge className="absolute left-3 top-3 bg-accent text-white hover:bg-accent">
               რჩეული
             </Badge>
           ) : null}
         </div>
       </Link>
 
-      <div className="space-y-3 p-4">
-        <div className="space-y-1.5">
-          <Link href={`/products/${product.slug}`} className="block">
-            <h3 className="font-ui text-2xl font-semibold tracking-[0.03em]">
-              {product.name}
-            </h3>
-          </Link>
-          <p className="line-clamp-2 min-h-12 text-sm text-muted-foreground">
-            {product.shortDescription || "დეტალები ხელმისაწვდომია პროდუქტის გვერდზე."}
-          </p>
-        </div>
+      <div className="flex flex-col p-4">
+        <Link href={`/products/${product.slug}`} className="block flex-1">
+          <h3 className="mb-1 line-clamp-2 font-ui text-sm font-semibold tracking-[0.03em] text-foreground">
+            {product.name}
+          </h3>
+        </Link>
 
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-ui text-xl font-semibold text-accent">
-            {formatPrice(product.basePrice)}
-          </span>
+        <div className="flex items-end justify-between gap-2">
+          <div className="flex flex-col">
+            <span className="font-ui text-lg font-bold text-accent">
+              {formatPrice(product.basePrice)}
+            </span>
+            <p className="text-xs text-muted-foreground">
+              რამდენიმე ზომა
+            </p>
+          </div>
           <Button
-            className="bg-accent px-3 text-xs text-white hover:bg-accent-hover"
+            size="sm"
+            className="bg-accent text-xs text-white hover:bg-accent-hover"
             onClick={handleAddToCart}
           >
-            კალათაში დამატება
+            კალათაში
           </Button>
         </div>
       </div>
