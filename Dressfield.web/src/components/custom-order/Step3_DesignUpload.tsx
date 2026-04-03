@@ -3,7 +3,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, X, Images, RotateCcw } from "lucide-react";
+import { Upload, X, RotateCcw, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
@@ -53,7 +53,6 @@ export function Step3DesignUpload({
     disabled: isRemovingBg,
   });
 
-  // Background removal should replace the target design, never append duplicates.
   function handleBgRemoved(newUrl: string, replacedUrl: string, designId: string | null) {
     if (designId) {
       onDesignReplace(designId, newUrl);
@@ -85,77 +84,38 @@ export function Step3DesignUpload({
   }
 
   return (
-    <div className="relative space-y-4">
-      <div>
-        <h2 className="text-3xl font-semibold text-gray-600">
-          ატვირთე შენი დიზაინი
-        </h2>
-        <p className="mt-1 text-base text-gray-400">
-          ატვირთე სურათები და დაარეგულირე პოზიცია · შეგიძლია რამდენიმე დიზაინი
-        </p>
-      </div>
+    <div className="relative">
+      {/* 3-Panel Layout */}
+      <div className="flex gap-0 rounded-2xl border border-black/8 bg-white shadow-sm overflow-hidden min-h-[560px]">
 
-      <div className="flex flex-col gap-6 lg:flex-row">
-        {/* ——— LEFT: dropzone + design panel + toolbar ——— */}
-        <div className="flex flex-col gap-4 lg:w-[38%]">
+        {/* ── LEFT PANEL: Tools ──────────────────────────────── */}
+        <aside className="w-48 flex-shrink-0 border-r border-black/8 bg-gray-50 p-3 flex flex-col gap-3">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground pt-1">
+            ინსტრუმენტები
+          </p>
 
-          {/* Dropzone — always visible */}
+          {/* Upload button */}
           <div
             {...getRootProps()}
             className={cn(
-              "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-5 transition-colors",
+              "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors",
               isDragActive
-                ? "border-accent bg-violet-50"
-                : "border-gray-300 bg-gray-50 hover:border-accent hover:bg-violet-50/50",
-              designs.length > 0 && "min-h-[100px]",
-              designs.length === 0 && "min-h-[180px]"
+                ? "border-accent bg-accent/5"
+                : "border-black/15 hover:border-accent hover:bg-accent/5",
+              isRemovingBg && "opacity-50 pointer-events-none"
             )}
           >
             <input {...getInputProps()} />
-            <div className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full",
-              isDragActive ? "bg-accent/10" : "bg-gray-100"
-            )}>
-              <Upload className={cn("h-5 w-5", isDragActive ? "text-accent" : "text-gray-400")} />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+              <Upload className="h-4 w-4 text-accent" />
             </div>
-            <p className={cn("text-sm font-medium text-center", isDragActive ? "text-accent" : "text-gray-600")}>
-              {isDragActive ? "გაუშვი სურათი..." : designs.length > 0 ? "+ კიდევ დაამატე" : "ატვირთე შენი დიზაინი"}
+            <p className="text-[11px] font-medium text-center text-gray-600 leading-tight">
+              {isDragActive ? "გაუშვი..." : "ატვირთე დიზაინი"}
             </p>
-            <p className="text-xs text-gray-400">JPG · PNG · SVG · WEBP</p>
+            <p className="text-[10px] text-gray-400">PNG · JPG · SVG</p>
           </div>
 
-          {/* Uploaded designs panel */}
-          {designs.length > 0 && (
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <Images className="h-4 w-4 text-accent" />
-                <span>ატვირთული დიზაინები ({designs.length})</span>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {designs.map((d) => (
-                  <div key={d.id} className="relative group">
-                    <div className="h-16 w-16 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
-                      <img
-                        src={d.url}
-                        alt="design"
-                        className="h-full w-full object-contain"
-                      />
-                    </div>
-                    <button
-                      onClick={() => onDesignRemove(d.id)}
-                      className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black text-white opacity-0 group-hover:opacity-100 transition-opacity shadow"
-                      title="წაშლა"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Image editing toolbar */}
+          {/* ImageToolbar renders here in vertical mode */}
           {designs.length > 0 && (
             <ImageToolbar
               canvasRef={canvasRef}
@@ -164,21 +124,28 @@ export function Step3DesignUpload({
               onRemovingChange={setIsRemovingBg}
             />
           )}
-        </div>
 
-        {/* ——— RIGHT: side toggle + canvas ——— */}
-        <div className="flex-1 flex flex-col items-center gap-3">
+          {designs.length === 0 && (
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-[11px] text-muted-foreground text-center leading-relaxed px-2">
+                ატვირთე დიზაინი ინსტრუმენტების გამოყენებისთვის
+              </p>
+            </div>
+          )}
+        </aside>
 
+        {/* ── CENTER PANEL: Canvas ───────────────────────────── */}
+        <div className="flex-1 flex flex-col items-center justify-center bg-gray-50/50 p-4 gap-4">
           {/* Front / Back toggle */}
           {product.hasBack && (
-            <div className="flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1">
+            <div className="flex items-center gap-1 rounded-lg border border-black/8 bg-white p-1 shadow-sm">
               <button
                 onClick={() => handleSideChangeRequest("front")}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium transition-all",
+                  "flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm font-medium transition-all",
                   activeSide === "front"
-                    ? "bg-black text-white shadow"
-                    : "text-gray-500 hover:text-gray-700",
+                    ? "bg-black text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-800",
                   isRemovingBg && "opacity-50 cursor-not-allowed"
                 )}
               >
@@ -187,10 +154,10 @@ export function Step3DesignUpload({
               <button
                 onClick={() => handleSideChangeRequest("back")}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium transition-all",
+                  "flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm font-medium transition-all",
                   activeSide === "back"
-                    ? "bg-black text-white shadow"
-                    : "text-gray-500 hover:text-gray-700",
+                    ? "bg-black text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-800",
                   isRemovingBg && "opacity-50 cursor-not-allowed"
                 )}
               >
@@ -207,9 +174,80 @@ export function Step3DesignUpload({
             activeSide={activeSide}
             onDesignTransformChange={onDesignTransformChange}
           />
+
+          {designs.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center">
+              ატვირთე სურათი მარცხნიდან, რომ პრევიუ ნახო
+            </p>
+          )}
         </div>
+
+        {/* ── RIGHT PANEL: Design layers ─────────────────────── */}
+        <aside className="w-52 flex-shrink-0 border-l border-black/8 bg-white p-3 flex flex-col gap-3">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground pt-1">
+            დიზაინები
+          </p>
+
+          {designs.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center">
+              <div className="h-10 w-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                <Plus className="h-5 w-5 text-gray-400" />
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed px-2">
+                ატვირთული დიზაინები აქ გამოჩნდება
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 overflow-y-auto flex-1">
+              {designs.map((d, index) => (
+                <div
+                  key={d.id}
+                  className="group relative flex items-center gap-2 rounded-lg border border-black/8 bg-gray-50 p-2 hover:border-black/15 transition-colors"
+                >
+                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-black/8 bg-white">
+                    <img
+                      src={d.url}
+                      alt={`design-${index + 1}`}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">
+                      დიზაინი {index + 1}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {activeSide === "front" ? "წინა მხარე" : "უკანა მხარე"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onDesignRemove(d.id)}
+                    className="opacity-0 group-hover:opacity-100 flex h-5 w-5 items-center justify-center rounded-full bg-black/10 text-black hover:bg-black/20 transition-all flex-shrink-0"
+                    title="წაშლა"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {designs.length > 0 && (
+            <div className="border-t border-black/8 pt-3 space-y-1">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                შეჯამება
+              </p>
+              <p className="text-xs text-foreground">
+                {designs.length} დიზაინი
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {activeSide === "front" ? "წინა" : "უკანა"} მხარე
+              </p>
+            </div>
+          )}
+        </aside>
       </div>
 
+      {/* Background removal loading overlay */}
       {isRemovingBg && (
         <div
           className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-[2px]"
