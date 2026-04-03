@@ -32,7 +32,7 @@ export default function AdminLayout({
   if (!isAdmin) return null;
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)]">
+    <div className="min-h-screen flex flex-col">
       <AdminSidebar />
       <main className="flex-1 overflow-auto bg-background">
         {children}

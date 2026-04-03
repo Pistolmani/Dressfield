@@ -18,36 +18,48 @@ export function AdminSidebar() {
   const { logout } = useAuth();
 
   return (
-    <aside className="flex flex-col w-56 shrink-0 border-r border-border bg-white min-h-[calc(100vh-3.5rem)]">
-      <nav className="flex flex-col gap-1 p-3 flex-1">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          const isActive = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 flex h-14 items-center gap-6">
+        {/* Brand */}
+        <div className="flex items-center gap-2 font-semibold text-sm text-foreground mr-4">
+          <div className="h-6 w-6 rounded-md bg-accent flex items-center justify-center">
+            <LayoutDashboard className="h-3.5 w-3.5 text-white" />
+          </div>
+          <span className="hidden sm:inline">Admin</span>
+        </div>
 
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive ? "bg-accent text-white" : "text-foreground hover:bg-muted"
-              )}
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
+        {/* Nav items */}
+        <nav className="flex items-center gap-1 flex-1">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const isActive = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 
-      <div className="p-3 border-t border-border">
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-accent text-white"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="hidden sm:inline">{label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
         <button
           onClick={logout}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-muted hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          გასვლა
+          <span className="hidden sm:inline">გასვლა</span>
         </button>
       </div>
-    </aside>
+    </header>
   );
 }
