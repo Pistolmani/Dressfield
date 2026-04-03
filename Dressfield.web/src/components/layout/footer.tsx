@@ -36,6 +36,12 @@ export function Footer() {
               >
                 შეკვეთა
               </Link>
+              <Link
+                href="/about"
+                className="hover:text-white/70 transition-colors"
+              >
+                ჩვენ შესახებ
+              </Link>
             </nav>
           </div>
 
