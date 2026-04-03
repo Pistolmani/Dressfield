@@ -177,206 +177,236 @@ export default function CheckoutPage() {
   const subtotal = totalPrice();
   const total = subtotal + SHIPPING_COST;
 
+  // Order summary panel — shown on both steps
+  const OrderSummary = () => (
+    <div className="rounded-2xl border border-black/8 bg-white p-5 space-y-4 sticky top-6">
+      <h2 className="font-semibold text-base">შეკვეთის შეჯამება</h2>
+
+      <div className="space-y-3">
+        {items.map((item) => (
+          <div key={`${item.productId}-${item.variantId ?? 0}`} className="flex items-center gap-3 text-sm">
+            <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              {item.imageUrl && (
+                <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{item.name}</p>
+              {item.variantLabel && (
+                <p className="text-muted-foreground text-xs truncate">{item.variantLabel}</p>
+              )}
+              <p className="text-xs text-muted-foreground">×{item.quantity}</p>
+            </div>
+            <p className="font-semibold flex-shrink-0">{formatPrice(item.price * item.quantity)}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t border-black/8 pt-3 space-y-1.5 text-sm">
+        <div className="flex justify-between text-muted-foreground">
+          <span>ჯამი</span>
+          <span>{formatPrice(subtotal)}</span>
+        </div>
+        <div className="flex justify-between text-muted-foreground">
+          <span>მიწოდება</span>
+          <span>{formatPrice(SHIPPING_COST)}</span>
+        </div>
+        <div className="flex justify-between font-bold text-base pt-1 border-t border-black/8">
+          <span>სულ</span>
+          <span className="text-accent">{formatPrice(total)}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-background min-h-screen py-10">
-      <div className="max-w-2xl mx-auto px-4">
-        <h1 className="font-ui text-5xl font-semibold mb-6">
-          გადახდა
-        </h1>
+      <div className="max-w-5xl mx-auto px-4">
 
-        {/* Step indicator */}
-        <div className="flex items-center gap-3 mb-8 text-sm font-medium">
-          <span
-            className={step === "form" ? "text-accent" : "text-muted-foreground"}
-          >
-            1. მიწოდება
-          </span>
-          <span className="text-muted-foreground">→</span>
-          <span
-            className={step === "review" ? "text-accent" : "text-muted-foreground"}
-          >
-            2. განხილვა
-          </span>
+        {/* Header + Step Indicator */}
+        <div className="mb-8">
+          <h1 className="font-ui text-3xl sm:text-4xl font-bold mb-4">გადახდა</h1>
+          <div className="flex items-center gap-0">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${step === "form" ? "bg-accent text-white" : "bg-black text-white"}`}>
+              <span className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</span>
+              მიწოდება
+            </div>
+            <div className="h-px w-6 bg-black/15" />
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${step === "review" ? "bg-accent text-white" : "bg-black/10 text-muted-foreground"}`}>
+              <span className="h-5 w-5 rounded-full bg-black/10 flex items-center justify-center text-xs font-bold">2</span>
+              განხილვა
+            </div>
+          </div>
         </div>
 
-        {step === "form" && (
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-4">
-              <h2 className="font-medium text-lg">საკონტაქტო ინფორმაცია</h2>
+        {/* Two-column layout: form left, order summary right */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8">
 
-              <Field label="სახელი და გვარი *" error={errors.contactName}>
-                <input
-                  type="text"
-                  value={form.contactName}
-                  onChange={(e) => set("contactName", e.target.value)}
-                  className={inputCls(!!errors.contactName)}
-                  placeholder="მაგ. გიორგი ბერიძე"
-                />
-              </Field>
+          {/* LEFT: Form or Review */}
+          <div>
+            {step === "form" && (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-4">
+                  <h2 className="font-semibold text-base">საკონტაქტო ინფორმაცია</h2>
 
-              <Field label="ტელეფონი *" error={errors.contactPhone}>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-black/10 bg-gray-50 text-sm text-muted-foreground select-none">
-                    +995
-                  </span>
-                  <input
-                    type="tel"
-                    value={form.contactPhone}
-                    onChange={(e) => set("contactPhone", e.target.value)}
-                    className={`${inputCls(!!errors.contactPhone)} rounded-l-none`}
-                    placeholder="5XX XX XX XX"
-                    maxLength={9}
-                  />
+                  <Field label="სახელი და გვარი *" error={errors.contactName}>
+                    <input
+                      type="text"
+                      value={form.contactName}
+                      onChange={(e) => set("contactName", e.target.value)}
+                      className={inputCls(!!errors.contactName)}
+                      placeholder="მაგ. გიორგი ბერიძე"
+                    />
+                  </Field>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="ტელეფონი *" error={errors.contactPhone}>
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-black/10 bg-gray-50 text-sm text-muted-foreground select-none">
+                          +995
+                        </span>
+                        <input
+                          type="tel"
+                          value={form.contactPhone}
+                          onChange={(e) => set("contactPhone", e.target.value)}
+                          className={`${inputCls(!!errors.contactPhone)} rounded-l-none`}
+                          placeholder="5XX XX XX XX"
+                          maxLength={9}
+                        />
+                      </div>
+                    </Field>
+
+                    <Field label="ელ-ფოსტა *" error={errors.contactEmail}>
+                      <input
+                        type="email"
+                        value={form.contactEmail}
+                        onChange={(e) => set("contactEmail", e.target.value)}
+                        className={inputCls(!!errors.contactEmail)}
+                        placeholder="name@example.com"
+                      />
+                    </Field>
+                  </div>
                 </div>
-              </Field>
 
-              <Field label="ელ-ფოსტა *" error={errors.contactEmail}>
-                <input
-                  type="email"
-                  value={form.contactEmail}
-                  onChange={(e) => set("contactEmail", e.target.value)}
-                  className={inputCls(!!errors.contactEmail)}
-                  placeholder="name@example.com"
-                />
-              </Field>
-            </div>
+                <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-4">
+                  <h2 className="font-semibold text-base">მიწოდების მისამართი</h2>
 
-            <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-4">
-              <h2 className="font-medium text-lg">მიწოდების მისამართი</h2>
+                  <Field label="ქალაქი *" error={errors.shippingCity}>
+                    <input
+                      type="text"
+                      value={form.shippingCity}
+                      onChange={(e) => set("shippingCity", e.target.value)}
+                      className={inputCls(!!errors.shippingCity)}
+                      placeholder="მაგ. თბილისი"
+                    />
+                  </Field>
 
-              <Field label="ქალაქი *" error={errors.shippingCity}>
-                <input
-                  type="text"
-                  value={form.shippingCity}
-                  onChange={(e) => set("shippingCity", e.target.value)}
-                  className={inputCls(!!errors.shippingCity)}
-                  placeholder="მაგ. თბილისი"
-                />
-              </Field>
+                  <Field label="მისამართი *" error={errors.shippingAddressLine1}>
+                    <input
+                      type="text"
+                      value={form.shippingAddressLine1}
+                      onChange={(e) => set("shippingAddressLine1", e.target.value)}
+                      className={inputCls(!!errors.shippingAddressLine1)}
+                      placeholder="ქუჩა, ბინა, კვარტალი"
+                    />
+                  </Field>
 
-              <Field label="მისამართი *" error={errors.shippingAddressLine1}>
-                <input
-                  type="text"
-                  value={form.shippingAddressLine1}
-                  onChange={(e) => set("shippingAddressLine1", e.target.value)}
-                  className={inputCls(!!errors.shippingAddressLine1)}
-                  placeholder="ქუჩა, ბინა, კვარტალი"
-                />
-              </Field>
+                  <Field label="მისამართი 2 (არასავალდებულო)" error={errors.shippingAddressLine2}>
+                    <input
+                      type="text"
+                      value={form.shippingAddressLine2}
+                      onChange={(e) => set("shippingAddressLine2", e.target.value)}
+                      className={inputCls(false)}
+                      placeholder="სახლი, სართული"
+                    />
+                  </Field>
 
-              <Field label="მისამართი 2" error={errors.shippingAddressLine2}>
-                <input
-                  type="text"
-                  value={form.shippingAddressLine2}
-                  onChange={(e) => set("shippingAddressLine2", e.target.value)}
-                  className={inputCls(false)}
-                  placeholder="სახლი, სართული (არასავალდებულო)"
-                />
-              </Field>
+                  <Field label="შენიშვნა (არასავალდებულო)">
+                    <textarea
+                      value={form.customerNotes}
+                      onChange={(e) => set("customerNotes", e.target.value)}
+                      rows={2}
+                      className={`${inputCls(false)} resize-none`}
+                      placeholder="დამატებითი ინფორმაცია შეკვეთასთან"
+                    />
+                  </Field>
+                </div>
 
-
-
-              <Field label="შენიშვნა">
-                <textarea
-                  value={form.customerNotes}
-                  onChange={(e) => set("customerNotes", e.target.value)}
-                  rows={3}
-                  className={`${inputCls(false)} resize-none`}
-                  placeholder="დამატებითი ინფორმაცია შეკვეთასთან დაკავშირებით"
-                />
-              </Field>
-            </div>
-
-            <Button
-              className="w-full bg-accent text-white hover:bg-accent-hover h-11"
-              onClick={() => validate() && setStep("review")}
-            >
-              გაგრძელება
-            </Button>
-          </div>
-        )}
-
-        {step === "review" && (
-          <div className="space-y-4">
-            {/* Shipping summary */}
-            <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-2 text-sm">
-              <h2 className="font-medium text-base mb-3">მიწოდების მისამართი</h2>
-              <p>{form.contactName} · +995{form.contactPhone}</p>
-              <p>{form.contactEmail}</p>
-              <p>{form.shippingCity}, {form.shippingAddressLine1}</p>
-              {form.shippingAddressLine2 && <p>{form.shippingAddressLine2}</p>}
-              {form.customerNotes && <p className="text-muted-foreground">შენიშვნა: {form.customerNotes}</p>}
-            </div>
-
-            {/* Cart items */}
-            <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-3">
-              <h2 className="font-medium text-base">შეკვეთა</h2>
-              {items.map((item) => (
-                <div
-                  key={`${item.productId}-${item.variantId ?? 0}`}
-                  className="flex items-center gap-3 text-sm"
+                <Button
+                  className="w-full bg-accent text-white hover:bg-accent-hover h-12 text-base font-semibold"
+                  onClick={() => validate() && setStep("review")}
                 >
-                  <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                    {item.imageUrl && (
-                      <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{item.name}</p>
-                    {item.variantLabel && (
-                      <p className="text-muted-foreground text-xs">{item.variantLabel}</p>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground">×{item.quantity}</p>
-                  <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Price breakdown */}
-            <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">ჯამი</span>
-                <span>{formatPrice(subtotal)}</span>
+                  გადახდისკენ →
+                </Button>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">მიწოდება</span>
-                <span>{formatPrice(SHIPPING_COST)}</span>
-              </div>
-              <div className="border-t border-black/8 pt-2 flex justify-between font-semibold text-base">
-                <span>სულ</span>
-                <span className="text-accent">{formatPrice(total)}</span>
-              </div>
-            </div>
-
-            {submitError && (
-              <p className="text-red-500 text-sm text-center">{submitError}</p>
             )}
 
-            <Button
-              className="w-full bg-accent text-white hover:bg-accent-hover h-11"
-              onClick={handleSubmit}
-              disabled={submitting}
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  მუშავდება...
-                </>
-              ) : (
-                "შეკვეთის გაფორმება"
-              )}
-            </Button>
+            {step === "review" && (
+              <div className="space-y-4">
+                {/* Delivery summary card */}
+                <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-2 text-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="font-semibold text-base">მიწოდების მისამართი</h2>
+                    <button
+                      type="button"
+                      onClick={() => setStep("form")}
+                      className="text-xs text-accent hover:underline"
+                    >
+                      შეცვლა
+                    </button>
+                  </div>
+                  <p className="font-medium">{form.contactName}</p>
+                  <p className="text-muted-foreground">+995{form.contactPhone} · {form.contactEmail}</p>
+                  <p className="text-muted-foreground">{form.shippingCity}, {form.shippingAddressLine1}</p>
+                  {form.shippingAddressLine2 && <p className="text-muted-foreground">{form.shippingAddressLine2}</p>}
+                  {form.customerNotes && (
+                    <p className="mt-2 rounded-lg bg-black/3 px-3 py-2 text-xs text-muted-foreground">
+                      შენიშვნა: {form.customerNotes}
+                    </p>
+                  )}
+                </div>
 
-            <button
-              type="button"
-              onClick={() => setStep("form")}
-              className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← უკან
-            </button>
+                {submitError && (
+                  <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+                    {submitError}
+                  </div>
+                )}
+
+                <Button
+                  className="w-full bg-accent text-white hover:bg-accent-hover h-12 text-base font-bold shadow-md"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      მუშავდება...
+                    </>
+                  ) : (
+                    "შეკვეთის დადასტურება"
+                  )}
+                </Button>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  გადახდის შემდეგ გადამისამართდებით BOG iPay-ზე
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setStep("form")}
+                  className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← მონაცემების შეცვლა
+                </button>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* RIGHT: Sticky order summary */}
+          <div>
+            <OrderSummary />
+          </div>
+        </div>
       </div>
     </div>
   );
