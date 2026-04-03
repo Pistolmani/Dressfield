@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Scissors, Heart, Award, Users } from "lucide-react";
@@ -132,10 +133,6 @@ export default function AboutPage() {
                   alt="DressField ნაქარგი სახელოსნო"
                   className="h-full w-full object-cover"
                 />
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-accent text-white rounded-2xl px-5 py-4 shadow-lg">
-                <p className="text-3xl font-bold font-ui">100%</p>
-                <p className="text-sm text-white/80">ხელნაქარგი</p>
               </div>
             </div>
           </div>

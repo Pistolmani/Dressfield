@@ -1,13 +1,13 @@
-﻿/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useCallback, useEffect } from "react";
-import { ChevronDown, Minus, Plus, Check, Truck, Shield, RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Check, ChevronDown, Minus, Plus, RotateCcw, Shield, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import { formatPrice } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cart-store";
-import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import type { ProductDetailDto } from "@/types/catalog";
 
 const fallbackImage =
@@ -17,7 +17,7 @@ function groupVariants(product: ProductDetailDto) {
   const groups = new Map<string, ProductDetailDto["variants"]>();
 
   for (const variant of product.variants.filter((item) => item.isActive)) {
-    const current = groups.get(variant.name) || [];
+    const current = groups.get(variant.name) ?? [];
     current.push(variant);
     groups.set(variant.name, current);
   }
@@ -26,6 +26,8 @@ function groupVariants(product: ProductDetailDto) {
 }
 
 export function ProductDetailClient({ product }: { product: ProductDetailDto }) {
+  const addItem = useCartStore((state) => state.addItem);
+
   const images = useMemo(() => {
     const sorted = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder);
     return sorted.length > 0
@@ -40,8 +42,8 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
           },
         ];
   }, [product.images, product.name]);
+
   const variantGroups = useMemo(() => groupVariants(product), [product]);
-  const addItem = useCartStore((state) => state.addItem);
 
   const [selectedImage, setSelectedImage] = useState(images[0]);
   const [quantity, setQuantity] = useState(1);
@@ -55,7 +57,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
 
   const selectedVariantItems = variantGroups
     .map((group) =>
-      group.items.find((item) => item.id === selectedVariants[group.name]) || group.items[0]
+      group.items.find((item) => item.id === selectedVariants[group.name]) ?? group.items[0]
     )
     .filter(Boolean);
 
@@ -63,11 +65,34 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
     product.basePrice +
     selectedVariantItems.reduce((sum, item) => sum + item.priceAdjustment, 0);
 
+  useEffect(() => {
+    trackViewContent({
+      contentId: String(product.id),
+      contentName: product.name,
+      value: product.basePrice,
+    });
+  }, [product.id, product.name, product.basePrice]);
+
+  const handleVariantSelect = useCallback(
+    (groupName: string, variantId: number) => {
+      const next = { ...selectedVariants, [groupName]: variantId };
+      setSelectedVariants(next);
+      try {
+        sessionStorage.setItem(`pd_variants_${product.id}`, JSON.stringify(next));
+      } catch {
+        // Ignore storage failures.
+      }
+    },
+    [product.id, selectedVariants]
+  );
+
   const handleAddToCart = useCallback(() => {
     const primaryVariant = selectedVariantItems[0];
-    const variantLabel = selectedVariantItems.length > 0
-      ? selectedVariantItems.map((v) => `${v.name}: ${v.value || v.name}`).join(', ')
-      : undefined;
+    const variantLabel =
+      selectedVariantItems.length > 0
+        ? selectedVariantItems.map((v) => `${v.name}: ${v.value || v.name}`).join(", ")
+        : undefined;
+
     addItem({
       productId: product.id,
       variantId: primaryVariant?.id,
@@ -87,19 +112,11 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
 
     setAddedFeedback(true);
     setTimeout(() => setAddedFeedback(false), 1500);
-  }, [addItem, product.id, product.name, selectedVariantItems, totalPrice, quantity, selectedImage.imageUrl]);
-
-  useEffect(() => {
-    trackViewContent({
-      contentId: String(product.id),
-      contentName: product.name,
-      value: product.basePrice,
-    });
-  }, [product.id, product.name, product.basePrice]);
+  }, [addItem, product.id, product.name, quantity, selectedImage.imageUrl, selectedVariantItems, totalPrice]);
 
   return (
     <div className="bg-background py-10 sm:py-12">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="mx-auto max-w-7xl px-4">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
           <section className="space-y-4">
             <div className="overflow-hidden rounded-3xl border border-black/8 bg-white">
@@ -117,7 +134,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                   onClick={() => setSelectedImage(image)}
                   className={`overflow-hidden rounded-2xl border ${
                     selectedImage.id === image.id
-                      ? "border-accent"
+                      ? "border-accent shadow-[0_0_0_2px_rgba(var(--accent),0.2)]"
                       : "border-black/8"
                   }`}
                 >
@@ -132,39 +149,38 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
           </section>
 
           <section className="space-y-6">
-            <nav className="text-sm text-muted-foreground">
+            <nav className="flex items-center gap-2 text-sm text-muted-foreground">
               <Link href="/" className="hover:text-foreground">
                 მთავარი
-              </Link>{" "}
-              /{" "}
+              </Link>
+              <span>/</span>
               <Link href="/products" className="hover:text-foreground">
                 პროდუქტები
-              </Link>{" "}
-              / <span>{product.name}</span>
+              </Link>
+              <span>/</span>
+              <span className="font-medium text-foreground">{product.name}</span>
             </nav>
 
-            {/* Header with Title & Price */}
-            <div className="space-y-3 border-b border-black/8 pb-5">
-              <h1 className="font-ui text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+            <div className="space-y-3 border-b border-black/8 pb-6">
+              <h1 className="font-ui text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
                 {product.name}
               </h1>
-              <div className="flex items-baseline gap-2">
-                <p className="font-ui text-4xl font-bold text-accent">
-                  {formatPrice(totalPrice)}
-                </p>
-                {product.shortDescription && (
-                  <p className="text-sm text-muted-foreground">
-                    {product.shortDescription}
-                  </p>
-                )}
+              <div className="flex items-center gap-4">
+                <p className="font-ui text-4xl font-extrabold text-accent">{formatPrice(totalPrice)}</p>
+                <div className="h-8 w-px bg-gray-200" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold uppercase tracking-widest leading-none text-gray-400">
+                    მიწოდება
+                  </span>
+                  <span className="text-xs font-semibold text-green-600">1-3 სამუშაო დღე</span>
+                </div>
               </div>
             </div>
 
-            {/* Availability & Shipping Info */}
             <div className="grid grid-cols-3 gap-3 rounded-lg bg-black/2 p-4">
               <div className="flex flex-col gap-1">
                 <p className="text-xs font-semibold text-foreground">ხელმისაწვდომი</p>
-                <p className="text-sm text-green-600 font-medium">მარაგი: ხელმისაწვდომი</p>
+                <p className="text-sm font-medium text-green-600">მარაგშია</p>
               </div>
               <div className="flex flex-col gap-1">
                 <Truck className="h-4 w-4 text-muted-foreground" />
@@ -176,61 +192,62 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
               </div>
             </div>
 
-            {/* Variant Selectors */}
             {variantGroups.length > 0 ? (
-              <div className="space-y-5 border-b border-black/8 pb-5">
+              <div className="space-y-6 border-b border-black/8 pb-6 pt-2">
                 {variantGroups.map((group) => {
-                  const selectedId = selectedVariants[group.name];
-                  const selectedItem = group.items.find((v) => v.id === selectedId);
+                  const isSize =
+                    group.name.toLowerCase().includes("ზომა") ||
+                    group.name.toLowerCase().includes("size");
+
                   return (
-                    <div key={group.name} className="space-y-2.5">
-                      <div className="flex items-baseline justify-between">
-                        <label className="text-sm font-semibold text-foreground">
-                          {group.name}:
+                    <div key={group.name} className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-bold uppercase tracking-tight text-gray-900">
+                          {group.name}
                         </label>
-                        {selectedItem?.value && (
-                          <span className="text-sm text-muted-foreground font-medium">
-                            {selectedItem.value}
-                            {selectedItem.priceAdjustment !== 0 && (
-                              <span className="ml-1 text-accent">
-                                {selectedItem.priceAdjustment > 0 ? "+" : ""}
-                                {formatPrice(selectedItem.priceAdjustment)}
-                              </span>
-                            )}
-                          </span>
-                        )}
+                        {isSize ? (
+                          <button
+                            type="button"
+                            className="text-xs font-semibold text-accent underline-offset-4 hover:underline decoration-accent/30"
+                          >
+                            ზომების ცხრილი
+                          </button>
+                        ) : null}
                       </div>
-                      <div className="flex flex-wrap gap-2">
+
+                      <div className="flex flex-wrap gap-2.5">
                         {group.items.map((variant) => {
                           const isSelected = selectedVariants[group.name] === variant.id;
                           const outOfStock = variant.stockQuantity === 0;
+
                           return (
                             <button
                               key={variant.id}
                               type="button"
                               disabled={outOfStock}
-                              onClick={() =>
-                                setSelectedVariants((current) => ({
-                                  ...current,
-                                  [group.name]: variant.id,
-                                }))
-                              }
-                              className={`relative flex items-center gap-1.5 px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all ${
+                              onClick={() => handleVariantSelect(group.name, variant.id)}
+                              className={`relative rounded-xl border-2 px-5 py-3 transition-all duration-200 ${
                                 isSelected
-                                  ? "border-accent bg-accent text-white shadow-sm"
+                                  ? "border-accent bg-accent/5 font-bold text-accent shadow-[0_0_0_1px_rgba(var(--accent),0.1)]"
                                   : outOfStock
-                                  ? "border-black/10 bg-black/3 text-black/30 cursor-not-allowed line-through"
-                                  : "border-black/15 bg-white hover:border-accent/40"
+                                    ? "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 line-through opacity-60"
+                                    : "border-gray-200 bg-white hover:border-accent/40 hover:bg-gray-50"
                               }`}
                             >
-                              {isSelected && <Check className="h-3.5 w-3.5" />}
-                              {variant.value || variant.name}
-                              {variant.priceAdjustment !== 0 && !outOfStock && (
-                                <span className={`text-xs ${isSelected ? "text-white/80" : "text-accent"}`}>
-                                  {variant.priceAdjustment > 0 ? "+" : ""}
-                                  {formatPrice(variant.priceAdjustment)}
-                                </span>
-                              )}
+                              <div className="flex items-center gap-2">
+                                {isSelected ? <div className="h-1.5 w-1.5 rounded-full bg-accent" /> : null}
+                                <span className="text-sm">{variant.value || variant.name}</span>
+                                {variant.priceAdjustment !== 0 && !outOfStock ? (
+                                  <span
+                                    className={`text-[10px] font-bold ${
+                                      isSelected ? "text-accent" : "text-gray-400"
+                                    }`}
+                                  >
+                                    {variant.priceAdjustment > 0 ? "+" : ""}
+                                    {formatPrice(variant.priceAdjustment)}
+                                  </span>
+                                ) : null}
+                              </div>
                             </button>
                           );
                         })}
@@ -241,68 +258,87 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
               </div>
             ) : null}
 
-            {/* Quantity & Purchase Actions */}
-            <div className="space-y-4 border-b border-black/8 pb-5">
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">რაოდენობა:</p>
-                  <div className="inline-flex items-center rounded-lg border-2 border-black/15 bg-white">
+            <div className="space-y-6 border-b border-black/8 pb-8 pt-4">
+              <div className="flex items-end justify-between gap-6">
+                <div className="flex-1 space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-500">რაოდენობა</p>
+                  <div className="flex h-12 w-full max-w-[140px] items-center rounded-xl border border-gray-200 bg-gray-50/50 p-1">
                     <button
                       type="button"
                       onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                      className="p-2 hover:bg-black/5"
-                      aria-label="Decrease quantity"
+                      className="flex h-full w-10 items-center justify-center rounded-lg transition-all hover:bg-white hover:shadow-sm"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="min-w-12 text-center font-semibold">{quantity}</span>
+                    <span className="flex-1 text-center text-sm font-bold">{quantity}</span>
                     <button
                       type="button"
                       onClick={() => setQuantity((current) => current + 1)}
-                      className="p-2 hover:bg-black/5"
-                      aria-label="Increase quantity"
+                      className="flex h-full w-10 items-center justify-center rounded-lg transition-all hover:bg-white hover:shadow-sm"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
+
+                <div className="flex-1 text-right">
+                  <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-500">
+                    ჯამური ფასი
+                  </p>
+                  <p className="font-ui text-3xl font-extrabold text-gray-900">
+                    {formatPrice(totalPrice * quantity)}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="space-y-3">
                 <Button
-                  className="h-12 w-full bg-accent text-white text-base font-bold hover:bg-accent-hover shadow-md"
+                  className="h-14 w-full rounded-2xl bg-accent text-lg font-bold text-white shadow-xl transition-all duration-300 hover:scale-[1.02] hover:bg-accent-hover"
                   onClick={handleAddToCart}
                   disabled={addedFeedback}
                 >
                   {addedFeedback ? (
                     <>
-                      <Check className="h-5 w-5 mr-2" />
-                      კალათაში დამატებულია
+                      <Check className="mr-2 h-6 w-6" />
+                      კალათაშია
                     </>
                   ) : (
                     "კალათაში დამატება"
                   )}
                 </Button>
-                <Button variant="outline" className="h-11 w-full font-medium">
-                  ინდივიდუალური შეკვეთა
-                </Button>
+
+                <div className="flex flex-col items-center gap-4 pt-2">
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Truck className="h-3.5 w-3.5 text-green-600" />
+                    <span>
+                      მიიღეთ <strong>3 დღეში</strong>-დან
+                    </span>
+                  </div>
+
+                  <Link
+                    href="/custom-order"
+                    className="text-sm font-semibold text-gray-400 underline-offset-8 transition-colors hover:text-accent"
+                  >
+                    გსურთ შეკვეთა საკუთარი დიზაინით?{" "}
+                    <span className="text-accent underline">შექმენით აქ</span>
+                  </Link>
+                </div>
               </div>
             </div>
 
-            {/* Trust Signals */}
             <div className="space-y-3 border-b border-black/8 pb-5">
               <div className="flex items-start gap-3">
-                <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-foreground">დაცული ყიდვა</p>
-                  <p className="text-xs text-muted-foreground">თქვენი ხარჯი დაცულია ჩვენი გარანტიით</p>
+                  <p className="text-xs text-muted-foreground">თქვენი შენაძენი დაცულია ჩვენი გარანტიით</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <RotateCcw className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <RotateCcw className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground">დაბრუნება 30 დღის შიგნით</p>
-                  <p className="text-xs text-muted-foreground">უსიტყო დაბრუნება თუ კმაყოფილი არ ხართ</p>
+                  <p className="text-sm font-semibold text-foreground">დაბრუნება 30 დღის განმავლობაში</p>
+                  <p className="text-xs text-muted-foreground">უსიტყვო დაბრუნება თუ კმაყოფილი არ ხართ</p>
                 </div>
               </div>
             </div>
@@ -313,14 +349,8 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                 onClick={() => setExpanded((current) => !current)}
                 className="flex w-full items-center justify-between px-5 py-4 text-left"
               >
-                <span className="font-ui text-2xl font-semibold">
-                  სრული აღწერა
-                </span>
-                <ChevronDown
-                  className={`h-5 w-5 transition-transform ${
-                    expanded ? "rotate-180" : ""
-                  }`}
-                />
+                <span className="font-ui text-2xl font-semibold">სრული აღწერა</span>
+                <ChevronDown className={`h-5 w-5 transition-transform ${expanded ? "rotate-180" : ""}`} />
               </button>
               {expanded ? (
                 <div className="border-t border-black/8 px-5 py-4 text-sm leading-7 text-muted-foreground">

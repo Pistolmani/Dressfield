@@ -33,8 +33,8 @@ function createScatteredCards(images: string[], count: number): CardItem[] {
   while (pool.length < count) pool.push(...images);
   const selected = pool.slice(0, count);
 
-  // Landscape-friendly grid: more columns than rows
-  const cols = 6;
+  // Landscape-friendly grid: fewer columns for bigger cards
+  const cols = 4;
   const rows = Math.ceil(count / cols);
 
   // Build all cells, shuffle, pick N
@@ -55,10 +55,10 @@ function createScatteredCards(images: string[], count: number): CardItem[] {
 
   return selected.map((url, i) => {
     const [c, r] = picked[i];
-    const jitterX = (Math.random() - 0.5) * cellW * 0.4;
-    const jitterY = (Math.random() - 0.5) * cellH * 0.4;
-    const left = `${Math.max(2, Math.min(98, c * cellW + cellW / 2 + jitterX))}%`;
-    const top = `${Math.max(2, Math.min(98, r * cellH + cellH / 2 + jitterY))}%`;
+    const jitterX = (Math.random() - 0.5) * cellW * 0.5;
+    const jitterY = (Math.random() - 0.5) * cellH * 0.5;
+    const left = `${Math.max(10, Math.min(90, c * cellW + cellW / 2 + jitterX))}%`;
+    const top = `${Math.max(10, Math.min(90, r * cellH + cellH / 2 + jitterY))}%`;
 
     return {
       id: `card-${i}-${Math.random().toString(36).slice(2, 8)}`,
@@ -73,7 +73,7 @@ function createScatteredCards(images: string[], count: number): CardItem[] {
   });
 }
 
-export function InteractiveHeroGallery({ images, className, count = 18 }: InteractiveHeroGalleryProps) {
+export function InteractiveHeroGallery({ images, className, count = 8 }: InteractiveHeroGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zMap, setZMap] = useState<Record<string, number>>({});
 
@@ -108,7 +108,7 @@ export function InteractiveHeroGallery({ images, className, count = 18 }: Intera
           }}
         >
           <motion.div
-            className="w-28 sm:w-40 aspect-[4/5] p-1.5 bg-white rounded-xl shadow-[0_8px_32px_-8px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing origin-center"
+            className="w-40 sm:w-60 aspect-[4/5] p-2 bg-white rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing origin-center"
             initial={{
               opacity: 0,
               scale: 0.4,

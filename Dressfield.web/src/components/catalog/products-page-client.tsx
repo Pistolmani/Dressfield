@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   getProducts,
   PRODUCTS_PER_PAGE,
-  productSortOptions,
   sortProducts,
   type ProductSort,
 } from "@/lib/catalog";

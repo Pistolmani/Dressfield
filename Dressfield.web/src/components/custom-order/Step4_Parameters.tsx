@@ -12,12 +12,14 @@ interface Step4ParametersProps {
   product: ProductType;
   embroiderySize: EmbroiderySizeId | null;
   onEmbroiderySizeChange: (id: EmbroiderySizeId) => void;
+  isCompact?: boolean;
 }
 
 export function Step4Parameters({
   product,
   embroiderySize,
   onEmbroiderySizeChange,
+  isCompact,
 }: Step4ParametersProps) {
   const selectedEmbSize = EMBROIDERY_SIZES.find((s) => s.id === embroiderySize);
   const extraPrice = selectedEmbSize?.extraPrice ?? 0;
@@ -81,11 +83,13 @@ export function Step4Parameters({
         </div>
       </div>
 
-      {/* Price summary */}
-      <PricingSummary
-        basePrice={product.basePrice}
-        embroideryExtra={extraPrice}
-      />
+      {/* Price summary - only show if not compact */}
+      {!isCompact && (
+        <PricingSummary
+          basePrice={product.basePrice}
+          embroideryExtra={extraPrice}
+        />
+      )}
     </div>
   );
 }

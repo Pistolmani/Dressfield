@@ -5,34 +5,40 @@
 See: `.planning/PROJECT.md`
 
 Core value: Customers can discover embroidered products, customize their own designs with a live preview, and pay securely through Bank of Georgia.
-Current focus: Phase 7 - Security, Launch Integration, and Deployment Cutover.
+Current focus: Phase 7 - Final Security Hardening and Production Deployment.
 
 ## Current Phase
 
 **Phase 7: Security, Polish & Launch**
 - Status: In Progress
-- Goal: Final QA, launch readiness, and cloud deployment cutover (Azure + Hostinger + BOG live)
+- Goal: Final security audit, performance optimization, and production deployment cutover (Azure + Hostinger + BOG live).
 - Requirements: Cross-cutting launch hardening and operational readiness
 
 ## Recent Updates (2026-04-01)
 
-- [x] Added authenticated server-side cart sync API (`/api/cart`) and frontend merge/sync flow.
-- [x] Added public guest order status lookup endpoint (`GET /api/orders/status?orderId=&key=`).
-- [x] Added backend test project (xUnit + SQLite in-memory) and frontend Vitest coverage for cart logic.
-- [x] Wired CI to run backend/frontend tests before build.
-- [x] Added development env templates (`.env.example`, `appsettings.Development.example.json`).
-- [x] Fixed EF translation issue in order detail lookups (`/api/orders/my/{id}`).
-- [x] Fixed EF translation issue in custom order detail lookups (`/api/custom-orders/*/{id}`).
-- [x] Stabilized custom-order background removal flow with guarded async handling and non-breaking fallback behavior.
-- [x] Added smooth blocking loading overlay (animated dots) during background removal to prevent conflicting interactions.
-- [x] Prevented side-switch race conditions and duplicate/broken design artifacts while removal is in progress.
-- [x] Persisted design transforms (position/scale/rotation) across side flips and image replacement.
-- [x] Improved customizer drag stability by reducing over-frequent persistence updates.
-- [x] Removed global cursor-trail animation for better runtime performance and cleaner UX.
-- [x] Completed launch-readiness QA gate:
-  - `dotnet build` + `dotnet test` passing
-  - `npm test` + `npm run lint` + `npx tsc --noEmit` + `npm run build` passing
-  - API smoke verified for guest/auth order flow, cart flow, and custom-order flow
+- [x] **UI/UX Foundation (Phase 1 & 2)**:
+  - Restored interactive floating/draggable postcard gallery (`HeroGalleryClient`) in Hero.
+  - Compact product cards with hover scale effects and bolder pricing.
+  - Enhanced Products page with grid/list view toggle and sticky mobile-friendly filter sidebar.
+  - Redesigned Product Detail Page with info strips, logic-aware variant selectors (price adjustments/stock status), and trust signals.
+- [x] **Custom Order Canvas (Phase 3)**:
+  - Rebuilt to 3-panel layout (Tools Sidebar / Canvas Center / Design Layers).
+  - Compact vertical `ImageToolbar` embedded in sidebar.
+- [x] **Checkout & Cart (Phase 4)**:
+  - 2-column layout with sticky order summary.
+  - Pill-style step indicators and inline edit ("შეცვლა") links.
+  - Optimized contact forms (2-column grid) and BOG iPay disclosure.
+- [x] **Admin Experience (Phase 5)**:
+  - Converted left sidebar to a sticky top navigation header for better space utilization.
+  - Mobile-responsive navigation (labels hidden on smaller screens).
+- [x] **Marketing & SEO (Phase 6)**:
+  - Created `/about` (About Us) page with brand story, process steps, and CTA.
+  - Implemented full SEO for About Us (Meta, OG, Twitter Cards, Canonical).
+  - Wired "ჩვენ შესახებ" into footer navigation.
+- [x] **Backend & Stability (Phase 7)**:
+  - Authenticated cart sync API and guest order lookup functionality.
+  - Vitest/xUnit coverage and CI pipeline stabilization.
+  - Fixed EF translation issues and stabilized custom-order background removal.
 
 ## Previous Phases
 
@@ -52,8 +58,8 @@ Current focus: Phase 7 - Security, Launch Integration, and Deployment Cutover.
 | 3. Custom Design Orders | Complete | 2026-03-28 |
 | 4. Cart & Checkout | Complete | 2026-03-28 |
 | 5. Payments & Order Management | Complete | 2026-03-30 |
-| 6. Analytics & SEO Polish | In Progress | 2026-04-01 |
-| 7. Security, Polish & Launch | In Progress | 2026-04-01 |
+| 6. Analytics & SEO Polish | Complete | 2026-04-03 |
+| 7. Security, Polish & Launch | In Progress | 2026-04-03 |
 
 ## Blockers
 

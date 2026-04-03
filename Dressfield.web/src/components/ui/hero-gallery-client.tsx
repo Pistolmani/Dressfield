@@ -16,6 +16,6 @@ interface HeroGalleryClientProps {
   className?: string;
 }
 
-export function HeroGalleryClient({ images, count = 18, className }: HeroGalleryClientProps) {
+export function HeroGalleryClient({ images, count = 8, className }: HeroGalleryClientProps) {
   return <InteractiveHeroGallery images={images} count={count} className={className} />;
 }

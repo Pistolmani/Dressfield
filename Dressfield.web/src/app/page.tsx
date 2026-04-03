@@ -1,7 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { ArrowRight, Upload, Eye, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/ui/logo";
 import { ProductCard } from "@/components/catalog/product-card";
 import { getStaticProducts } from "@/lib/catalog";
 import { HeroGalleryClient } from "@/components/ui/hero-gallery-client";
@@ -22,30 +22,28 @@ export default async function HomePage() {
             className="h-full w-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
-          <HeroGalleryClient images={heroImages} count={18} className="opacity-60" />
+          <HeroGalleryClient images={heroImages} count={8} className="opacity-60" />
         </div>
 
         {/* ── HERO CONTENT ──────────────────────────── */}
-        <div className="relative z-10 mx-auto flex min-h-[75vh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
-          <Logo className="mx-auto mb-8 h-14 w-auto text-white" />
-
-          <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+        <div className="relative z-10 mx-auto flex min-h-[80vh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
+          <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-7xl">
             ქართული ნაქარგი, შენი სტილით
           </h1>
 
-          <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
+          <p className="mx-auto mt-8 max-w-lg text-lg leading-relaxed text-white/90 sm:text-xl">
             ატვირთე შენი დიზაინი, ნახე live preview და შეუკვეთე.
           </p>
 
           {/* ── PRIMARY CTA ONLY ──────────────────── */}
-          <div className="mt-10 pointer-events-auto">
+          <div className="mt-12 pointer-events-auto">
             <Link href="/custom-order">
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-white/90 px-8 py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="bg-white text-black hover:bg-white/90 px-10 py-4 text-lg font-bold shadow-2xl hover:scale-105 transition-all duration-300 rounded-full"
               >
-                <Upload className="h-5 w-5 mr-2" />
-                დაწყე
+                <Upload className="h-5 w-5 mr-3" />
+                შექმენი
               </Button>
             </Link>
           </div>

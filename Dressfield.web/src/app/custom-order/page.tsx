@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { StepIndicator } from "@/components/custom-order/StepIndicator";
 import { Step1ProductSelector } from "@/components/custom-order/Step1_ProductSelector";
 import { Step2SizeAndColor } from "@/components/custom-order/Step2_SizeAndColor";
 import { Step3DesignUpload } from "@/components/custom-order/Step3_DesignUpload";
@@ -10,6 +9,7 @@ import { Step4Parameters } from "@/components/custom-order/Step4_Parameters";
 import { Step5Summary } from "@/components/custom-order/Step5_Summary";
 import {
   PRODUCT_TYPES,
+  EMBROIDERY_SIZES,
   PRODUCT_COLORS,
   getSkippedSteps,
   type DesignItem,
@@ -22,7 +22,6 @@ import {
 
 function isSameTransform(a: DesignTransform | undefined, b: DesignTransform) {
   if (!a) return false;
-
   const epsilon = 0.001;
   return (
     Math.abs(a.left - b.left) < epsilon &&
@@ -124,34 +123,40 @@ export default function CustomOrderPage() {
     setBackDesigns((prev) => applyTransform(prev));
   }, []);
 
-  // Step completion check
   const isStepComplete = (): boolean => {
     if (step === 1) return selectedProduct !== null;
-    if (step === 2) {
+    if (step === 3) {
       if (!currentProduct) return false;
       const hasSize = currentProduct.skipClothingSize || clothingSize !== null;
       const colors = selectedProduct ? (PRODUCT_COLORS[selectedProduct] ?? []) : [];
       const hasColor = colors.length === 0 || selectedColor !== null;
-      return hasSize && hasColor;
+      const hasDesign = allDesigns.length > 0;
+      const hasEmbSize = embroiderySize !== null;
+      return hasSize && hasColor && hasDesign && hasEmbSize;
     }
-    if (step === 3) return allDesigns.length > 0;
-    if (step === 4) return embroiderySize !== null;
     if (step === 5) return true;
     return false;
   };
 
   const handleNext = () => {
     if (!isStepComplete()) return;
+    if (step === 1) {
+      setStep(3); // Enter unified editor
+      return;
+    }
     const next = getNextStep(step);
     if (next <= 5) setStep(next);
   };
 
   const handleBack = () => {
+    if (step === 3) {
+      setStep(1); // Back to product selector
+      return;
+    }
     const prev = getPrevStep(step);
     if (prev >= 1) setStep(prev);
   };
 
-  // When product changes, reset downstream state
   const handleProductSelect = (id: ProductTypeId) => {
     allDesigns.forEach((design) => revokeIfBlobUrl(design.url));
     setSelectedProduct(id);
@@ -161,36 +166,36 @@ export default function CustomOrderPage() {
     setBackDesigns([]);
     setActiveSide("front");
     setEmbroiderySize(null);
+    setStep(3); // Auto-advance to unified editor
   };
 
   const currentProduct =
     selectedProduct !== null
       ? PRODUCT_TYPES.find((p) => p.id === selectedProduct) ?? null
       : null;
-
-  const isCustomProduct = selectedProduct === "custom";
-  const isLastStep = getNextStep(step) > 5;
+  const selectedEmbroidery =
+    embroiderySize !== null
+      ? EMBROIDERY_SIZES.find((size) => size.id === embroiderySize) ?? null
+      : null;
+  const totalPrice = (currentProduct?.basePrice ?? 0) + (selectedEmbroidery?.extraPrice ?? 0);
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 py-8 lg:py-12">
         {/* Page header */}
-        <div className="mb-8">
-          <h1 className="text-5xl font-bold text-foreground">
-            რომელ ტანსაცმელზე გინდა ნაქარგი?
+        <div className="mb-10">
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
+            {step === 1 ? "რომელ ტანსაცმელზე გინდა ნაქარგი?" : "შექმენი შენი დიზაინი"}
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            შექმენი შენი უნიკალური ნაქარგი ნებისმიერ ტანსაცმელზე
+          <p className="text-lg text-gray-500 max-w-2xl">
+            {step === 1 
+              ? "აირჩიე პროდუქტი კოლექციიდან და მოარგე შენი იდეები." 
+              : `თქვენ აარჩიეთ: ${currentProduct?.label}. ახლა კი დაამატეთ დიზაინი.`}
           </p>
         </div>
 
-        {/* Step indicator */}
-        <div className="mb-8">
-          <StepIndicator currentStep={step} skippedSteps={skippedSteps} />
-        </div>
-
-        {/* Step content */}
-        <div className="min-h-[400px]">
+        {/* Unified Step Content */}
+        <div className="min-h-[500px]">
           {step === 1 && (
             <Step1ProductSelector
               selected={selectedProduct}
@@ -198,93 +203,103 @@ export default function CustomOrderPage() {
             />
           )}
 
-          {step === 2 && currentProduct && selectedProduct && (
-            <Step2SizeAndColor
-              selectedProduct={selectedProduct}
-              skipSize={currentProduct.skipClothingSize}
-              selectedSize={clothingSize}
-              onSizeSelect={setClothingSize}
-              availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
-              selectedColor={selectedColor}
-              onColorSelect={setSelectedColor}
-            />
-          )}
+          {step === 3 && currentProduct && selectedProduct && (
+            <div className="flex flex-col lg:flex-row gap-8 items-start">
+              {/* Left Panel: Tools & Layers */}
+              <div className="w-full lg:w-72 space-y-6 lg:sticky lg:top-8">
+                <Step3DesignUpload
+                  product={currentProduct}
+                  designs={activeDesigns}
+                  activeSide={activeSide}
+                  onDesignAdd={addDesign}
+                  onDesignRemove={removeDesign}
+                  onDesignReplace={replaceDesignUrl}
+                  onDesignTransformChange={updateDesignTransform}
+                  onSideChange={setActiveSide}
+                  isSidebarMode
+                />
+              </div>
 
-          {step === 3 && currentProduct && (
-            <Step3DesignUpload
-              product={currentProduct}
-              designs={activeDesigns}
-              activeSide={activeSide}
-              onDesignAdd={addDesign}
-              onDesignRemove={removeDesign}
-              onDesignReplace={replaceDesignUrl}
-              onDesignTransformChange={updateDesignTransform}
-              onSideChange={setActiveSide}
-            />
-          )}
+              {/* Center Panel: Preview */}
+              <div className="flex-1 w-full flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-4 sm:p-10 min-h-[600px] relative shadow-inner">
+                <Step3DesignUpload
+                  product={currentProduct}
+                  designs={activeDesigns}
+                  activeSide={activeSide}
+                  onDesignAdd={addDesign}
+                  onDesignRemove={removeDesign}
+                  onDesignReplace={replaceDesignUrl}
+                  onDesignTransformChange={updateDesignTransform}
+                  onSideChange={setActiveSide}
+                  isCanvasOnly
+                />
+                <Button 
+                  variant="ghost" 
+                  onClick={handleBack}
+                  className="absolute top-6 left-6 text-gray-400 hover:text-black font-medium"
+                >
+                  ← შეცვლა
+                </Button>
+              </div>
 
-          {step === 4 && currentProduct && (
-            <>
-              {isCustomProduct && (
-                <div className="mb-6 rounded-2xl border border-dashed border-accent/40 bg-violet-50 p-8 text-center space-y-3">
-                  <p className="text-lg font-semibold text-accent">სხვა პროდუქტი</p>
-                  <p className="text-sm text-gray-600 max-w-md mx-auto">
-                    თუ გსურს ნაქარგი სხვა სახის პროდუქტზე (ჩანთა, ქურთუკი, ქუდი, და სხვ.),
-                    გთხოვ აირჩიო პარამეტრები ქვემოთ. შეკვეთის შემდეგ დაგიკავშირდებით დეტალების გასარკვევად.
+              {/* Right Panel: Options & Purchase */}
+              <div className="w-full lg:w-80 space-y-8 lg:sticky lg:top-8">
+                <Step2SizeAndColor
+                  selectedProduct={selectedProduct}
+                  skipSize={currentProduct.skipClothingSize}
+                  selectedSize={clothingSize}
+                  onSizeSelect={setClothingSize}
+                  availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
+                  selectedColor={selectedColor}
+                  onColorSelect={setSelectedColor}
+                />
+                
+                <Step4Parameters
+                  product={currentProduct}
+                  embroiderySize={embroiderySize}
+                  onEmbroiderySizeChange={setEmbroiderySize}
+                  isCompact
+                />
+
+                <div className="pt-8 border-t border-black/8">
+                  <div className="flex items-center justify-between mb-5">
+                    <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Pricing</span>
+                    <div className="text-right">
+                      <p className="text-3xl font-black text-gray-900 leading-none">
+                        GEL {totalPrice.toFixed(2)}
+                      </p>
+                      <p className="text-[10px] text-green-600 font-bold uppercase mt-1">უფასო მიწოდება</p>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    className="h-14 w-full bg-accent text-white text-lg font-bold hover:bg-accent-hover shadow-2xl rounded-2xl hover:scale-[1.02] transition-all"
+                    disabled={!isStepComplete()}
+                    onClick={handleNext}
+                  >
+                    შეჯამება & შეკვეთა
+                  </Button>
+                  
+                  <p className="mt-4 text-[11px] text-center text-gray-400 leading-relaxed">
+                    გაგრძელებით ეთანხმები მომსახურების პირობებს.<br />
+                    მიწოდების ვადა: 1-3 სამუშაო დღე.
                   </p>
                 </div>
-              )}
-              <Step4Parameters
-                product={currentProduct}
-                embroiderySize={embroiderySize}
-                onEmbroiderySizeChange={setEmbroiderySize}
-              />
-            </>
+              </div>
+            </div>
           )}
 
-          {step === 5 &&
-            selectedProduct !== null &&
-            embroiderySize !== null && (
-              <Step5Summary
-                selectedProduct={selectedProduct}
-                clothingSize={clothingSize}
-                selectedColor={selectedColor}
-                frontDesigns={frontDesigns}
-                backDesigns={backDesigns}
-                embroiderySize={embroiderySize}
-              />
-            )}
+          {step === 5 && selectedProduct !== null && embroiderySize !== null && (
+            <Step5Summary
+              selectedProduct={selectedProduct}
+              clothingSize={clothingSize}
+              selectedColor={selectedColor}
+              frontDesigns={frontDesigns}
+              backDesigns={backDesigns}
+              embroiderySize={embroiderySize}
+            />
+          )}
         </div>
-
-        {/* Navigation buttons */}
-        {step < 5 && (
-          <div className="mt-10 flex items-center justify-between border-t border-gray-200 pt-6">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={step === 1}
-              className="px-6"
-            >
-              უკან
-            </Button>
-
-            <Button
-              onClick={handleNext}
-              disabled={!isStepComplete()}
-              className="bg-accent px-8 text-white hover:bg-accent-hover disabled:opacity-50"
-            >
-              {isLastStep ? "შეჯამება" : "გაგრძელება"}
-            </Button>
-          </div>
-        )}
-
-        {step === 5 && (
-          <div className="mt-6 border-t border-gray-200 pt-6">
-            <Button variant="outline" onClick={handleBack} className="px-6">
-              უკან
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { FlipHorizontal, FlipVertical, Sun, Eraser, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import type { ProductCanvasHandle } from "./ProductCanvas";
 
 interface ImageToolbarProps {
