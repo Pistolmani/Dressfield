@@ -1,22 +1,59 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Scissors, Heart, Award, Users } from "lucide-react";
+import { ArrowRight, Scissors, Heart, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "ჩვენ შესახებ",
   description:
-    "DressField — ქართული ნაქარგების ბრენდი თბილისიდან. ვქმნით ხელნაქარგ პროდუქტებს და ვახორციელებთ ინდივიდუალურ შეკვეთებს. გაიცანი ჩვენი ისტორია და ფასეულობები.",
+    "DressField — ქართული ნაქარგების ბრენდი თბილისიდან. ვქმნით ხელნაქარგ პროდუქტებს და ვიღებთ ინდივიდუალურ შეკვეთებს. გაიცანი ჩვენი ისტორია და შექმენი შენი სტილი.",
   keywords: [
+    "custom embroidery",
+    "custom embroidered clothing",
+    "embroidery on clothes",
+    "embroidered hoodie",
+    "embroidered sweatshirt",
+    "embroidered t-shirt",
+    "embroidered cap",
+    "logo embroidery",
+    "custom logo embroidery",
+    "branded workwear embroidery",
+    "embroidery Tbilisi",
+    "custom embroidery Georgia",
+    "embroidered clothing Tbilisi",
     "ქართული ნაქარგი",
-    "ნაქარგი საქართველო",
-    "ხელნაქარგი",
-    "ინდივიდუალური ნაქარგი",
-    "DressField",
-    "ნაქარგი თბილისი",
-    "embroidery Georgia",
-    "Georgian embroidery",
+    "ნაქარგი ტანსაცმელზე",
+    "ლოგოს ქარგვა",
+    "ბრენდირებული ტანსაცმელი",
+    "შენი სტილით",
+    "corporate embroidery",
+    "company logo embroidery",
+    "uniform embroidery",
+    "staff apparel branding",
+    "business merch embroidery",
+    "custom embroidered uniforms",
+    "design your hoodie",
+    "customize sweatshirt",
+    "custom embroidered hoodie",
+    "upload your logo hoodie",
+    "personalize embroidered apparel",
+    "custom patchwork",
+    "patchwork clothing",
+    "custom patches",
+    "embroidered patches",
+    "sew-on patches",
+    "iron-on patches",
+    "logo patches",
+    "branded patches",
+    "patchwork hoodie",
+    "patchwork sweatshirt",
+    "custom patch design",
+    "პატჩები",
+    "პატჩის დამზადება",
+    "ლოგოს პატჩი",
+    "ტანსაცმლის პატჩი",
+    "ბრენდირებული პატჩები"
   ],
   alternates: {
     canonical: "https://dressfield.ge/about",
@@ -24,7 +61,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ჩვენ შესახებ — DressField",
     description:
-      "DressField — ქართული ნაქარგების ბრენდი თბილისიდან. ვქმნით ხელნაქარგ პროდუქტებს და ვახორციელებთ ინდივიდუალურ შეკვეთებს.",
+      "DressField — ქართული ნაქარგების ბრენდი თბილისიდან. ვქმნით ხელნაქარგ პროდუქტებს და ვიღებთ ინდივიდუალურ შეკვეთებს.",
     type: "website",
     locale: "ka_GE",
     siteName: "DressField",
@@ -49,23 +86,18 @@ export const metadata: Metadata = {
 const values = [
   {
     icon: Scissors,
-    title: "ხელოსნობა",
+    title: "ხელნაკეთი",
     body: "ყოველი ნაქარგი იქმნება ყურადღებით და სიყვარულით. ვიყენებთ მაღალი ხარისხის ძაფებს და ქსოვილებს, რომ შედეგი გაძლოს წლობით.",
   },
   {
     icon: Heart,
-    title: "ინდივიდუალობა",
+    title: "ინდივიდუალური",
     body: "გჯერა, რომ ტანსაცმელი შენი პიროვნების ანარეკლია. ამიტომ ყოველ კლიენტთან ვმუშაობთ პერსონალურად და ვქმნით უნიკალურ ნიმუშებს.",
   },
   {
     icon: Award,
-    title: "ხარისხი",
+    title: "ხარისხიანი",
     body: "არ ვკომპრომისობთ ხარისხზე. ყოველი პროდუქტი გადის ხელით შემოწმებას, სანამ კლიენტამდე მიაღწევს.",
-  },
-  {
-    icon: Users,
-    title: "თემი",
-    body: "DressField-ის გარშემო შეიქმნა ხალხი, ვისთვისაც ქართული კულტურა და თანამედროვე სტილი ერთმანეთთან ჰარმონიულად თანაარსებობს.",
   },
 ];
 
@@ -95,7 +127,7 @@ export default function AboutPage() {
             <span className="text-accent">შენი სტილით</span>
           </h1>
           <p className="mt-6 text-lg text-white/70 max-w-xl leading-relaxed">
-            DressField — ნაქარგების ბრენდი, რომელიც აერთიანებს ქართულ ხელოსნობის ტრადიციებს თანამედროვე დიზაინთან.
+            DressField — ნაქარგების ბრენდი, რომლის მიზანია აქციოს შენი იდეა რეალობად.
           </p>
         </div>
       </section>
@@ -111,16 +143,16 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-base text-muted-foreground leading-relaxed">
                 <p>
-                  DressField დაიბადა თბილისში, სადაც ქართული ხელოსნობის ტრადიციები მდიდარი ისტორიით სავსეა. ჩვენი
-                  ისტორია დაიწყო მარტივი იდეით — ქართული ნაქარგი ხელმისაწვდომი გახდეს ყველასთვის, ვინც სილამაზეს
-                  და ინდივიდუალობას აფასებს.
+                  DressField-ის ისტორია თბილისში დაიწყო, ერთი მარტივი იდეით — შეგვექმნა ადგილი, სადაც ნაქარგი
+                  და პატჩები გახდებოდა თვითგამოხატვის თანამედროვე ფორმა. ჩვენთვის ეს მხოლოდ დეკორი არ არის;
+                  ეს არის გზა, რომ ჩვეულებრივი ტანსაცმელი გადაიქცეს შენს იდენტობის სარკედ და გამოაჩინოს შენი უნიკალურობა.
                 </p>
                 <p>
                   ჩვენ ვხელმძღვანელობთ იმ რწმენით, რომ ტანსაცმელი არ არის მხოლოდ ფუნქცია — ის ამბავია. ყოველი
                   ნაქარგი ატარებს ემოციას, მეხსიერებას ან სიმბოლოს, რომელიც კლიენტისთვის მნიშვნელოვანია.
                 </p>
                 <p>
-                  დღეს ვთავაზობთ მზა ნაქარგ კოლექციებს და სრულ ინდივიდუალურ სერვისს — ატვირთე შენი დიზაინი,
+                  ჩვენ გთავაზობთ მზა ნაქარგ კოლექციებს და სრულ ინდივიდუალურ სერვისს — ატვირთე შენი დიზაინი,
                   ნახე live preview და შეუკვეთე. ყველაფერი ერთ პლატფორმაზე.
                 </p>
               </div>
@@ -148,7 +180,7 @@ export default function AboutPage() {
               რით ვგამოვირჩევით
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {values.map(({ icon: Icon, title, body }) => (
               <div
                 key={title}
@@ -179,7 +211,7 @@ export default function AboutPage() {
               {
                 step: "01",
                 title: "ატვირთე დიზაინი",
-                body: "ატვირთე შენი ლოგო, სურათი ან ნიმუში ჩვენს პლატფორმაზე. ვიმუშავებთ PNG, JPG და SVG ფორმატებთან.",
+                body: "ატვირთე შენი ლოგო, სურათი ან ნიმუში ჩვენს პლატფორმაზე.",
               },
               {
                 step: "02",
@@ -189,7 +221,7 @@ export default function AboutPage() {
               {
                 step: "03",
                 title: "მიიღე სახლში",
-                body: "გადახდის შემდეგ ჩვენი ოსტატები ახორციელებენ ნაქარგს და ვაგზავნით მთელ საქართველოში.",
+                body: "გადახდის შემდეგ ჩვენ ამოვქარგავთ და გიგზავნით თქვენს შეკვეთას.",
               },
             ].map(({ step, title, body }) => (
               <div key={step} className="relative">
@@ -212,15 +244,15 @@ export default function AboutPage() {
       <section className="py-16 sm:py-20 bg-foreground">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="font-ui text-3xl sm:text-4xl font-bold text-white mb-4">
-            მზა ხარ შენი უნიკალური ნაქარგისთვის?
+            მზად ხარ შენი უნიკალური ნაქარგისთვის?
           </h2>
           <p className="text-white/70 mb-8 leading-relaxed">
-            ათვალიერე ჩვენი კოლექცია ან შექმენი სრულიად ინდივიდუალური ნაქარგი შენი დიზაინით.
+            დაათვალიერე ჩვენი კოლექცია ან შექმენი სრულიად ინდივიდუალური ნაქარგი შენი დიზაინით.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/custom-order">
               <Button size="lg" className="bg-white text-black hover:bg-white/90 font-semibold px-8">
-                ინდივიდუალური შეკვეთა
+                შექმენი შენი ნაქარგი
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </Link>
