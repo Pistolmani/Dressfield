@@ -19,14 +19,14 @@ export default async function HomePage() {
           <img
             src="/hero-embroidery.jpg"
             alt="Georgian embroidery collection"
-            className="h-full w-full object-cover opacity-40"
+            className="h-full w-full object-cover opacity-40 pointer-events-none"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
-          <HeroGalleryClient images={heroImages} count={8} className="opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 pointer-events-none" />
+          <HeroGalleryClient images={heroImages} count={8} className="z-20 opacity-60" />
         </div>
 
         {/* ── HERO CONTENT ──────────────────────────── */}
-        <div className="relative z-10 mx-auto flex min-h-[80vh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
+        <div className="pointer-events-none relative z-30 mx-auto flex min-h-[80vh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
           <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-7xl">
             ქართული ნაქარგი, შენი სტილით
           </h1>

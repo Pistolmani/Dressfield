@@ -124,7 +124,7 @@ export default function AboutPage() {
           <p className="text-xs uppercase tracking-[0.24em] text-white/50 mb-4">ჩვენ შესახებ</p>
           <h1 className="font-ui text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight max-w-3xl leading-tight">
             ქართული ნაქარგი,<br />
-            <span className="text-accent">შენი სტილით</span>
+            <span className="text-white">შენი სტილით</span>
           </h1>
           <p className="mt-6 text-lg text-white/70 max-w-xl leading-relaxed">
             DressField — ნაქარგების ბრენდი, რომლის მიზანია აქციოს შენი იდეა რეალობად.
@@ -148,7 +148,7 @@ export default function AboutPage() {
                   ეს არის გზა, რომ ჩვეულებრივი ტანსაცმელი გადაიქცეს შენს იდენტობის სარკედ და გამოაჩინოს შენი უნიკალურობა.
                 </p>
                 <p>
-                  ჩვენ ვხელმძღვანელობთ იმ რწმენით, რომ ტანსაცმელი არ არის მხოლოდ ფუნქცია — ის ამბავია. ყოველი
+                  ჩვენ ვხელმძღვანელობთ იმ რწმენით, რომ ტანსაცმელი არ არის მხოლოდ ვიზუალი — ის ამბავია. ყოველი
                   ნაქარგი ატარებს ემოციას, მეხსიერებას ან სიმბოლოს, რომელიც კლიენტისთვის მნიშვნელოვანია.
                 </p>
                 <p>

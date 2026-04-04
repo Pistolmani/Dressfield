@@ -109,6 +109,7 @@ export function InteractiveHeroGallery({ images, className, count = 8 }: Interac
         >
           <motion.div
             className="w-40 sm:w-60 aspect-[4/5] p-2 bg-white rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing origin-center"
+            style={{ touchAction: "none", userSelect: "none" }}
             initial={{
               opacity: 0,
               scale: 0.4,
