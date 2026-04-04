@@ -19,14 +19,27 @@ const categories = [
   { name: "აქსესუარები", href: "/products?category=accessories" },
 ];
 
-export function CategoryDropdown({ 
+export function CategoryDropdown({
   baseClassName,
-  onNavigate 
-}: { 
+  onNavigate
+}: {
   baseClassName?: string;
   onNavigate?: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) {
+    return (
+      <span className={cn(
+        baseClassName ?? "inline-flex items-center justify-center rounded-full px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-white/74",
+      )}>
+        პროდუქცია
+      </span>
+    );
+  }
 
   const handleClick = () => {
     setOpen(false);

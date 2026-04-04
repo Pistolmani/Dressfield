@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { User, LogOut, Package, UserCircle, Settings } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import {
@@ -17,8 +18,11 @@ import { useRouter } from "next/navigation";
 export function ProfileDropdown() {
   const { user, logout, isAdmin } = useAuth();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
-  if (!user) {
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted || !user) {
     return (
       <Link href="/auth/login">
         <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 font-semibold tracking-wider uppercase text-[0.7rem]">
