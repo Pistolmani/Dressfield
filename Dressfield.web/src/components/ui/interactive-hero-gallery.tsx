@@ -94,7 +94,7 @@ export function InteractiveHeroGallery({ images, className, count = 8 }: Interac
   return (
     <div
       ref={containerRef}
-      className={cn("absolute inset-0 overflow-hidden pointer-events-auto", className)}
+      className={cn("absolute inset-0 overflow-hidden pointer-events-none", className)}
     >
       {cards.map((card, index) => (
         <div
@@ -105,6 +105,7 @@ export function InteractiveHeroGallery({ images, className, count = 8 }: Interac
             top: card.top,
             zIndex: zMap[card.id] ?? card.zIndex,
             translate: "-50% -50%",
+            pointerEvents: "auto",
           }}
         >
           <motion.div
@@ -128,11 +129,12 @@ export function InteractiveHeroGallery({ images, className, count = 8 }: Interac
               delay: index * 0.1,
             }}
             drag
-            dragConstraints={containerRef}
+            dragSnapToOrigin={false}
             dragElastic={0.35}
             dragMomentum={true}
             whileHover={{ scale: 1.06, transition: { duration: 0.2 } }}
             whileDrag={{ scale: 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" }}
+            onPointerDown={(event) => event.stopPropagation()}
             onHoverStart={() => bringToFront(card.id)}
             onDragStart={() => bringToFront(card.id)}
           >

@@ -137,7 +137,10 @@ export default async function HomePage() {
 
       {/* ── FOOTER SPACER ─────────────────────────────────── */}
       {/* This transparent space allows the fixed dynamic background to peek through at the end of the scroll */}
-      <section className="relative h-[35vh] pointer-events-none" aria-hidden="true" />
+      <section
+        className="relative h-[18vh] md:h-[22vh] bg-gradient-to-b from-transparent via-black/55 to-black/95 pointer-events-none"
+        aria-hidden="true"
+      />
 
     </div>
   );

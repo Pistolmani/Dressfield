@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinks } from "./nav-links";
+import { ProfileDropdown } from "./profile-dropdown";
 import { Logo } from "@/components/ui/logo";
 import { useCartStore } from "@/stores/cart-store";
 
@@ -46,37 +47,7 @@ export function Header() {
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
-            {user ? (
-              <>
-                <Link href="/orders">
-                  <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
-                    ჩემი შეკვეთები
-                  </Button>
-                </Link>
-                {isAdmin && (
-                  <Link href="/admin">
-                    <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
-                      <User className="h-4 w-4 mr-1.5" />
-                      {user.firstName}
-                    </Button>
-                  </Link>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-header-text hover:bg-white/10"
-                  onClick={() => void logout()}
-                >
-                  გასვლა
-                </Button>
-              </>
-            ) : (
-              <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="text-header-text hover:bg-white/10">
-                  შესვლა
-                </Button>
-              </Link>
-            )}
+            <ProfileDropdown />
           </div>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import type { DesignItem, DesignTransform, ProductType } from "@/config/custom-order";
 
 const CANVAS_SIZE = 520;
+const MIN_ZOOM_FACTOR = 0.6;
+const MAX_ZOOM_FACTOR = 4;
+const ZOOM_STEP = 1.15;
 
 export interface ProductCanvasHandle {
   flipH: () => void;
@@ -39,6 +42,33 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     const containerRef   = useRef<HTMLDivElement>(null);
     const [fabricModule, setFabricModule] = useState<FabricModule | null>(null);
     const [isLoading, setIsLoading]       = useState(true);
+    const [zoomPercent, setZoomPercent]   = useState(100);
+    const baseScaleRef  = useRef(1);
+    const zoomFactorRef = useRef(1);
+    const isPanningRef  = useRef(false);
+    const lastPanRef    = useRef<{ x: number; y: number } | null>(null);
+
+    const clampZoomFactor = useCallback((value: number) => (
+      Math.min(Math.max(value, MIN_ZOOM_FACTOR), MAX_ZOOM_FACTOR)
+    ), []);
+
+    const applyZoomFactor = useCallback((nextFactor: number, point?: { x: number; y: number }) => {
+      const fc = fabricRef.current;
+      const fabric = fabricModule;
+      if (!fc || !fabric) return;
+
+      const clamped = clampZoomFactor(nextFactor);
+      zoomFactorRef.current = clamped;
+      const targetZoom = baseScaleRef.current * clamped;
+
+      const zoomPoint = point
+        ? new fabric.fabric.Point(point.x, point.y)
+        : new fabric.fabric.Point(fc.getWidth() / 2, fc.getHeight() / 2);
+
+      fc.zoomToPoint(zoomPoint, targetZoom);
+      setZoomPercent(Math.round(clamped * 100));
+      fc.requestRenderAll();
+    }, [clampZoomFactor, fabricModule]);
     // Imperative handle
     useImperativeHandle(ref, () => ({
       flipH() {
@@ -170,12 +200,18 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       const initialWidth = containerRef.current?.clientWidth || CANVAS_SIZE;
       const initialScale = initialWidth / CANVAS_SIZE;
+      baseScaleRef.current = initialScale;
+      zoomFactorRef.current = 1;
+      setZoomPercent(100);
+      isPanningRef.current = false;
+      lastPanRef.current = null;
 
       const fc = new fabricModule.fabric.Canvas(canvasElRef.current, {
         width: initialWidth, height: initialWidth,
         selection: false, backgroundColor: "#F9FAFB",
       });
       fc.setZoom(initialScale);
+      fc.defaultCursor = "grab";
       fabricRef.current = fc;
 
       const svgUrl = activeSide === "back" ? product.svgTemplateBack : product.svgTemplate;
@@ -209,25 +245,64 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       // Mouse wheel zoom
       fc.on("mouse:wheel", (opt) => {
-        const delta = (opt.e as WheelEvent).deltaY;
-        let zoom = fc.getZoom();
-        zoom = Math.min(Math.max(zoom * 0.999 ** delta, 0.3), 5);
-        fc.zoomToPoint(
-          new fabricModule.fabric.Point((opt.e as WheelEvent).offsetX, (opt.e as WheelEvent).offsetY),
-          zoom
-        );
+        const wheelEvent = opt.e as WheelEvent;
+        const deltaScale = wheelEvent.deltaY > 0 ? 1 / 1.08 : 1.08;
+        const nextFactor = zoomFactorRef.current * deltaScale;
+        applyZoomFactor(nextFactor, { x: wheelEvent.offsetX, y: wheelEvent.offsetY });
         opt.e.preventDefault();
         opt.e.stopPropagation();
       });
+
+      // Pan viewport by dragging empty area (or Alt + drag).
+      fc.on("mouse:down", (opt) => {
+        const event = opt.e as MouseEvent;
+        const shouldPan = !opt.target || event.altKey;
+        if (!shouldPan) return;
+
+        isPanningRef.current = true;
+        lastPanRef.current = { x: event.clientX, y: event.clientY };
+        fc.defaultCursor = "grabbing";
+      });
+
+      fc.on("mouse:move", (opt) => {
+        if (!isPanningRef.current) return;
+
+        const event = opt.e as MouseEvent;
+        const prev = lastPanRef.current;
+        const vpt = fc.viewportTransform;
+        if (!prev || !vpt) return;
+
+        const dx = event.clientX - prev.x;
+        const dy = event.clientY - prev.y;
+        vpt[4] += dx;
+        vpt[5] += dy;
+        lastPanRef.current = { x: event.clientX, y: event.clientY };
+        fc.requestRenderAll();
+      });
+
+      const stopPanning = () => {
+        isPanningRef.current = false;
+        lastPanRef.current = null;
+        fc.defaultCursor = "grab";
+      };
+
+      fc.on("mouse:up", stopPanning);
+      fc.on("mouse:out", stopPanning);
 
       // Responsive resizing
       const observer = new ResizeObserver((entries) => {
         for (const entry of entries) {
           const { width } = entry.contentRect;
-          const newScale = width / CANVAS_SIZE;
+          const baseScale = width / CANVAS_SIZE;
+          baseScaleRef.current = baseScale;
+          const targetZoom = baseScale * zoomFactorRef.current;
           if (fabricRef.current) {
             fabricRef.current.setDimensions({ width, height: width });
-            fabricRef.current.setZoom(newScale);
+            fabricRef.current.zoomToPoint(
+              new fabricModule.fabric.Point(width / 2, width / 2),
+              targetZoom
+            );
+            fabricRef.current.requestRenderAll();
           }
         }
       });
@@ -238,6 +313,8 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       return () => {
         observer.disconnect();
+        isPanningRef.current = false;
+        lastPanRef.current = null;
         canvasSessionRef.current += 1;
         fc.dispose();
         fabricRef.current = null;
@@ -324,12 +401,16 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     }, [designs, isLoading]);
 
     function handleZoom(dir: "in" | "out") {
-      const fc = fabricRef.current;
-      if (!fc || !fabricModule) return;
-      let zoom = fc.getZoom();
-      zoom = dir === "in" ? zoom * 1.2 : zoom / 1.2;
-      zoom = Math.min(Math.max(zoom, 0.3), 5);
-      fc.zoomToPoint(new fabricModule.fabric.Point(CANVAS_SIZE / 2, CANVAS_SIZE / 2), zoom);
+      const multiplier = dir === "in" ? ZOOM_STEP : 1 / ZOOM_STEP;
+      applyZoomFactor(zoomFactorRef.current * multiplier);
+    }
+
+    function handleZoomSlider(nextPercent: number) {
+      applyZoomFactor(nextPercent / 100);
+    }
+
+    function handleFit() {
+      applyZoomFactor(1);
     }
 
     return (
@@ -342,19 +423,34 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
           <canvas ref={canvasElRef} />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="w-full max-w-[460px] flex items-center gap-2">
           <Button variant="outline" size="icon-sm" onClick={() => handleZoom("out")} title="Zoom out">
             <ZoomOut className="h-4 w-4" />
           </Button>
-          <span className="text-xs text-muted-foreground select-none">სქროლი / ზუმი</span>
+          <input
+            type="range"
+            min={Math.round(MIN_ZOOM_FACTOR * 100)}
+            max={Math.round(MAX_ZOOM_FACTOR * 100)}
+            step={1}
+            value={zoomPercent}
+            onChange={(event) => handleZoomSlider(Number(event.target.value))}
+            className="flex-1 accent-accent"
+            aria-label="Canvas zoom"
+          />
+          <span className="min-w-12 text-xs text-muted-foreground select-none text-right">
+            {zoomPercent}%
+          </span>
           <Button variant="outline" size="icon-sm" onClick={() => handleZoom("in")} title="Zoom in">
             <ZoomIn className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleFit} title="Fit canvas">
+            Fit
           </Button>
         </div>
 
         {designs.length > 0 && (
           <p className="text-center text-xs text-gray-400">
-            გადაათრიე სურათი
+            გადაათრიე სურათი / ცარიელ ადგილას გადაათრიე პროდუქტი
           </p>
         )}
       </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { CategoryDropdown } from "./category-dropdown";
 
 const links = [
   { href: "/",            label: "მთავარი" },
@@ -30,6 +31,16 @@ export function NavLinks({
   return (
     <>
       {links.map((link) => {
+        if (link.href === "/products") {
+          return (
+            <CategoryDropdown 
+              key={link.href} 
+              baseClassName={baseClassName} 
+              onNavigate={onNavigate}
+            />
+          );
+        }
+
         const isActive = link.href === "/"
           ? pathname === "/"
           : pathname.startsWith(link.href);
