@@ -90,9 +90,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await api.post("/api/auth/logout");
-    setAccessToken(null);
-    setUser(null);
+    try {
+      await api.post("/api/auth/logout");
+    } catch {
+      // Best effort logout. Clear local auth state even if the request fails.
+    } finally {
+      setAccessToken(null);
+      setUser(null);
+    }
   }, []);
 
   return (
