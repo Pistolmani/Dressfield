@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -22,67 +22,83 @@ interface CardItem {
   floatDuration: number;
 }
 
-/**
- * Distribute N cards across the viewport using a shuffled grid.
- * Each card gets its own cell — no overlap possible.
- */
+function hashString(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function createSeededRandom(seed: number) {
+  let state = (seed >>> 0) || 1;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+}
+
 function createScatteredCards(images: string[], count: number): CardItem[] {
   if (images.length === 0) return [];
 
+  const safeCount = Math.max(1, count);
+  const random = createSeededRandom(hashString(`${images.join("|")}::${safeCount}`));
+
   const pool = [...images];
-  while (pool.length < count) pool.push(...images);
-  const selected = pool.slice(0, count);
+  while (pool.length < safeCount) pool.push(...images);
+  const selected = pool.slice(0, safeCount);
 
-  // Landscape-friendly grid: fewer columns for bigger cards
   const cols = 4;
-  const rows = Math.ceil(count / cols);
+  const rows = Math.ceil(safeCount / cols);
 
-  // Build all cells, shuffle, pick N
   const cells: [number, number][] = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
       cells.push([c, r]);
     }
   }
-  for (let i = cells.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+
+  for (let i = cells.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
     [cells[i], cells[j]] = [cells[j], cells[i]];
   }
-  const picked = cells.slice(0, count);
 
+  const picked = cells.slice(0, safeCount);
   const cellW = 100 / cols;
   const cellH = 100 / rows;
 
   return selected.map((url, i) => {
     const [c, r] = picked[i];
-    const jitterX = (Math.random() - 0.5) * cellW * 0.5;
-    const jitterY = (Math.random() - 0.5) * cellH * 0.5;
+    const jitterX = (random() - 0.5) * cellW * 0.5;
+    const jitterY = (random() - 0.5) * cellH * 0.5;
     const left = `${Math.max(10, Math.min(90, c * cellW + cellW / 2 + jitterX))}%`;
     const top = `${Math.max(10, Math.min(90, r * cellH + cellH / 2 + jitterY))}%`;
 
     return {
-      id: `card-${i}-${Math.random().toString(36).slice(2, 8)}`,
+      id: `card-${i}`,
       url,
       left,
       top,
-      rotate: (Math.random() - 0.5) * 50,
+      rotate: (random() - 0.5) * 50,
       zIndex: i,
-      floatDelay: Math.random() * 3,
-      floatDuration: 5 + Math.random() * 4,
+      floatDelay: random() * 3,
+      floatDuration: 5 + random() * 4,
     };
   });
 }
 
-export function InteractiveHeroGallery({ images, className, count = 8 }: InteractiveHeroGalleryProps) {
+export function InteractiveHeroGallery({
+  images,
+  className,
+  count = 8,
+}: InteractiveHeroGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zMap, setZMap] = useState<Record<string, number>>({});
-
-  // Compute cards once per images/count change — stable across re-renders
   const cards = useMemo(() => createScatteredCards(images, count), [images, count]);
 
   const bringToFront = (id: string) => {
     setZMap((prev) => {
-      const maxZ = Math.max(...Object.values(prev), ...cards.map((c) => c.zIndex), 0);
+      const maxZ = Math.max(...Object.values(prev), ...cards.map((card) => card.zIndex), 0);
       return { ...prev, [id]: maxZ + 1 };
     });
   };
@@ -132,8 +148,13 @@ export function InteractiveHeroGallery({ images, className, count = 8 }: Interac
             dragConstraints={containerRef}
             dragSnapToOrigin={false}
             dragElastic={0.15}
-            dragMomentum={true}
-            dragTransition={{ bounceStiffness: 120, bounceDamping: 18, power: 0.3, timeConstant: 180 }}
+            dragMomentum
+            dragTransition={{
+              bounceStiffness: 120,
+              bounceDamping: 18,
+              power: 0.3,
+              timeConstant: 180,
+            }}
             whileHover={{ scale: 1.06, transition: { duration: 0.2 } }}
             whileDrag={{ scale: 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" }}
             onPointerDown={(event) => event.stopPropagation()}
@@ -161,10 +182,10 @@ export function InteractiveHeroGallery({ images, className, count = 8 }: Interac
                   className="w-full h-full object-cover"
                   draggable={false}
                   onError={(event) => {
-                    const img = event.currentTarget;
-                    if (img.dataset.fallbackApplied === "1") return;
-                    img.dataset.fallbackApplied = "1";
-                    img.src = "/hero-embroidery.jpg";
+                    const image = event.currentTarget;
+                    if (image.dataset.fallbackApplied === "1") return;
+                    image.dataset.fallbackApplied = "1";
+                    image.src = "/hero-embroidery.jpg";
                   }}
                 />
               </div>

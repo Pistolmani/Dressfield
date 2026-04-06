@@ -26,17 +26,14 @@ export function HeroGalleryClient({
   mobileCount = 6,
   className,
 }: HeroGalleryClientProps) {
-  const [isPhone, setIsPhone] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia(PHONE_MEDIA_QUERY).matches;
-  });
+  const [isPhone, setIsPhone] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const media = window.matchMedia(PHONE_MEDIA_QUERY);
     const apply = (matches: boolean) => setIsPhone(matches);
     apply(media.matches);
+    setMounted(true);
 
     const onChange = (event: MediaQueryListEvent) => apply(event.matches);
 
@@ -48,6 +45,10 @@ export function HeroGalleryClient({
     media.addListener(onChange);
     return () => media.removeListener(onChange);
   }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   const resolvedCount = isPhone ? mobileCount : count;
 

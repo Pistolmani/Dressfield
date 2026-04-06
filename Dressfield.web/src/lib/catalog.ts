@@ -83,22 +83,22 @@ export function sortProducts(products: ProductSummaryDto[], sort: ProductSort) {
 
 export async function getProducts(params?: { search?: string; category?: string }) {
   const { data } = await api.get<ProductSummaryDto[]>("/api/products", { params });
-  return data;
+  return data.map(normalizeProductSummary);
 }
 
 export async function getAdminProducts(params?: { search?: string }) {
   const { data } = await api.get<ProductSummaryDto[]>("/api/products/admin", { params });
-  return data;
+  return data.map(normalizeProductSummary);
 }
 
 export async function getProductBySlug(slug: string) {
   const { data } = await api.get<ProductDetailDto>(`/api/products/slug/${slug}`);
-  return data;
+  return normalizeProductDetail(data);
 }
 
 export async function getAdminProductById(id: number) {
   const { data } = await api.get<ProductDetailDto>(`/api/products/admin/${id}`);
-  return data;
+  return normalizeProductDetail(data);
 }
 
 export async function createProduct(payload: ProductPayload) {
@@ -119,6 +119,33 @@ export function getApiBaseUrl() {
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 }
 
+function normalizeImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith("//")) return `https:${url}`;
+
+  const base = getApiBaseUrl().replace(/\/$/, "");
+  const path = url.startsWith("/") ? url : `/${url}`;
+  return `${base}${path}`;
+}
+
+function normalizeProductSummary(product: ProductSummaryDto): ProductSummaryDto {
+  return {
+    ...product,
+    primaryImageUrl: normalizeImageUrl(product.primaryImageUrl),
+  };
+}
+
+function normalizeProductDetail(product: ProductDetailDto): ProductDetailDto {
+  return {
+    ...product,
+    images: product.images.map((image) => ({
+      ...image,
+      imageUrl: normalizeImageUrl(image.imageUrl) ?? image.imageUrl,
+    })),
+  };
+}
+
 export async function getStaticProducts(): Promise<ProductSummaryDto[]> {
   const response = await fetch(`${getApiBaseUrl()}/api/products`, {
     cache: "force-cache",
@@ -131,7 +158,8 @@ export async function getStaticProducts(): Promise<ProductSummaryDto[]> {
     );
   }
 
-  return response.json() as Promise<ProductSummaryDto[]>;
+  const products = (await response.json()) as ProductSummaryDto[];
+  return products.map(normalizeProductSummary);
 }
 
 export async function getStaticProductBySlug(slug: string) {
@@ -148,7 +176,8 @@ export async function getStaticProductBySlug(slug: string) {
       return null;
     }
 
-    return (await response.json()) as ProductDetailDto;
+    const product = (await response.json()) as ProductDetailDto;
+    return normalizeProductDetail(product);
   } catch {
     return null;
   }
