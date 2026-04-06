@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Grid3x3, List, Menu } from "lucide-react";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { ProductList } from "@/components/catalog/product-list";
@@ -15,18 +16,41 @@ import {
 } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
-export function ProductsPageClient() {
+function ProductsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeCategory = searchParams.get("category") ?? null;
+
   const [sort, setSort] = useState<ProductSort>("newest");
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const productsQuery = useQuery({
-    queryKey: ["products"],
-    queryFn: () => getProducts(),
+    queryKey: ["products", activeCategory],
+    queryFn: () => getProducts(activeCategory ? { category: activeCategory } : undefined),
   });
 
-  const filteredProducts = useMemo(() => sortProducts(productsQuery.data || [], sort), [productsQuery.data, sort]);
+  // Derive available categories from loaded products
+  const categories = useMemo(() => {
+    const products = productsQuery.data ?? [];
+    const seen = new Map<string, string>();
+    for (const p of products) {
+      if (p.categorySlug && p.categoryName && !seen.has(p.categorySlug)) {
+        seen.set(p.categorySlug, p.categoryName);
+      }
+    }
+    return Array.from(seen.entries()).map(([slug, name]) => ({ slug, name }));
+  }, [productsQuery.data]);
+
+  const filteredProducts = useMemo(() => {
+    const base = productsQuery.data ?? [];
+    // If the API doesn't filter server-side, filter client-side as fallback
+    const categoryFiltered = activeCategory
+      ? base.filter((p) => p.categorySlug === activeCategory)
+      : base;
+    return sortProducts(categoryFiltered, sort);
+  }, [productsQuery.data, sort, activeCategory]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -34,6 +58,17 @@ export function ProductsPageClient() {
     (currentPage - 1) * PRODUCTS_PER_PAGE,
     currentPage * PRODUCTS_PER_PAGE
   );
+
+  function setCategory(slug: string | null) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (slug) {
+      params.set("category", slug);
+    } else {
+      params.delete("category");
+    }
+    router.push(`/products?${params.toString()}`);
+    setPage(1);
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,6 +80,37 @@ export function ProductsPageClient() {
             <h1 className="font-ui text-3xl sm:text-4xl font-semibold tracking-[0.03em]">ნაქარგი პროდუქციის კატალოგი</h1>
             <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">დაათვალიერე მზა ნამუშევრები, ნახე დეტალები და დაამატე სასურველი ნივთები კალათაში.</p>
           </div>
+
+          {/* Category filter pills */}
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              <button
+                onClick={() => setCategory(null)}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm font-medium transition-all border",
+                  activeCategory === null
+                    ? "bg-accent text-white border-accent shadow-sm"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-accent hover:text-accent"
+                )}
+              >
+                ყველა
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.slug}
+                  onClick={() => setCategory(cat.slug)}
+                  className={cn(
+                    "rounded-full px-4 py-1.5 text-sm font-medium transition-all border",
+                    activeCategory === cat.slug
+                      ? "bg-accent text-white border-accent shadow-sm"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-accent hover:text-accent"
+                  )}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -148,5 +214,13 @@ export function ProductsPageClient() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function ProductsPageClient() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

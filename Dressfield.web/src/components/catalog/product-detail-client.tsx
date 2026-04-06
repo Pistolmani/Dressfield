@@ -61,17 +61,22 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
     )
     .filter(Boolean);
 
-  const totalPrice =
-    product.basePrice +
-    selectedVariantItems.reduce((sum, item) => sum + item.priceAdjustment, 0);
+  const variantAdjustmentsTotal = selectedVariantItems.reduce(
+    (sum, item) => sum + item.priceAdjustment,
+    0
+  );
+  const effectiveBasePrice = product.effectivePrice ?? product.basePrice;
+  const totalPrice = effectiveBasePrice + variantAdjustmentsTotal;
+  const originalTotalPrice = product.basePrice + variantAdjustmentsTotal;
+  const hasSale = product.isOnSale && product.salePercentage > 0 && totalPrice < originalTotalPrice;
 
   useEffect(() => {
     trackViewContent({
       contentId: String(product.id),
       contentName: product.name,
-      value: product.basePrice,
+      value: effectiveBasePrice,
     });
-  }, [product.id, product.name, product.basePrice]);
+  }, [product.id, product.name, effectiveBasePrice]);
 
   const handleVariantSelect = useCallback(
     (groupName: string, variantId: number) => {
@@ -166,7 +171,19 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                 {product.name}
               </h1>
               <div className="flex items-center gap-4">
-                <p className="font-ui text-4xl font-extrabold text-accent">{formatPrice(totalPrice)}</p>
+                <div className="flex items-end gap-3">
+                  {hasSale ? (
+                    <span className="text-sm text-gray-400 line-through">
+                      {formatPrice(originalTotalPrice)}
+                    </span>
+                  ) : null}
+                  <p className="font-ui text-4xl font-extrabold text-accent">{formatPrice(totalPrice)}</p>
+                  {hasSale ? (
+                    <span className="mb-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                      -{Math.round(product.salePercentage)}%
+                    </span>
+                  ) : null}
+                </div>
                 <div className="h-8 w-px bg-gray-200" />
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold uppercase tracking-widest leading-none text-gray-400">

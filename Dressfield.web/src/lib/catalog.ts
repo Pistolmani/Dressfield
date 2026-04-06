@@ -71,17 +71,17 @@ export function sortProducts(products: ProductSummaryDto[], sort: ProductSort) {
   const next = [...products];
 
   if (sort === "price-asc") {
-    return next.sort((a, b) => a.basePrice - b.basePrice);
+    return next.sort((a, b) => (a.effectivePrice ?? a.basePrice) - (b.effectivePrice ?? b.basePrice));
   }
 
   if (sort === "price-desc") {
-    return next.sort((a, b) => b.basePrice - a.basePrice);
+    return next.sort((a, b) => (b.effectivePrice ?? b.basePrice) - (a.effectivePrice ?? a.basePrice));
   }
 
   return next.sort((a, b) => b.id - a.id);
 }
 
-export async function getProducts(params?: { search?: string }) {
+export async function getProducts(params?: { search?: string; category?: string }) {
   const { data } = await api.get<ProductSummaryDto[]>("/api/products", { params });
   return data;
 }

@@ -177,7 +177,7 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground mb-4">ჩვენი ფასეულობები</p>
             <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight">
-              რით ვგამოვირჩევით
+              რით გამოვირჩევით
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

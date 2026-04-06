@@ -3,12 +3,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
 import { createOrder } from "@/lib/orders";
+import { validatePromoCode } from "@/lib/promo-codes";
+import { submitCustomOrder } from "@/lib/custom-orders";
+import { uploadDesignImage } from "@/lib/upload";
 import { trackInitiateCheckout } from "@/lib/analytics";
 import { formatPrice } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import type { PromoCodeValidationResultDto } from "@/types/promo-code";
 
 type Step = "form" | "review";
 
@@ -40,21 +46,138 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_DIGITS_ONLY = /\D/g;
 const CITY_REGEX = /^[\u10A0-\u10FFa-zA-Z\s]+$/;
 
+function normalizeLocalPhone(phone: string | null | undefined): string {
+  if (!phone) return "";
+  const digits = phone.replace(PHONE_DIGITS_ONLY, "");
+  if (!digits) return "";
+
+  if (digits.length === 9 && digits.startsWith("5")) return digits;
+  if (digits.length === 12 && digits.startsWith("995")) {
+    const local = digits.slice(3);
+    return local.length === 9 && local.startsWith("5") ? local : "";
+  }
+  if (digits.length === 14 && digits.startsWith("00995")) {
+    const local = digits.slice(5);
+    return local.length === 9 && local.startsWith("5") ? local : "";
+  }
+
+  const tail = digits.slice(-9);
+  if (tail.length === 9 && tail.startsWith("5")) return tail;
+  return "";
+}
+
+function extractApiErrorMessage(error: unknown): string | null {
+  if (!isAxiosError(error)) return null;
+  const data = error.response?.data;
+  if (!data) return null;
+
+  if (typeof data === "string") return data;
+
+  if (typeof data === "object" && data !== null) {
+    const maybeRecord = data as Record<string, unknown>;
+
+    if (typeof maybeRecord.message === "string" && maybeRecord.message.trim()) {
+      return maybeRecord.message;
+    }
+
+    if (typeof maybeRecord.title === "string" && maybeRecord.title.trim()) {
+      return maybeRecord.title;
+    }
+
+    const errors = maybeRecord.errors;
+    if (errors && typeof errors === "object") {
+      for (const value of Object.values(errors as Record<string, unknown>)) {
+        if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
+          return value[0];
+        }
+        if (typeof value === "string" && value.trim()) {
+          return value;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+function guessExtensionFromMime(type: string | undefined): string {
+  if (!type) return "png";
+  if (type.includes("jpeg") || type.includes("jpg")) return "jpg";
+  if (type.includes("webp")) return "webp";
+  if (type.includes("png")) return "png";
+  return "png";
+}
+
+function roundMoney(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function buildDesignSources(item: ReturnType<typeof useCartStore.getState>["items"][number]) {
+  const fromPayload =
+    item.customOrderData?.designs
+      ?.filter((design) => typeof design.url === "string" && design.url.length > 0)
+      .map((design, index) => ({
+        url: design.url,
+        side: design.side,
+        sortOrder: Number.isFinite(design.sortOrder) ? design.sortOrder : index,
+        transform: design.transform,
+      })) ?? [];
+
+  if (fromPayload.length > 0) {
+    return fromPayload;
+  }
+
+  if (item.imageUrl) {
+    return [
+      {
+        url: item.imageUrl,
+        side: "front" as const,
+        sortOrder: 0,
+        transform: undefined,
+      },
+    ];
+  }
+
+  return [];
+}
+
+function mergeNotes(globalNote: string, itemNote?: string) {
+  const parts = [itemNote?.trim(), globalNote.trim()].filter(
+    (value): value is string => Boolean(value)
+  );
+  return parts.length > 0 ? parts.join("\n\n") : null;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalPrice, clearCart } = useCartStore();
+  const { user, loading: authLoading } = useAuth();
   const [step, setStep] = useState<Step>("form");
   const [form, setForm] = useState<FormData>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [promoApplyError, setPromoApplyError] = useState<string | null>(null);
+  const [promoApplying, setPromoApplying] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState<PromoCodeValidationResultDto | null>(null);
   const hasTrackedInitiateCheckoutRef = useRef(false);
+
+  const regularItems = items.filter((item) => !item.customOrderData);
+  const customItems = items.filter((item) => Boolean(item.customOrderData));
+  const promoEligible = regularItems.length > 0 && customItems.length === 0;
 
   useEffect(() => {
     if (items.length === 0) {
       router.replace("/cart");
     }
   }, [items.length, router]);
+
+  useEffect(() => {
+    if (promoEligible) return;
+    setAppliedPromo(null);
+    setPromoApplyError(null);
+  }, [promoEligible]);
 
   useEffect(() => {
     if (items.length === 0 || hasTrackedInitiateCheckoutRef.current) {
@@ -72,6 +195,34 @@ export default function CheckoutPage() {
 
     hasTrackedInitiateCheckoutRef.current = true;
   }, [items, totalPrice]);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
+    const userEmail = user.email?.trim().toLowerCase() ?? "";
+    const userPhone = normalizeLocalPhone(user.phoneNumber ?? user.phone);
+
+    setForm((prev) => {
+      const next = { ...prev };
+      let changed = false;
+
+      if (!prev.contactName && fullName) {
+        next.contactName = fullName;
+        changed = true;
+      }
+      if (!prev.contactEmail && userEmail) {
+        next.contactEmail = userEmail;
+        changed = true;
+      }
+      if (!prev.contactPhone && userPhone) {
+        next.contactPhone = userPhone;
+        changed = true;
+      }
+
+      return changed ? next : prev;
+    });
+  }, [authLoading, user]);
 
   function set(field: keyof FormData, value: string) {
     // Smart sanitization per field
@@ -135,22 +286,142 @@ export default function CheckoutPage() {
     return Object.keys(e).length === 0;
   }
 
+  async function handleApplyPromoCode() {
+    if (!promoEligible || promoApplying) return;
+
+    const code = promoCodeInput.trim();
+    if (!code) {
+      setAppliedPromo(null);
+      setPromoApplyError("Enter a promo code.");
+      return;
+    }
+
+    setPromoApplying(true);
+    setPromoApplyError(null);
+
+    try {
+      const result = await validatePromoCode({ code, subtotal });
+      if (!result.isValid) {
+        setAppliedPromo(null);
+        setPromoApplyError(result.message || "Promo code is invalid.");
+        return;
+      }
+
+      setAppliedPromo(result);
+      setPromoCodeInput(result.code ?? code.toUpperCase());
+    } catch (error) {
+      setAppliedPromo(null);
+      setPromoApplyError(extractApiErrorMessage(error) ?? "Promo code validation failed.");
+    } finally {
+      setPromoApplying(false);
+    }
+  }
+
+  function handleRemovePromoCode() {
+    setAppliedPromo(null);
+    setPromoCodeInput("");
+    setPromoApplyError(null);
+  }
+
   async function handleSubmit() {
     setSubmitError(null);
     setSubmitting(true);
     try {
+      if (regularItems.length > 0 && customItems.length > 0) {
+        setSubmitError("კალათაში გაქვთ custom და ჩვეულებრივი პროდუქტი ერთად. გთხოვთ, შეუკვეთეთ ცალ-ცალკე.");
+        return;
+      }
+
+      const contactName = form.contactName.trim();
+      const contactPhone = `+995${form.contactPhone}`;
+      const contactEmail = form.contactEmail.trim().toLowerCase();
+      const shippingCity = form.shippingCity.trim();
+      const shippingAddressLine1 = form.shippingAddressLine1.trim();
+      const shippingAddressLine2 = form.shippingAddressLine2.trim() || undefined;
+      const sharedCustomerNotes = form.customerNotes.trim();
+
+      if (customItems.length > 0) {
+        const createdCustomOrderIds: number[] = [];
+        let uploadSequence = 0;
+
+        for (const item of customItems) {
+          const sources = buildDesignSources(item);
+          if (sources.length === 0) {
+            throw new Error("Custom დიზაინის სურათი ვერ მოიძებნა.");
+          }
+
+          const designs = [];
+          for (const source of sources) {
+            let designImageUrl = source.url;
+
+            if (designImageUrl.startsWith("blob:")) {
+              const response = await fetch(designImageUrl);
+              if (!response.ok) {
+                throw new Error("დიზაინის ატვირთვა ვერ მოხერხდა.");
+              }
+
+              const blob = await response.blob();
+              const extension = guessExtensionFromMime(blob.type);
+              const file = new File(
+                [blob],
+                `custom-design-${Date.now()}-${uploadSequence}.${extension}`,
+                { type: blob.type || "image/png" }
+              );
+              uploadSequence += 1;
+              designImageUrl = await uploadDesignImage(file);
+            }
+
+            designs.push({
+              designImageUrl,
+              placement: source.side === "back" ? "back" : "chest",
+              size: item.customOrderData?.embroiderySize ?? null,
+              threadColor: null,
+              width: null,
+              height: null,
+              positionX: source.transform?.left ?? null,
+              positionY: source.transform?.top ?? null,
+              sortOrder: source.sortOrder,
+            });
+          }
+
+          const quantityNote = item.quantity > 1 ? `Quantity: ${item.quantity}` : "";
+          const itemNotes = [item.customOrderData?.orderNote, quantityNote]
+            .filter((value): value is string => Boolean(value && value.trim()))
+            .join("\n");
+
+          const customOrder = await submitCustomOrder({
+            baseProductId: null,
+            contactName,
+            contactPhone,
+            contactEmail,
+            totalPrice: item.price * item.quantity,
+            customerNotes: mergeNotes(sharedCustomerNotes, itemNotes),
+            designs,
+          });
+
+          createdCustomOrderIds.push(customOrder.id);
+        }
+
+        clearCart();
+        router.push(
+          `/order-confirmation?custom=1&orderId=${createdCustomOrderIds[0]}&count=${createdCustomOrderIds.length}`
+        );
+        return;
+      }
+
       const result = await createOrder({
-        contactName: form.contactName.trim(),
-        contactPhone: `+995${form.contactPhone}`,
-        contactEmail: form.contactEmail.trim().toLowerCase(),
-        shippingCity: form.shippingCity.trim(),
-        shippingAddressLine1: form.shippingAddressLine1.trim(),
-        shippingAddressLine2: form.shippingAddressLine2.trim() || undefined,
-        customerNotes: form.customerNotes.trim() || undefined,
-        items: items.map((i) => ({
-          productId: i.productId,
-          variantId: i.variantId,
-          quantity: i.quantity,
+        contactName,
+        contactPhone,
+        contactEmail,
+        shippingCity,
+        shippingAddressLine1,
+        shippingAddressLine2,
+        promoCode: promoEligible ? appliedPromo?.code ?? undefined : undefined,
+        customerNotes: sharedCustomerNotes || undefined,
+        items: regularItems.map((item) => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity,
         })),
       });
 
@@ -167,15 +438,26 @@ export default function CheckoutPage() {
       } else {
         router.push(`/order-confirmation?orderId=${result.orderId}&mock=1`);
       }
-    } catch {
+    } catch (error) {
+      console.error("Checkout submit failed", error);
+      const apiMessage = extractApiErrorMessage(error);
+      if (apiMessage) {
+        setSubmitError(apiMessage);
+      } else {
       setSubmitError("შეკვეთის გაფორმება ვერ მოხერხდა. სცადეთ თავიდან.");
+      }
     } finally {
       setSubmitting(false);
     }
   }
 
   const subtotal = totalPrice();
-  const total = subtotal + SHIPPING_COST;
+  const promoDiscountPercentage = promoEligible && appliedPromo ? appliedPromo.discountPercentage : 0;
+  const promoDiscount =
+    promoEligible && appliedPromo
+      ? Math.min(subtotal, roundMoney(subtotal * promoDiscountPercentage / 100))
+      : 0;
+  const total = roundMoney(Math.max(0, subtotal - promoDiscount) + SHIPPING_COST);
 
   // Order summary panel — shown on both steps
   const OrderSummary = () => (
@@ -207,6 +489,12 @@ export default function CheckoutPage() {
           <span>ჯამი</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
+        {promoEligible && appliedPromo ? (
+          <div className="flex justify-between text-green-600">
+            <span>Promo ({promoDiscountPercentage}%)</span>
+            <span>-{formatPrice(promoDiscount)}</span>
+          </div>
+        ) : null}
         <div className="flex justify-between text-muted-foreground">
           <span>მიწოდება</span>
           <span>{formatPrice(SHIPPING_COST)}</span>
@@ -331,6 +619,54 @@ export default function CheckoutPage() {
                     />
                   </Field>
                 </div>
+
+                {promoEligible ? (
+                  <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-3">
+                    <h2 className="font-semibold text-base">Promo Code</h2>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <input
+                        type="text"
+                        value={promoCodeInput}
+                        onChange={(event) => {
+                          setPromoCodeInput(event.target.value.toUpperCase());
+                          setPromoApplyError(null);
+                        }}
+                        className={inputCls(false)}
+                        placeholder="Enter promo code"
+                        disabled={promoApplying || submitting || Boolean(appliedPromo)}
+                      />
+                      {appliedPromo ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleRemovePromoCode}
+                          disabled={promoApplying || submitting}
+                        >
+                          Remove
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          className="bg-accent text-white hover:bg-accent-hover"
+                          onClick={handleApplyPromoCode}
+                          disabled={promoApplying || submitting}
+                        >
+                          {promoApplying ? "Applying..." : "Apply"}
+                        </Button>
+                      )}
+                    </div>
+                    {appliedPromo ? (
+                      <p className="text-xs text-green-600">
+                        Applied: {appliedPromo.code} ({appliedPromo.discountPercentage}% off)
+                      </p>
+                    ) : null}
+                    {promoApplyError ? <p className="text-xs text-red-500">{promoApplyError}</p> : null}
+                  </div>
+                ) : customItems.length > 0 ? (
+                  <div className="rounded-2xl border border-black/8 bg-white p-4 text-xs text-muted-foreground">
+                    Promo codes are available for catalog product checkout.
+                  </div>
+                ) : null}
 
                 <Button
                   className="w-full bg-accent text-white hover:bg-accent-hover h-12 text-base font-semibold"

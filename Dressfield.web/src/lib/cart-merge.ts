@@ -1,7 +1,7 @@
 import type { CartItem } from "@/stores/cart-store";
 import type { ServerCartItemDto } from "@/types/cart";
 
-function itemKey(productId: number, variantId?: number | null) {
+function itemKey(productId: number | string, variantId?: number | null) {
   return `${productId}-${variantId ?? 0}`;
 }
 

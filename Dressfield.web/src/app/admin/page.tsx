@@ -240,6 +240,7 @@ export default function AdminDashboardPage() {
               სწრაფი ქმედებები
             </h2>
             <div className="space-y-3">
+              <QuickActionCard href="/admin/promo-codes" icon={TrendingUp} label="Promo Codes" />
               <QuickActionCard href="/admin/products" icon={Package} label="პროდუქტები" />
               <QuickActionCard href="/admin/orders" icon={ShoppingBag} label="შეკვეთები" />
               <QuickActionCard href="/admin/custom-orders" icon={Scissors} label="Custom შეკვეთები" />

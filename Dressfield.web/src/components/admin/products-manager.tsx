@@ -94,7 +94,25 @@ export function ProductsManager() {
                     <img src={product.primaryImageUrl || fallbackImage} alt={product.name} className="h-10 w-10 rounded-lg object-cover" />
                   </td>
                   <td className="px-5 py-4">{product.name}</td>
-                  <td className="px-5 py-4 text-accent">{formatPrice(product.basePrice)}</td>
+                  <td className="px-5 py-4">
+                    <div className="flex flex-col">
+                      {product.isOnSale ? (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatPrice(product.basePrice)}
+                        </span>
+                      ) : null}
+                      <div className="flex items-center gap-2">
+                        <span className="text-accent font-semibold">
+                          {formatPrice(product.effectivePrice ?? product.basePrice)}
+                        </span>
+                        {product.isOnSale ? (
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase text-red-700">
+                            Sale
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </td>
                   <td className="px-5 py-4">{product.isActive ? "კი" : "არა"}</td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-2">

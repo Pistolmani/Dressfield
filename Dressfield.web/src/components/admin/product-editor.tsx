@@ -48,6 +48,7 @@ const emptyForm: ProductPayload = {
   shortDescription: "",
   description: "",
   basePrice: 0,
+  salePercentage: 0,
   sku: "",
   isActive: true,
   isFeatured: false,
@@ -62,6 +63,7 @@ function mapProductToForm(product: ProductDetailDto): ProductPayload {
     shortDescription: product.shortDescription,
     description: product.description,
     basePrice: product.basePrice,
+    salePercentage: product.salePercentage,
     sku: product.sku,
     isActive: product.isActive,
     isFeatured: product.isFeatured,
@@ -135,6 +137,7 @@ function normalizeForm(form: ProductPayload): ProductPayload {
     description: shortDescription || form.name.trim(),
     sku: form.sku?.trim() || null,
     basePrice: Number(form.basePrice),
+    salePercentage: Number(form.salePercentage),
     images: images.map((image, index) => ({
       ...image,
       sortOrder: index,
@@ -208,6 +211,9 @@ function ProductEditorForm({
   const [form, setForm] = useState<ProductPayload>(initialForm);
   const [basePriceInput, setBasePriceInput] = useState(
     productId ? String(initialForm.basePrice ?? "") : ""
+  );
+  const [salePercentageInput, setSalePercentageInput] = useState(
+    productId ? String(initialForm.salePercentage ?? 0) : "0"
   );
   const [slugTouched, setSlugTouched] = useState(Boolean(productId));
   const [isUploadingImages, setIsUploadingImages] = useState(false);
@@ -316,9 +322,16 @@ function ProductEditorForm({
       return;
     }
 
+    const parsedSalePercentage = Number.parseFloat(salePercentageInput);
+    if (!Number.isFinite(parsedSalePercentage) || parsedSalePercentage < 0 || parsedSalePercentage > 100) {
+      toast.error("ფასდაკლება უნდა იყოს 0-100%-ის ფარგლებში");
+      return;
+    }
+
     const payload = normalizeForm({
       ...form,
       basePrice: parsedPrice,
+      salePercentage: parsedSalePercentage,
     });
 
     if (!payload.name || !payload.slug) {
@@ -412,6 +425,38 @@ function ProductEditorForm({
                 }
               }}
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="product-sale">ფასდაკლება (%)</Label>
+            <Input
+              id="product-sale"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={salePercentageInput}
+              placeholder="0"
+              onChange={(event) => {
+                const nextValue = event.target.value;
+                setSalePercentageInput(nextValue);
+                if (nextValue.trim() === "") {
+                  return;
+                }
+
+                const parsed = Number.parseFloat(nextValue);
+                if (Number.isFinite(parsed)) {
+                  setForm((current) => ({ ...current, salePercentage: parsed }));
+                }
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              {Number.parseFloat(salePercentageInput || "0") > 0
+                ? `საბოლოო ფასი: ${(
+                    Number.parseFloat(basePriceInput || "0") *
+                    (1 - Number.parseFloat(salePercentageInput || "0") / 100)
+                  ).toFixed(2)} GEL`
+                : "0 ნიშნავს ფასდაკლების გარეშე"}
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="product-sku">SKU</Label>

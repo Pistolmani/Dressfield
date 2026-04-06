@@ -103,6 +103,7 @@ export function ImageToolbar({
   const blobUrlRef = useRef<string | null>(null);
   const operationIdRef = useRef(0);
   const mountedRef = useRef(true);
+  const loadingToastRef = useRef<string | number | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -149,6 +150,9 @@ export function ImageToolbar({
 
     setRemovingBg(true);
     onRemovingChange?.(true);
+    loadingToastRef.current = toast.loading("გთხოვ დაიცადე...", {
+      description: "ფონის წაშლა მიმდინარეობს",
+    });
     try {
       // Let spinner/toast paint before heavy compute starts.
       await nextFrame();
@@ -184,6 +188,10 @@ export function ImageToolbar({
       console.error("Background removal failed:", err);
       toast.error("ფონის წაშლა ვერ მოხერხდა");
     } finally {
+      if (loadingToastRef.current !== null) {
+        toast.dismiss(loadingToastRef.current);
+        loadingToastRef.current = null;
+      }
       if (mountedRef.current && operationIdRef.current === operationId) {
         setRemovingBg(false);
         onRemovingChange?.(false);

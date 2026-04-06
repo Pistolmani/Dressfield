@@ -39,6 +39,7 @@ function isTerminalStatus(status: OrderStatus | undefined) {
 function ConfirmationContent() {
   const params = useSearchParams();
   const isMock = params.get("mock") === "1";
+  const isCustomOrder = params.get("custom") === "1";
   const { user } = useAuth();
   const [phase, setPhase] = useState<PollPhase>("polling");
 
@@ -54,8 +55,8 @@ function ConfirmationContent() {
     (typeof window !== "undefined" ? localStorage.getItem("dressfield_pending_order_key") : null);
 
   const id = orderId ? Number(orderId) : 0;
-  const canPollAsUser = !!user && id > 0;
-  const canPollAsGuest = !user && id > 0 && !!orderKey;
+  const canPollAsUser = !isCustomOrder && !!user && id > 0;
+  const canPollAsGuest = !isCustomOrder && !user && id > 0 && !!orderKey;
   const canPoll = canPollAsUser || canPollAsGuest;
 
   const pollStartRef = useRef<number | null>(null);
@@ -96,13 +97,21 @@ function ConfirmationContent() {
   }, [canPoll, ensurePollSession]);
 
   useEffect(() => {
+    if (isCustomOrder) return;
+
     if (orderIdParam && typeof window !== "undefined") {
       localStorage.setItem("dressfield_pending_order_id", orderIdParam);
     }
     if (orderKeyParam && typeof window !== "undefined") {
       localStorage.setItem("dressfield_pending_order_key", orderKeyParam);
     }
-  }, [orderIdParam, orderKeyParam]);
+  }, [isCustomOrder, orderIdParam, orderKeyParam]);
+
+  useEffect(() => {
+    if (!isCustomOrder || typeof window === "undefined") return;
+    localStorage.removeItem("dressfield_pending_order_id");
+    localStorage.removeItem("dressfield_pending_order_key");
+  }, [isCustomOrder]);
 
   const myOrderQuery = useQuery({
     queryKey: ["my-order", id, pollSessionKey],
@@ -185,6 +194,31 @@ function ConfirmationContent() {
             მთავარ გვერდზე დაბრუნება
           </Button>
         </Link>
+      </div>
+    );
+  }
+
+  if (isCustomOrder) {
+    return (
+      <div className="min-h-[70vh] bg-background flex flex-col items-center justify-center px-4 text-center">
+        <CheckCircle2 className="h-20 w-20 text-green-500 mb-6" />
+        <h1 className="font-ui text-5xl font-semibold mb-2">Custom order submitted</h1>
+        <p className="text-muted-foreground text-lg mb-2">
+          Order number: <span className="font-semibold text-foreground">#{orderId}</span>
+        </p>
+        <p className="text-muted-foreground max-w-md mb-6">
+          We received your custom request and our team will contact you soon.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link href="/">
+            <Button className="bg-accent text-white hover:bg-accent-hover">
+              მთავარი გვერდი
+            </Button>
+          </Link>
+          <Link href="/products">
+            <Button variant="outline">პროდუქტები</Button>
+          </Link>
+        </div>
       </div>
     );
   }

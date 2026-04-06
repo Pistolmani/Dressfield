@@ -22,6 +22,7 @@ export const PRODUCT_TYPES = [
     designZoneBack: { x: 135, y: 130, width: 130, height: 120 },
     basePrice: 50,
     skipClothingSize: false,
+    skipEmbroiderySizePicker: false,
     skipDesign: false,
     hasBack: true,
   },
@@ -34,6 +35,7 @@ export const PRODUCT_TYPES = [
     designZoneBack: { x: 138, y: 120, width: 124, height: 118 },
     basePrice: 45,
     skipClothingSize: false,
+    skipEmbroiderySizePicker: false,
     skipDesign: false,
     hasBack: true,
   },
@@ -46,6 +48,7 @@ export const PRODUCT_TYPES = [
     designZoneBack: { x: 135, y: 118, width: 130, height: 112 },
     basePrice: 30,
     skipClothingSize: false,
+    skipEmbroiderySizePicker: false,
     skipDesign: false,
     hasBack: true,
   },
@@ -58,6 +61,7 @@ export const PRODUCT_TYPES = [
     designZoneBack: { x: 135, y: 118, width: 130, height: 112 },
     basePrice: 35,
     skipClothingSize: false,
+    skipEmbroiderySizePicker: false,
     skipDesign: false,
     hasBack: true,
   },
@@ -70,6 +74,7 @@ export const PRODUCT_TYPES = [
     designZoneBack: { x: 148, y: 142, width: 104, height: 96 },
     basePrice: 25,
     skipClothingSize: true,
+    skipEmbroiderySizePicker: true,
     skipDesign: false,
     hasBack: true,
   },
@@ -82,6 +87,7 @@ export const PRODUCT_TYPES = [
     designZoneBack: { x: 60, y: 60, width: 280, height: 280 },
     basePrice: 60,
     skipClothingSize: true,
+    skipEmbroiderySizePicker: false,
     skipDesign: false,
     hasBack: false,
   },
@@ -94,10 +100,14 @@ export const CLOTHING_SIZES = ["S", "M", "L", "XL"] as const;
 export type ClothingSize = (typeof CLOTHING_SIZES)[number];
 
 export const EMBROIDERY_SIZES = [
-  { id: "S",  label: "S",  extraPrice: 0,  note: "მცირე (~5×5სმ)" },
-  { id: "M",  label: "M",  extraPrice: 10, note: "საშუალო (~8×8სმ)" },
-  { id: "L",  label: "L",  extraPrice: 20, note: "დიდი (~12×12სმ)" },
-  { id: "XL", label: "XL", extraPrice: 35, note: "ძალიან დიდი (~15×15სმ)" },
+  // Fractions map embroidery size to the zone's smaller side.
+  // Tuned slightly smaller so the visual preview better matches real-world output.
+  { id: "S",   label: "S",   extraPrice: 15, note: "5×5სმ",   zoneScaleFraction: 0.26 },
+  { id: "M",   label: "M",   extraPrice: 20, note: "8×8სმ",   zoneScaleFraction: 0.38 },
+  { id: "L",   label: "L",   extraPrice: 30, note: "12×12სმ", zoneScaleFraction: 0.55 },
+  { id: "XL",  label: "XL",  extraPrice: 40, note: "15×15სმ", zoneScaleFraction: 0.68 },
+  { id: "2XL", label: "2XL", extraPrice: 50, note: "20×20სმ", zoneScaleFraction: 0.80 },
+  { id: "3XL", label: "3XL", extraPrice: 55, note: "30×20სმ", zoneScaleFraction: 0.90 },
 ] as const;
 export type EmbroiderySizeId = (typeof EMBROIDERY_SIZES)[number]["id"];
 

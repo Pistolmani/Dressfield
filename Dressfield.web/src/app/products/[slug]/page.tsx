@@ -45,9 +45,10 @@ export async function generateMetadata({
   }
 
   const primaryImage = product.images.find((image) => image.isPrimary) ?? product.images[0];
+  const effectivePrice = product.effectivePrice ?? product.basePrice;
   const description =
     product.shortDescription ??
-    `${product.name} - GEL ${product.basePrice.toFixed(2)} - DressField`;
+    `${product.name} - GEL ${effectivePrice.toFixed(2)} - DressField`;
 
   return {
     title: `${product.name} - DressField`,
@@ -63,7 +64,7 @@ export async function generateMetadata({
         : [],
     },
     other: {
-      "product:price:amount": String(product.basePrice),
+      "product:price:amount": String(effectivePrice),
       "product:price:currency": "GEL",
     },
   };
@@ -107,7 +108,7 @@ export default async function ProductDetailPage({
             image: product.images.map((image) => image.imageUrl),
             offers: {
               "@type": "Offer",
-              price: product.basePrice,
+              price: product.effectivePrice ?? product.basePrice,
               priceCurrency: "GEL",
               availability: "https://schema.org/InStock",
               seller: { "@type": "Organization", name: "DressField" },

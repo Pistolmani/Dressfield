@@ -3,11 +3,13 @@ import type { CartItem } from "@/stores/cart-store";
 import type { ServerCartDto, SyncCartItemRequest, SyncCartRequest } from "@/types/cart";
 
 export function toSyncCartItems(items: CartItem[]): SyncCartItemRequest[] {
-  return items.map((item) => ({
-    productId: item.productId,
-    variantId: item.variantId,
-    quantity: item.quantity,
-  }));
+  return items
+    .filter((item) => typeof item.productId === "number")
+    .map((item) => ({
+      productId: item.productId as number,
+      variantId: item.variantId,
+      quantity: item.quantity,
+    }));
 }
 
 export async function getServerCart(): Promise<ServerCartDto> {

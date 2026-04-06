@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -50,46 +51,55 @@ export function ProfileDropdown() {
           </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 mt-2 bg-black/90 backdrop-blur-md border-white/10 text-white p-2 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2">
-        <DropdownMenuLabel className="px-2 py-1.5 font-bold text-xs uppercase tracking-[0.15em] text-white/50">
-          ჩემი პროფილი
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="px-2 py-1.5 font-bold text-xs uppercase tracking-[0.15em] text-white/50">
+            ჩემი პროფილი
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+
         <DropdownMenuSeparator className="bg-white/10" />
-        
-        <Link href="/profile">
-          <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10">
-            <UserCircle className="h-4 w-4" />
-            <span className="text-sm">პროფილი</span>
-          </DropdownMenuItem>
-        </Link>
-        
-        <Link href="/orders">
-          <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10">
-            <Package className="h-4 w-4" />
-            <span className="text-sm">შეკვეთები</span>
-          </DropdownMenuItem>
-        </Link>
+
+        <DropdownMenuGroup>
+          <Link href="/profile">
+            <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10">
+              <UserCircle className="h-4 w-4" />
+              <span className="text-sm">პროფილი</span>
+            </DropdownMenuItem>
+          </Link>
+
+          <Link href="/orders">
+            <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10">
+              <Package className="h-4 w-4" />
+              <span className="text-sm">შეკვეთები</span>
+            </DropdownMenuItem>
+          </Link>
+        </DropdownMenuGroup>
 
         {isAdmin && (
           <>
             <DropdownMenuSeparator className="bg-white/10" />
-            <Link href="/admin">
-              <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10 text-amber-400 focus:text-amber-400">
-                <Settings className="h-4 w-4" />
-                <span className="text-sm font-semibold">ადმინ პანელი</span>
-              </DropdownMenuItem>
-            </Link>
+            <DropdownMenuGroup>
+              <Link href="/admin">
+                <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10 text-amber-400 focus:text-amber-400">
+                  <Settings className="h-4 w-4" />
+                  <span className="text-sm font-semibold">ადმინ პანელი</span>
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuGroup>
           </>
         )}
 
         <DropdownMenuSeparator className="bg-white/10" />
-        
-        <DropdownMenuItem 
-          onClick={handleLogout}
-          className="cursor-pointer flex items-center gap-2 p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors focus:bg-red-500/20 focus:text-red-400"
-        >
-          <LogOut className="h-4 w-4" />
-          <span className="text-sm">გასვლა</span>
-        </DropdownMenuItem>
+
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="cursor-pointer flex items-center gap-2 p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors focus:bg-red-500/20 focus:text-red-400"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="text-sm">გასვლა</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

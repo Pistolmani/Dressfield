@@ -129,9 +129,11 @@ export function InteractiveHeroGallery({ images, className, count = 8 }: Interac
               delay: index * 0.1,
             }}
             drag
+            dragConstraints={containerRef}
             dragSnapToOrigin={false}
-            dragElastic={0.35}
+            dragElastic={0.15}
             dragMomentum={true}
+            dragTransition={{ bounceStiffness: 120, bounceDamping: 18, power: 0.3, timeConstant: 180 }}
             whileHover={{ scale: 1.06, transition: { duration: 0.2 } }}
             whileDrag={{ scale: 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" }}
             onPointerDown={(event) => event.stopPropagation()}

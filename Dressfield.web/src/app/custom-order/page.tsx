@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Step1ProductSelector } from "@/components/custom-order/Step1_ProductSelector";
 import { Step2SizeAndColor } from "@/components/custom-order/Step2_SizeAndColor";
 import { Step3DesignUpload } from "@/components/custom-order/Step3_DesignUpload";
 import { Step4Parameters } from "@/components/custom-order/Step4_Parameters";
 import { Step5Summary } from "@/components/custom-order/Step5_Summary";
+import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanvas";
+import { cn } from "@/lib/utils";
 import {
   PRODUCT_TYPES,
   EMBROIDERY_SIZES,
@@ -34,6 +36,10 @@ function isSameTransform(a: DesignTransform | undefined, b: DesignTransform) {
 
 export default function CustomOrderPage() {
   const [step, setStep] = useState(1);
+  const [mobileTab, setMobileTab] = useState<"tools" | "canvas" | "options">("canvas");
+  const [resizeRequest, setResizeRequest] = useState<{ fraction: number; seq: number } | null>(null);
+  const desktopCanvasRef = useRef<ProductCanvasHandle | null>(null);
+  const mobileCanvasRef = useRef<ProductCanvasHandle | null>(null);
 
   // Step 1
   const [selectedProduct, setSelectedProduct] = useState<ProductTypeId | null>(null);
@@ -46,6 +52,8 @@ export default function CustomOrderPage() {
   const [activeSide,   setActiveSide]   = useState<"front" | "back">("front");
   // Step 4
   const [embroiderySize, setEmbroiderySize] = useState<EmbroiderySizeId | null>(null);
+  // Summary note
+  const [orderNote, setOrderNote] = useState("");
 
   // Skipped steps based on selected product
   const skippedSteps = useMemo(
@@ -131,7 +139,7 @@ export default function CustomOrderPage() {
       const colors = selectedProduct ? (PRODUCT_COLORS[selectedProduct] ?? []) : [];
       const hasColor = colors.length === 0 || selectedColor !== null;
       const hasDesign = allDesigns.length > 0;
-      const hasEmbSize = embroiderySize !== null;
+      const hasEmbSize = currentProduct.skipEmbroiderySizePicker || embroiderySize !== null;
       return hasSize && hasColor && hasDesign && hasEmbSize;
     }
     if (step === 5) return true;
@@ -144,6 +152,10 @@ export default function CustomOrderPage() {
       setStep(3); // Enter unified editor
       return;
     }
+    if (step === 3) {
+      setStep(5); // Go directly to summary
+      return;
+    }
     const next = getNextStep(step);
     if (next <= 5) setStep(next);
   };
@@ -153,21 +165,36 @@ export default function CustomOrderPage() {
       setStep(1); // Back to product selector
       return;
     }
+    if (step === 5) {
+      setStep(3); // Back to editor
+      return;
+    }
     const prev = getPrevStep(step);
     if (prev >= 1) setStep(prev);
   };
 
   const handleProductSelect = (id: ProductTypeId) => {
     allDesigns.forEach((design) => revokeIfBlobUrl(design.url));
+    const product = PRODUCT_TYPES.find((p) => p.id === id);
     setSelectedProduct(id);
     setClothingSize(null);
     setSelectedColor(null);
     setFrontDesigns([]);
     setBackDesigns([]);
     setActiveSide("front");
-    setEmbroiderySize(null);
+    // Auto-set embroidery size for products with a fixed zone (e.g. cap)
+    setEmbroiderySize(product?.skipEmbroiderySizePicker ? "S" : null);
+    setOrderNote("");
     setStep(3); // Auto-advance to unified editor
   };
+
+  const handleSizeButtonClick = useCallback((fraction: number) => {
+    setResizeRequest((prev) => ({ fraction, seq: (prev?.seq ?? 0) + 1 }));
+  }, []);
+
+  const handleEmbroiderySizeDetected = useCallback((sizeId: EmbroiderySizeId) => {
+    setEmbroiderySize(sizeId);
+  }, []);
 
   const currentProduct =
     selectedProduct !== null
@@ -177,17 +204,21 @@ export default function CustomOrderPage() {
     embroiderySize !== null
       ? EMBROIDERY_SIZES.find((size) => size.id === embroiderySize) ?? null
       : null;
-  const totalPrice = (currentProduct?.basePrice ?? 0) + (selectedEmbroidery?.extraPrice ?? 0);
+  const embroideryExtra =
+    currentProduct?.skipEmbroiderySizePicker
+      ? 0
+      : (selectedEmbroidery?.extraPrice ?? 0);
+  const totalPrice = (currentProduct?.basePrice ?? 0) + embroideryExtra;
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8 lg:py-12">
+      <div className={cn("max-w-7xl mx-auto px-4", step === 5 ? "py-6 lg:py-8" : "py-8 lg:py-12")}>
         {/* Page header */}
-        <div className="mb-10">
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
+        <div className={cn("mb-10", step === 5 && "mb-6")}>
+          <h1 className={cn("font-extrabold tracking-tight text-gray-900 mb-3", step === 5 ? "text-3xl sm:text-4xl" : "text-4xl sm:text-5xl")}>
             {step === 1 ? "რომელ ტანსაცმელზე გინდა ნაქარგი?" : "შექმენი შენი დიზაინი"}
           </h1>
-          <p className="text-lg text-gray-500 max-w-2xl">
+          <p className={cn("text-gray-500 max-w-2xl", step === 5 ? "text-base" : "text-lg")}>
             {step === 1 
               ? "აირჩიე პროდუქტი კოლექციიდან და მოარგე შენი იდეები." 
               : `თქვენ აარჩიეთ: ${currentProduct?.label}. ახლა კი დაამატეთ დიზაინი.`}
@@ -204,89 +235,195 @@ export default function CustomOrderPage() {
           )}
 
           {step === 3 && currentProduct && selectedProduct && (
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
-              {/* Left Panel: Tools & Layers */}
-              <div className="w-full lg:w-72 space-y-6 lg:sticky lg:top-8">
-                <Step3DesignUpload
-                  product={currentProduct}
-                  designs={activeDesigns}
-                  activeSide={activeSide}
-                  onDesignAdd={addDesign}
-                  onDesignRemove={removeDesign}
-                  onDesignReplace={replaceDesignUrl}
-                  onDesignTransformChange={updateDesignTransform}
-                  onSideChange={setActiveSide}
-                  isSidebarMode
-                />
-              </div>
+            <>
+              {/* ── Desktop: 3-column layout ────────────────────────────── */}
+              <div className="hidden lg:flex flex-row gap-8 items-start">
+                {/* Left Panel: Tools & Layers */}
+                <div className="w-52 space-y-6 sticky top-8">
+                  <Step3DesignUpload
+                    product={currentProduct}
+                    designs={activeDesigns}
+                    activeSide={activeSide}
+                    selectedColor={selectedColor}
+                    onDesignAdd={addDesign}
+                    onDesignRemove={removeDesign}
+                    onDesignReplace={replaceDesignUrl}
+                    onDesignTransformChange={updateDesignTransform}
+                    onSideChange={setActiveSide}
+                    isSidebarMode
+                    sharedCanvasRef={desktopCanvasRef}
+                  />
+                </div>
 
-              {/* Center Panel: Preview */}
-              <div className="flex-1 w-full flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-4 sm:p-10 min-h-[600px] relative shadow-inner">
-                <Step3DesignUpload
-                  product={currentProduct}
-                  designs={activeDesigns}
-                  activeSide={activeSide}
-                  onDesignAdd={addDesign}
-                  onDesignRemove={removeDesign}
-                  onDesignReplace={replaceDesignUrl}
-                  onDesignTransformChange={updateDesignTransform}
-                  onSideChange={setActiveSide}
-                  isCanvasOnly
-                />
-                <Button 
-                  variant="ghost" 
-                  onClick={handleBack}
-                  className="absolute top-6 left-6 text-gray-400 hover:text-black font-medium"
-                >
-                  ← შეცვლა
-                </Button>
-              </div>
-
-              {/* Right Panel: Options & Purchase */}
-              <div className="w-full lg:w-80 space-y-8 lg:sticky lg:top-8">
-                <Step2SizeAndColor
-                  selectedProduct={selectedProduct}
-                  skipSize={currentProduct.skipClothingSize}
-                  selectedSize={clothingSize}
-                  onSizeSelect={setClothingSize}
-                  availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
-                  selectedColor={selectedColor}
-                  onColorSelect={setSelectedColor}
-                />
-                
-                <Step4Parameters
-                  product={currentProduct}
-                  embroiderySize={embroiderySize}
-                  onEmbroiderySizeChange={setEmbroiderySize}
-                  isCompact
-                />
-
-                <div className="pt-8 border-t border-black/8">
-                  <div className="flex items-center justify-between mb-5">
-                    <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Pricing</span>
-                    <div className="text-right">
-                      <p className="text-3xl font-black text-gray-900 leading-none">
-                        GEL {totalPrice.toFixed(2)}
-                      </p>
-                      <p className="text-[10px] text-green-600 font-bold uppercase mt-1">უფასო მიწოდება</p>
-                    </div>
-                  </div>
-                  
+                {/* Center Panel: Preview */}
+                <div className="flex-1 w-full flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-8 min-h-[500px] relative shadow-inner">
+                  <Step3DesignUpload
+                    product={currentProduct}
+                    designs={activeDesigns}
+                    activeSide={activeSide}
+                    selectedColor={selectedColor}
+                    onDesignAdd={addDesign}
+                    onDesignRemove={removeDesign}
+                    onDesignReplace={replaceDesignUrl}
+                    onDesignTransformChange={updateDesignTransform}
+                    onSideChange={setActiveSide}
+                    isCanvasOnly
+                    resizeRequest={resizeRequest}
+                    onEmbroiderySizeDetected={handleEmbroiderySizeDetected}
+                    sharedCanvasRef={desktopCanvasRef}
+                  />
                   <Button
-                    className="h-14 w-full bg-accent text-white text-lg font-bold hover:bg-accent-hover shadow-2xl rounded-2xl hover:scale-[1.02] transition-all"
+                    variant="ghost"
+                    onClick={handleBack}
+                    className="absolute top-6 left-6 text-gray-400 hover:text-black font-medium"
+                  >
+                    ← შეცვლა
+                  </Button>
+                </div>
+
+                {/* Right Panel: Options & Purchase */}
+                <div className="w-80 space-y-8 sticky top-8">
+                  <Step2SizeAndColor
+                    selectedProduct={selectedProduct}
+                    skipSize={currentProduct.skipClothingSize}
+                    selectedSize={clothingSize}
+                    onSizeSelect={setClothingSize}
+                    availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
+                    selectedColor={selectedColor}
+                    onColorSelect={setSelectedColor}
+                  />
+                  <Step4Parameters
+                    product={currentProduct}
+                    embroiderySize={embroiderySize}
+                    onEmbroiderySizeChange={setEmbroiderySize}
+                    isCompact
+                    onSizeButtonClick={handleSizeButtonClick}
+                  />
+                  <div className="pt-8 border-t border-black/8">
+                    <div className="flex items-center justify-between mb-5">
+                      <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Pricing</span>
+                      <div className="text-right [&>p:nth-child(2)]:hidden">
+                        <p className="text-3xl font-black text-gray-900 leading-none">GEL {totalPrice.toFixed(2)}</p>
+                        <p className="text-[10px] text-green-600 font-bold uppercase mt-1">უფასო მიწოდება</p>
+                      </div>
+                    </div>
+                    <Button
+                      className="h-14 w-full bg-accent text-white text-lg font-bold hover:bg-accent-hover shadow-2xl rounded-2xl hover:scale-[1.02] transition-all"
+                      disabled={!isStepComplete()}
+                      onClick={handleNext}
+                    >
+                      შეჯამება & შეკვეთა
+                    </Button>
+                    <p className="mt-4 text-[11px] text-center text-gray-400 leading-relaxed">
+                      გაგრძელებით ეთანხმები მომსახურების პირობებს.<br />
+                      მიწოდების ვადა: 1-3 სამუშაო დღე.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Mobile: tabbed layout ──────────────────────────────────── */}
+              <div className="flex flex-col lg:hidden gap-4">
+                {/* Tab bar */}
+                <div className="flex rounded-2xl border border-black/8 bg-black/5 p-1 gap-1">
+                  {(["tools", "canvas", "options"] as const).map((tab) => {
+                    const labels = { tools: "ინსტრუმენტები", canvas: "კანვასი", options: "პარამეტრები" };
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setMobileTab(tab)}
+                        className={cn(
+                          "flex-1 rounded-xl py-2 text-xs font-bold transition-all",
+                          mobileTab === tab
+                            ? "bg-white text-accent shadow-sm"
+                            : "text-gray-500 hover:text-black"
+                        )}
+                      >
+                        {labels[tab]}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Tab content */}
+                {mobileTab === "tools" && (
+                  <div className="space-y-6">
+                    <Step3DesignUpload
+                      product={currentProduct}
+                      designs={activeDesigns}
+                      activeSide={activeSide}
+                      selectedColor={selectedColor}
+                      onDesignAdd={addDesign}
+                      onDesignRemove={removeDesign}
+                      onDesignReplace={replaceDesignUrl}
+                      onDesignTransformChange={updateDesignTransform}
+                      onSideChange={setActiveSide}
+                      isSidebarMode
+                      sharedCanvasRef={mobileCanvasRef}
+                    />
+                  </div>
+                )}
+
+                <div
+                  className={cn(
+                    "flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-4 min-h-[420px] relative shadow-inner",
+                    mobileTab !== "canvas" && "hidden"
+                  )}
+                >
+                    <Step3DesignUpload
+                      product={currentProduct}
+                      designs={activeDesigns}
+                      activeSide={activeSide}
+                      selectedColor={selectedColor}
+                      onDesignAdd={addDesign}
+                      onDesignRemove={removeDesign}
+                      onDesignReplace={replaceDesignUrl}
+                      onDesignTransformChange={updateDesignTransform}
+                      onSideChange={setActiveSide}
+                      isCanvasOnly
+                      resizeRequest={resizeRequest}
+                      onEmbroiderySizeDetected={handleEmbroiderySizeDetected}
+                      sharedCanvasRef={mobileCanvasRef}
+                    />
+                </div>
+
+                {mobileTab === "options" && (
+                  <div className="space-y-6">
+                    <Step2SizeAndColor
+                      selectedProduct={selectedProduct}
+                      skipSize={currentProduct.skipClothingSize}
+                      selectedSize={clothingSize}
+                      onSizeSelect={setClothingSize}
+                      availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
+                      selectedColor={selectedColor}
+                      onColorSelect={setSelectedColor}
+                    />
+                    <Step4Parameters
+                      product={currentProduct}
+                      embroiderySize={embroiderySize}
+                      onEmbroiderySizeChange={setEmbroiderySize}
+                      isCompact
+                      onSizeButtonClick={handleSizeButtonClick}
+                    />
+                  </div>
+                )}
+
+                {/* Always-visible bottom bar on mobile */}
+                <div className="sticky bottom-4 bg-white rounded-2xl border border-black/8 shadow-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">სულ</span>
+                    <p className="text-2xl font-black text-gray-900">GEL {totalPrice.toFixed(2)}</p>
+                  </div>
+                  <Button
+                    className="h-12 w-full bg-accent text-white text-base font-bold hover:bg-accent-hover shadow-lg rounded-xl transition-all"
                     disabled={!isStepComplete()}
                     onClick={handleNext}
                   >
                     შეჯამება & შეკვეთა
                   </Button>
-                  
-                  <p className="mt-4 text-[11px] text-center text-gray-400 leading-relaxed">
-                    გაგრძელებით ეთანხმები მომსახურების პირობებს.<br />
-                    მიწოდების ვადა: 1-3 სამუშაო დღე.
-                  </p>
                 </div>
               </div>
-            </div>
+            </>
           )}
 
           {step === 5 && selectedProduct !== null && embroiderySize !== null && (
@@ -297,6 +434,8 @@ export default function CustomOrderPage() {
               frontDesigns={frontDesigns}
               backDesigns={backDesigns}
               embroiderySize={embroiderySize}
+              orderNote={orderNote}
+              onOrderNoteChange={setOrderNote}
             />
           )}
         </div>

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, type RefObject } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -9,12 +9,19 @@ import { cn } from "@/lib/utils";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
 import { ImageToolbar } from "@/components/custom-order/ImageToolbar";
 import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanvas";
-import type { DesignItem, DesignTransform, ProductType } from "@/config/custom-order";
+import type {
+  DesignItem,
+  DesignTransform,
+  EmbroiderySizeId,
+  ProductColor,
+  ProductType,
+} from "@/config/custom-order";
 
 interface Step3DesignUploadProps {
   product: ProductType;
   designs: DesignItem[];
   activeSide: "front" | "back";
+  selectedColor?: ProductColor | null;
   onDesignAdd: (url: string) => void;
   onDesignRemove: (id: string) => void;
   onDesignReplace: (id: string, newUrl: string) => void;
@@ -22,12 +29,16 @@ interface Step3DesignUploadProps {
   onSideChange: (side: "front" | "back") => void;
   isSidebarMode?: boolean;
   isCanvasOnly?: boolean;
+  resizeRequest?: { fraction: number; seq: number } | null;
+  onEmbroiderySizeDetected?: (sizeId: EmbroiderySizeId) => void;
+  sharedCanvasRef?: RefObject<ProductCanvasHandle | null>;
 }
 
 export function Step3DesignUpload({
   product,
   designs,
   activeSide,
+  selectedColor: _selectedColor = null,
   onDesignAdd,
   onDesignRemove,
   onDesignReplace,
@@ -35,8 +46,12 @@ export function Step3DesignUpload({
   onSideChange,
   isSidebarMode,
   isCanvasOnly,
+  resizeRequest,
+  onEmbroiderySizeDetected,
+  sharedCanvasRef,
 }: Step3DesignUploadProps) {
-  const canvasRef = useRef<ProductCanvasHandle | null>(null);
+  const localCanvasRef = useRef<ProductCanvasHandle | null>(null);
+  const canvasRef = sharedCanvasRef ?? localCanvasRef;
   const waitToastAtRef = useRef(0);
   const [isRemovingBg, setIsRemovingBg] = useState(false);
 
@@ -130,14 +145,14 @@ export function Step3DesignUpload({
 
       <div className="border-t border-black/5 pt-4">
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
-          შენი შრეები ({designs.length})
+          ატვირთული ფოტოები ({designs.length})
         </p>
         
         {designs.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-center">
             <Plus className="h-5 w-5 text-gray-300 mx-auto mb-2" />
             <p className="text-[11px] text-gray-400 leading-relaxed">
-              ატვირთეთ ფოტო შრეების სამართავად
+              ატვირთეთ ფოტო
             </p>
           </div>
         ) : (
@@ -178,16 +193,16 @@ export function Step3DesignUpload({
   );
 
   const renderCanvas = () => (
-    <div className="flex flex-col items-center gap-8 w-full max-w-[500px]">
+    <div className="flex flex-col items-center gap-4 w-full max-w-[500px]">
       {/* Front / Back toggle */}
       {product.hasBack && (
-        <div className="flex items-center gap-1.5 rounded-full border border-black/5 bg-black/5 p-1.5 shadow-sm">
+        <div className="flex items-center gap-1.5 rounded-full border border-black/10 bg-white p-1.5 shadow-md">
           <button
             onClick={() => handleSideChangeRequest("front")}
             className={cn(
-              "flex items-center justify-center rounded-full px-6 py-2 text-xs font-bold transition-all duration-300",
+              "flex items-center justify-center rounded-full px-7 py-2.5 text-sm font-bold transition-all duration-300",
               activeSide === "front"
-                ? "bg-white text-black shadow-md scale-105"
+                ? "bg-accent text-white shadow-md scale-105"
                 : "text-gray-500 hover:text-black",
               isRemovingBg && "opacity-50 cursor-not-allowed"
             )}
@@ -197,9 +212,9 @@ export function Step3DesignUpload({
           <button
             onClick={() => handleSideChangeRequest("back")}
             className={cn(
-              "flex items-center justify-center rounded-full px-6 py-2 text-xs font-bold transition-all duration-300",
+              "flex items-center justify-center rounded-full px-7 py-2.5 text-sm font-bold transition-all duration-300",
               activeSide === "back"
-                ? "bg-white text-black shadow-md scale-105"
+                ? "bg-accent text-white shadow-md scale-105"
                 : "text-gray-500 hover:text-black",
               isRemovingBg && "opacity-50 cursor-not-allowed"
             )}
@@ -209,13 +224,15 @@ export function Step3DesignUpload({
         </div>
       )}
 
-      <div className="relative group/canvas w-full aspect-square max-w-[450px]">
+      <div className="relative group/canvas w-full aspect-square max-w-[500px]">
         <ProductCanvas
           ref={canvasRef}
           product={product}
           designs={designs}
           activeSide={activeSide}
           onDesignTransformChange={onDesignTransformChange}
+          onEmbroiderySizeDetected={onEmbroiderySizeDetected}
+          resizeRequest={resizeRequest}
         />
         
         {/* Loading Overlay */}
@@ -233,12 +250,7 @@ export function Step3DesignUpload({
         )}
       </div>
 
-      {designs.length === 0 && !isRemovingBg && (
-        <div className="flex flex-col items-center gap-3 animate-pulse">
-          <Upload className="h-6 w-6 text-gray-300" />
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">ატვირთე დიზაინი პრევიუსთვის</p>
-        </div>
-      )}
+      {/* empty placeholder removed */}
     </div>
   );
 

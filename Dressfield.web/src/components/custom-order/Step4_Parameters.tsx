@@ -13,6 +13,7 @@ interface Step4ParametersProps {
   embroiderySize: EmbroiderySizeId | null;
   onEmbroiderySizeChange: (id: EmbroiderySizeId) => void;
   isCompact?: boolean;
+  onSizeButtonClick?: (fraction: number) => void;
 }
 
 export function Step4Parameters({
@@ -20,9 +21,10 @@ export function Step4Parameters({
   embroiderySize,
   onEmbroiderySizeChange,
   isCompact,
+  onSizeButtonClick,
 }: Step4ParametersProps) {
   const selectedEmbSize = EMBROIDERY_SIZES.find((s) => s.id === embroiderySize);
-  const extraPrice = selectedEmbSize?.extraPrice ?? 0;
+  const extraPrice = product.skipEmbroiderySizePicker ? 0 : (selectedEmbSize?.extraPrice ?? 0);
 
   return (
     <div className="space-y-8">
@@ -36,51 +38,58 @@ export function Step4Parameters({
       {/* Embroidery size */}
       <div className="space-y-3">
         <h3 className="text-2xl font-semibold text-gray-500">ნაქარგის ზომა</h3>
-        <div className="flex flex-wrap gap-3">
-          {EMBROIDERY_SIZES.map((s) => {
-            const isSelected = embroiderySize === s.id;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => onEmbroiderySizeChange(s.id)}
-                className={cn(
-                  "flex flex-col items-center gap-1 rounded-2xl border px-5 py-3 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-w-[80px]",
-                  isSelected
-                    ? "border-accent bg-violet-50 shadow-md"
-                    : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
-                )}
-              >
-                <span
+        {product.skipEmbroiderySizePicker ? (
+          <div className="rounded-2xl border border-accent/30 bg-violet-50 px-5 py-4">
+            <p className="text-sm font-bold text-accent">ნაქარგის ზომა: 6×30სმ (მაქს.)</p>
+            <p className="text-xs text-gray-500 mt-1">კეპისთვის ნაქარგის ზონა ფიქსირებულია</p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {EMBROIDERY_SIZES.map((s) => {
+              const isSelected = embroiderySize === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => { onEmbroiderySizeChange(s.id); onSizeButtonClick?.(s.zoneScaleFraction); }}
                   className={cn(
-                    "text-xl font-bold",
-                    isSelected ? "text-accent" : "text-foreground"
+                    "flex flex-col items-center gap-1 rounded-2xl border px-5 py-3 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-w-[80px]",
+                    isSelected
+                      ? "border-accent bg-violet-50 shadow-md"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
                   )}
                 >
-                  {s.label}
-                </span>
-                <span
-                  className={cn(
-                    "text-xs text-center leading-tight",
-                    isSelected ? "text-accent/80" : "text-gray-400"
-                  )}
-                >
-                  {s.note}
-                </span>
-                {s.extraPrice > 0 && (
                   <span
                     className={cn(
-                      "text-xs font-medium",
-                      isSelected ? "text-accent" : "text-gray-500"
+                      "text-xl font-bold",
+                      isSelected ? "text-accent" : "text-foreground"
                     )}
                   >
-                    +₾{s.extraPrice}
+                    {s.label}
                   </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+                  <span
+                    className={cn(
+                      "text-xs text-center leading-tight",
+                      isSelected ? "text-accent/80" : "text-gray-400"
+                    )}
+                  >
+                    {s.note}
+                  </span>
+                  {s.extraPrice > 0 && (
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        isSelected ? "text-accent" : "text-gray-500"
+                      )}
+                    >
+                      +₾{s.extraPrice}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Price summary - only show if not compact */}

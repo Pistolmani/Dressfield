@@ -17,7 +17,7 @@ export default async function HomePage() {
       <section className="relative bg-black overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="/hero-embroidery.jpg"
+            src="/hero-main-bg.jpg"
             alt="Georgian embroidery collection"
             className="h-full w-full object-cover opacity-40 pointer-events-none"
           />

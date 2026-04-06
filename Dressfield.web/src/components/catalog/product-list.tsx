@@ -21,10 +21,12 @@ export function ProductList({
   const addItem = useCartStore((state) => state.addItem);
 
   function handleAddToCart(product: ProductSummaryDto) {
+    const displayPrice = product.effectivePrice ?? product.basePrice;
+
     addItem({
       productId: product.id,
       name: product.name,
-      price: product.basePrice,
+      price: displayPrice,
       quantity: 1,
       imageUrl: product.primaryImageUrl || undefined,
     });
@@ -32,7 +34,7 @@ export function ProductList({
     trackAddToCart({
       contentId: String(product.id),
       contentName: product.name,
-      value: product.basePrice,
+      value: displayPrice,
       quantity: 1,
     });
 
@@ -64,11 +66,15 @@ export function ProductList({
 
   return (
     <div className="rounded-lg border border-black/8 bg-white shadow-sm overflow-hidden">
-      {products.map((product) => (
-        <div
-          key={product.id}
-          className="flex gap-4 p-4 border-b border-black/8 last:border-b-0 hover:bg-black/2 transition-colors"
-        >
+      {products.map((product) => {
+        const displayPrice = product.effectivePrice ?? product.basePrice;
+        const hasSale = product.isOnSale && product.salePercentage > 0 && displayPrice < product.basePrice;
+
+        return (
+          <div
+            key={product.id}
+            className="flex gap-4 p-4 border-b border-black/8 last:border-b-0 hover:bg-black/2 transition-colors"
+          >
           <Link href={`/products/${product.slug}`} className="flex-shrink-0">
             <img
               src={product.primaryImageUrl || fallbackImage}
@@ -100,9 +106,16 @@ export function ProductList({
           </div>
 
           <div className="flex flex-col items-end justify-center gap-2 flex-shrink-0">
-            <span className="font-ui text-lg font-bold text-accent whitespace-nowrap">
-              {formatPrice(product.basePrice)}
-            </span>
+            <div className="flex flex-col items-end leading-none">
+              {hasSale ? (
+                <span className="mb-1 text-xs text-gray-400 line-through whitespace-nowrap">
+                  {formatPrice(product.basePrice)}
+                </span>
+              ) : null}
+              <span className="font-ui text-lg font-bold text-accent whitespace-nowrap">
+                {formatPrice(displayPrice)}
+              </span>
+            </div>
             <Button
               size="sm"
               className="bg-accent text-xs text-white hover:bg-accent-hover whitespace-nowrap"
@@ -111,8 +124,9 @@ export function ProductList({
               კალათაში
             </Button>
           </div>
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -4,9 +4,14 @@
   slug: string;
   shortDescription: string | null;
   basePrice: number;
+  salePercentage: number;
+  effectivePrice: number;
+  isOnSale: boolean;
   primaryImageUrl: string | null;
   isActive: boolean;
   isFeatured: boolean;
+  categorySlug?: string | null;
+  categoryName?: string | null;
 };
 
 export type ProductImageDto = {
@@ -34,6 +39,9 @@ export type ProductDetailDto = {
   shortDescription: string | null;
   description: string;
   basePrice: number;
+  salePercentage: number;
+  effectivePrice: number;
+  isOnSale: boolean;
   sku: string | null;
   isActive: boolean;
   isFeatured: boolean;
@@ -63,6 +71,7 @@ export type ProductPayload = {
   shortDescription: string | null;
   description: string;
   basePrice: number;
+  salePercentage: number;
   sku: string | null;
   isActive: boolean;
   isFeatured: boolean;

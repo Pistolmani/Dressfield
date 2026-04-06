@@ -3,6 +3,30 @@ import { persist } from "zustand/middleware";
 import { getAccessToken } from "@/lib/api";
 import { syncServerCart } from "@/lib/cart-api";
 
+export interface CustomOrderData {
+  productLabel?: string;
+  productTypeId: string;
+  clothingSize?: string;
+  selectedColor?: { id: string; label: string; hex: string };
+  embroiderySize: string;
+  frontDesignCount: number;
+  backDesignCount: number;
+  designs?: Array<{
+    url: string;
+    side: "front" | "back";
+    sortOrder: number;
+    transform?: {
+      left: number;
+      top: number;
+      scaleX: number;
+      scaleY: number;
+      angle: number;
+    };
+  }>;
+  orderNote?: string;
+  canvasPreviewUrl?: string;
+}
+
 export interface CartItem {
   productId: number;
   variantId?: number;
@@ -11,6 +35,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   imageUrl?: string;
+  customOrderData?: CustomOrderData;
 }
 
 interface CartState {
@@ -100,8 +125,10 @@ useCartStore.subscribe((state, prevState) => {
   if (suppressSync) return;
   if (!getAccessToken()) return;
 
+  // Exclude custom order items (they have timestamp productIds and no server counterpart)
+  const syncableItems = state.items.filter((item) => !item.customOrderData);
   const snapshot = JSON.stringify(
-    state.items.map((item) => ({
+    syncableItems.map((item) => ({
       productId: item.productId,
       variantId: item.variantId ?? null,
       quantity: item.quantity,
@@ -114,7 +141,7 @@ useCartStore.subscribe((state, prevState) => {
 
   syncTimer = setTimeout(async () => {
     try {
-      await syncServerCart(useCartStore.getState().items);
+      await syncServerCart(useCartStore.getState().items.filter((i) => !i.customOrderData));
       lastSyncedSnapshot = snapshot;
     } catch {
       // Keep local cart untouched; next mutation retries sync.

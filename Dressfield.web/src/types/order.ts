@@ -67,6 +67,9 @@ export interface OrderDetailDto {
   shippingPostalCode: string | null;
   status: OrderStatus;
   subtotal: number;
+  promoDiscountAmount: number;
+  promoDiscountPercentage: number | null;
+  promoCode: string | null;
   shippingCost: number;
   totalAmount: number;
   customerNotes: string | null;
@@ -84,9 +87,10 @@ export interface OrderStatusLookupDto {
 }
 
 export interface CartItemRequest {
-  productId: number;
+  productId: number | string;
   variantId?: number;
   quantity: number;
+  customOrderData?: any;
 }
 
 export interface CreateOrderRequest {
@@ -96,6 +100,7 @@ export interface CreateOrderRequest {
   shippingCity: string;
   shippingAddressLine1: string;
   shippingAddressLine2?: string;
+  promoCode?: string;
   customerNotes?: string;
   items: CartItemRequest[];
 }
