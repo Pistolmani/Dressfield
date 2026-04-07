@@ -1,0 +1,39 @@
+Options -Indexes
+
+# Serve pre-rendered Next.js static export on Apache/Hostinger
+# Handles trailing-slash URLs → index.html
+
+RewriteEngine On
+
+# If the request is for an existing file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Strip trailing slash for file lookup (except root)
+RewriteCond %{REQUEST_URI} ^/(.+)/$
+RewriteCond %{DOCUMENT_ROOT}/%1/index.html -f
+RewriteRule ^(.+)/$ /$1/index.html [L]
+
+# Route extensionless URLs to their index.html
+RewriteCond %{REQUEST_URI} !/$
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f
+RewriteRule ^(.*)$ /$1/index.html [L]
+
+# Fallback to 404 page
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /404.html [L]
+
+# Cache static assets for 1 year
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
