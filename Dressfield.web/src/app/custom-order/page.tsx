@@ -235,21 +235,22 @@ export default function CustomOrderPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className={cn("max-w-7xl mx-auto px-4", step === 5 ? "py-6 lg:py-8" : "py-8 lg:py-12")}>
-        {/* Page header */}
-        <div className={cn("mb-10", step === 5 && "mb-6")}>
-          <h1 className={cn("font-extrabold tracking-tight text-gray-900 mb-3", step === 5 ? "text-3xl sm:text-4xl" : "text-4xl sm:text-5xl")}>
+      <div className={cn("max-w-7xl mx-auto px-4", step === 5 ? "py-4 lg:py-8" : "py-4 lg:py-12")}>
+        {/* Page header — compact on mobile when in editor */}
+        <div className={cn(step === 3 ? "mb-4" : "mb-8", step === 5 && "mb-6")}>
+          <h1 className={cn("font-extrabold tracking-tight text-gray-900 mb-1", step === 5 ? "text-2xl sm:text-4xl" : step === 3 ? "text-xl sm:text-5xl" : "text-3xl sm:text-5xl")}>
             {step === 1 ? "რომელ ტანსაცმელზე გინდა ნაქარგი?" : "შექმენი შენი დიზაინი"}
           </h1>
-          <p className={cn("text-gray-500 max-w-2xl", step === 5 ? "text-base" : "text-lg")}>
+          <p className={cn("text-gray-500 max-w-2xl", step === 5 ? "text-sm" : step === 3 ? "text-xs sm:text-lg" : "text-base sm:text-lg")}>
             {step === 1 
               ? "აირჩიე პროდუქტი კოლექციიდან და მოარგე შენი იდეები." 
-              : `თქვენ აარჩიეთ: ${currentProduct?.label}. ახლა კი დაამატეთ დიზაინი.`}
+              : `${currentProduct?.label} · დაამატე დიზაინი`}
           </p>
         </div>
 
         {/* Unified Step Content */}
-        <div className="min-h-[500px]">
+        <div className={step === 3 ? "" : "min-h-[500px]" }>
+
           {step === 1 && (
             <Step1ProductSelector
               products={visibleProducts}
@@ -348,13 +349,10 @@ export default function CustomOrderPage() {
               </div>
 
               {/* Mobile: one scrollable layout */}
-              <div className="flex flex-col lg:hidden gap-4">
-                <div className="flex items-center justify-center gap-2 rounded-2xl border border-black/8 bg-black/5 px-4 py-2 text-[11px] font-semibold text-gray-600">
-                  <span>გადაახვიე ქვემოთ ინსტრუმენტებისა და ზომისთვის</span>
-                  <span className="inline-block animate-bounce">↓</span>
-                </div>
+              {/* NOTE: pb-36 ensures content is not hidden behind the sticky footer */}
+              <div className="flex flex-col lg:hidden gap-3 pb-36">
 
-                <div className="flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-4 min-h-[420px] relative shadow-inner">
+                <div className="flex flex-col items-center justify-center bg-gray-50 rounded-2xl border border-black/5 p-3 relative shadow-inner">
                   <Step3DesignUpload
                     product={currentProduct}
                     designs={activeDesigns}
@@ -407,13 +405,13 @@ export default function CustomOrderPage() {
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 rounded-b-3xl bg-gradient-to-t from-white to-transparent" />
                 </div>
 
-                <div className="sticky bottom-4 bg-white rounded-2xl border border-black/8 shadow-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">სულ</span>
-                    <p className="text-2xl font-black text-gray-900">GEL {totalPrice.toFixed(2)}</p>
+                <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur-sm border-t border-black/8 shadow-2xl px-4 py-3 flex items-center gap-3">
+                  <div className="flex flex-col leading-tight">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">სულ</span>
+                    <p className="text-xl font-black text-gray-900">GEL {totalPrice.toFixed(2)}</p>
                   </div>
                   <Button
-                    className="h-12 w-full bg-accent text-white text-base font-bold hover:bg-accent-hover shadow-lg rounded-xl transition-all"
+                    className="flex-1 h-12 bg-accent text-white text-base font-bold hover:bg-accent-hover shadow-lg rounded-xl transition-all"
                     disabled={!isStepComplete()}
                     onClick={handleNext}
                   >
