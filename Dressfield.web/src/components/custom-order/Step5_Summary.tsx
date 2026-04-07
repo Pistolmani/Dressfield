@@ -19,6 +19,7 @@ import {
 
 interface Step5SummaryProps {
   selectedProduct: ProductTypeId;
+  orderIntent?: "own-product" | "buy-product";
   clothingSize: ClothingSize | null;
   frontDesigns: DesignItem[];
   backDesigns: DesignItem[];
@@ -39,6 +40,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 export function Step5Summary({
   selectedProduct,
+  orderIntent,
   clothingSize,
   frontDesigns,
   backDesigns,
@@ -54,8 +56,10 @@ export function Step5Summary({
 
   const product = PRODUCT_TYPES.find((p) => p.id === selectedProduct)!;
   const embrSize = EMBROIDERY_SIZES.find((s) => s.id === embroiderySize)!;
+  const isOwnProductMode = orderIntent === "own-product";
+  const basePrice = isOwnProductMode ? 0 : product.basePrice;
   const embroideryExtra = product.skipEmbroiderySizePicker ? 0 : embrSize.extraPrice;
-  const totalPrice = product.basePrice + embroideryExtra;
+  const totalPrice = basePrice + embroideryExtra;
 
   const handleSubmit = () => {
     const existingCustomIds = useCartStore
@@ -86,6 +90,7 @@ export function Step5Summary({
         productTypeId: selectedProduct,
         clothingSize: clothingSize ?? undefined,
         selectedColor: selectedColor ?? undefined,
+        orderIntent,
         embroiderySize,
         frontDesignCount: frontDesigns.length,
         backDesignCount: backDesigns.length,
@@ -141,6 +146,12 @@ export function Step5Summary({
         <h2 className="text-lg font-semibold text-foreground">Order summary</h2>
 
         <div className="space-y-2">
+          {orderIntent && (
+            <SummaryRow
+              label="Order type"
+              value={orderIntent === "own-product" ? "Own product" : "Buy product + design"}
+            />
+          )}
           <SummaryRow label="Product" value={product.label} />
           {clothingSize && <SummaryRow label="Size" value={clothingSize} />}
           {selectedColor && <SummaryRow label="Color" value={selectedColor.label} />}
@@ -172,10 +183,12 @@ export function Step5Summary({
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-2.5">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500">Base</span>
-          <span className="font-medium">GEL {product.basePrice.toFixed(2)}</span>
-        </div>
+        {!isOwnProductMode ? (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">Base</span>
+            <span className="font-medium">GEL {basePrice.toFixed(2)}</span>
+          </div>
+        ) : null}
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-500">Embroidery</span>
           <span className="font-medium">GEL {embroideryExtra.toFixed(2)}</span>

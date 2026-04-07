@@ -17,8 +17,8 @@ import { useAuth } from "@/lib/auth";
 import type { PromoCodeValidationResultDto } from "@/types/promo-code";
 
 type Step = "form" | "review";
-
-const SHIPPING_COST = Number(process.env.NEXT_PUBLIC_SHIPPING_COST ?? "5");
+const TBILISI_SHIPPING_COST = 5;
+const OTHER_CITIES_SHIPPING_COST = 15;
 
 interface FormData {
   contactName: string;
@@ -112,6 +112,36 @@ function roundMoney(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+function allocateDiscountByShare(subtotals: number[], totalDiscount: number): number[] {
+  const normalizedSubtotals = subtotals.map((value) => Math.max(0, roundMoney(value)));
+  const subtotalSum = roundMoney(normalizedSubtotals.reduce((sum, value) => sum + value, 0));
+  const normalizedDiscount = Math.min(subtotalSum, Math.max(0, roundMoney(totalDiscount)));
+
+  if (subtotalSum <= 0 || normalizedDiscount <= 0) {
+    return normalizedSubtotals.map(() => 0);
+  }
+
+  const discounts = normalizedSubtotals.map((subtotal) =>
+    roundMoney(Math.min(subtotal, (normalizedDiscount * subtotal) / subtotalSum))
+  );
+
+  let remaining = roundMoney(
+    normalizedDiscount - discounts.reduce((sum, value) => sum + value, 0)
+  );
+
+  if (remaining > 0) {
+    for (let index = discounts.length - 1; index >= 0 && remaining > 0; index -= 1) {
+      const available = roundMoney(normalizedSubtotals[index] - discounts[index]);
+      if (available <= 0) continue;
+      const delta = Math.min(available, remaining);
+      discounts[index] = roundMoney(discounts[index] + delta);
+      remaining = roundMoney(remaining - delta);
+    }
+  }
+
+  return discounts;
+}
+
 function buildDesignSources(item: ReturnType<typeof useCartStore.getState>["items"][number]) {
   const fromPayload =
     item.customOrderData?.designs
@@ -148,6 +178,15 @@ function mergeNotes(globalNote: string, itemNote?: string) {
   return parts.length > 0 ? parts.join("\n\n") : null;
 }
 
+function getShippingCostByCity(city: string): number {
+  const normalized = city.trim().toLowerCase();
+  if (!normalized) return TBILISI_SHIPPING_COST;
+  if (normalized === "tbilisi" || normalized === "თბილისი") {
+    return TBILISI_SHIPPING_COST;
+  }
+  return OTHER_CITIES_SHIPPING_COST;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalPrice, clearCart } = useCartStore();
@@ -165,7 +204,8 @@ export default function CheckoutPage() {
 
   const regularItems = items.filter((item) => !item.customOrderData);
   const customItems = items.filter((item) => Boolean(item.customOrderData));
-  const promoEligible = regularItems.length > 0 && customItems.length === 0;
+  const promoEligible = items.length > 0;
+  const shippingCost = getShippingCostByCity(form.shippingCity);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -185,7 +225,7 @@ export default function CheckoutPage() {
     }
 
     const subtotal = totalPrice();
-    const total = subtotal + SHIPPING_COST;
+    const total = subtotal + shippingCost;
 
     trackInitiateCheckout({
       contentIds: Array.from(new Set(items.map((item) => String(item.productId)))),
@@ -194,7 +234,7 @@ export default function CheckoutPage() {
     });
 
     hasTrackedInitiateCheckoutRef.current = true;
-  }, [items, totalPrice]);
+  }, [items, shippingCost, totalPrice]);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -343,8 +383,20 @@ export default function CheckoutPage() {
       if (customItems.length > 0) {
         const createdCustomOrderIds: number[] = [];
         let uploadSequence = 0;
+        const customItemSubtotals = customItems.map((item) => roundMoney(item.price * item.quantity));
+        const customSubtotal = roundMoney(
+          customItemSubtotals.reduce((sum, itemSubtotal) => sum + itemSubtotal, 0)
+        );
+        const customPromoDiscount =
+          appliedPromo && customSubtotal > 0
+            ? Math.min(
+                customSubtotal,
+                roundMoney((customSubtotal * appliedPromo.discountPercentage) / 100)
+              )
+            : 0;
+        const customItemDiscounts = allocateDiscountByShare(customItemSubtotals, customPromoDiscount);
 
-        for (const item of customItems) {
+        for (const [itemIndex, item] of customItems.entries()) {
           const sources = buildDesignSources(item);
           if (sources.length === 0) {
             throw new Error("Custom დიზაინის სურათი ვერ მოიძებნა.");
@@ -385,17 +437,28 @@ export default function CheckoutPage() {
           }
 
           const quantityNote = item.quantity > 1 ? `Quantity: ${item.quantity}` : "";
+          const itemPromoDiscount = customItemDiscounts[itemIndex] ?? 0;
+          const promoNote =
+            itemPromoDiscount > 0 && appliedPromo?.code
+              ? `Promo (${appliedPromo.code}): -${itemPromoDiscount.toFixed(2)} GEL`
+              : "";
           const itemNotes = [item.customOrderData?.orderNote, quantityNote]
             .filter((value): value is string => Boolean(value && value.trim()))
             .join("\n");
+          const mergedItemNotes = [itemNotes, promoNote]
+            .filter((value): value is string => Boolean(value && value.trim()))
+            .join("\n");
+          const itemTotalPrice = roundMoney(
+            Math.max(0, (customItemSubtotals[itemIndex] ?? 0) - itemPromoDiscount)
+          );
 
           const customOrder = await submitCustomOrder({
             baseProductId: null,
             contactName,
             contactPhone,
             contactEmail,
-            totalPrice: item.price * item.quantity,
-            customerNotes: mergeNotes(sharedCustomerNotes, itemNotes),
+            totalPrice: itemTotalPrice,
+            customerNotes: mergeNotes(sharedCustomerNotes, mergedItemNotes),
             designs,
           });
 
@@ -416,7 +479,7 @@ export default function CheckoutPage() {
         shippingCity,
         shippingAddressLine1,
         shippingAddressLine2,
-        promoCode: promoEligible ? appliedPromo?.code ?? undefined : undefined,
+        promoCode: appliedPromo?.code ?? undefined,
         customerNotes: sharedCustomerNotes || undefined,
         items: regularItems.map((item) => ({
           productId: item.productId,
@@ -452,12 +515,12 @@ export default function CheckoutPage() {
   }
 
   const subtotal = totalPrice();
-  const promoDiscountPercentage = promoEligible && appliedPromo ? appliedPromo.discountPercentage : 0;
+  const promoDiscountPercentage = appliedPromo ? appliedPromo.discountPercentage : 0;
   const promoDiscount =
-    promoEligible && appliedPromo
+    appliedPromo
       ? Math.min(subtotal, roundMoney(subtotal * promoDiscountPercentage / 100))
       : 0;
-  const total = roundMoney(Math.max(0, subtotal - promoDiscount) + SHIPPING_COST);
+  const total = roundMoney(Math.max(0, subtotal - promoDiscount) + shippingCost);
 
   // Order summary panel — shown on both steps
   const OrderSummary = () => (
@@ -489,7 +552,7 @@ export default function CheckoutPage() {
           <span>ჯამი</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
-        {promoEligible && appliedPromo ? (
+        {appliedPromo ? (
           <div className="flex justify-between text-green-600">
             <span>Promo ({promoDiscountPercentage}%)</span>
             <span>-{formatPrice(promoDiscount)}</span>
@@ -497,7 +560,7 @@ export default function CheckoutPage() {
         ) : null}
         <div className="flex justify-between text-muted-foreground">
           <span>მიწოდება</span>
-          <span>{formatPrice(SHIPPING_COST)}</span>
+          <span>{formatPrice(shippingCost)}</span>
         </div>
         <div className="flex justify-between font-bold text-base pt-1 border-t border-black/8">
           <span>სულ</span>
@@ -620,53 +683,47 @@ export default function CheckoutPage() {
                   </Field>
                 </div>
 
-                {promoEligible ? (
-                  <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-3">
-                    <h2 className="font-semibold text-base">Promo Code</h2>
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <input
-                        type="text"
-                        value={promoCodeInput}
-                        onChange={(event) => {
-                          setPromoCodeInput(event.target.value.toUpperCase());
-                          setPromoApplyError(null);
-                        }}
-                        className={inputCls(false)}
-                        placeholder="Enter promo code"
-                        disabled={promoApplying || submitting || Boolean(appliedPromo)}
-                      />
-                      {appliedPromo ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleRemovePromoCode}
-                          disabled={promoApplying || submitting}
-                        >
-                          Remove
-                        </Button>
-                      ) : (
-                        <Button
-                          type="button"
-                          className="bg-accent text-white hover:bg-accent-hover"
-                          onClick={handleApplyPromoCode}
-                          disabled={promoApplying || submitting}
-                        >
-                          {promoApplying ? "Applying..." : "Apply"}
-                        </Button>
-                      )}
-                    </div>
+                <div className="rounded-2xl border border-black/8 bg-white p-6 space-y-3">
+                  <h2 className="font-semibold text-base">Promo Code</h2>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="text"
+                      value={promoCodeInput}
+                      onChange={(event) => {
+                        setPromoCodeInput(event.target.value.toUpperCase());
+                        setPromoApplyError(null);
+                      }}
+                      className={inputCls(false)}
+                      placeholder="Enter promo code"
+                      disabled={promoApplying || submitting || Boolean(appliedPromo)}
+                    />
                     {appliedPromo ? (
-                      <p className="text-xs text-green-600">
-                        Applied: {appliedPromo.code} ({appliedPromo.discountPercentage}% off)
-                      </p>
-                    ) : null}
-                    {promoApplyError ? <p className="text-xs text-red-500">{promoApplyError}</p> : null}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleRemovePromoCode}
+                        disabled={promoApplying || submitting}
+                      >
+                        Remove
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        className="bg-accent text-white hover:bg-accent-hover"
+                        onClick={handleApplyPromoCode}
+                        disabled={promoApplying || submitting}
+                      >
+                        {promoApplying ? "Applying..." : "Apply"}
+                      </Button>
+                    )}
                   </div>
-                ) : customItems.length > 0 ? (
-                  <div className="rounded-2xl border border-black/8 bg-white p-4 text-xs text-muted-foreground">
-                    Promo codes are available for catalog product checkout.
-                  </div>
-                ) : null}
+                  {appliedPromo ? (
+                    <p className="text-xs text-green-600">
+                      Applied: {appliedPromo.code} ({appliedPromo.discountPercentage}% off)
+                    </p>
+                  ) : null}
+                  {promoApplyError ? <p className="text-xs text-red-500">{promoApplyError}</p> : null}
+                </div>
 
                 <Button
                   className="w-full bg-accent text-white hover:bg-accent-hover h-12 text-base font-semibold"

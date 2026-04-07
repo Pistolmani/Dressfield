@@ -10,24 +10,12 @@ export type ProductCategoryFilter = {
   name: string;
 };
 
-export type ProductPriceFilter = "all" | "0-49" | "50-99" | "100-149" | "150+";
-
-export const productPriceFilters: Array<{ value: ProductPriceFilter; label: string }> = [
-  { value: "all", label: "ყველა ფასი" },
-  { value: "0-49", label: "0 - 49 GEL" },
-  { value: "50-99", label: "50 - 99 GEL" },
-  { value: "100-149", label: "100 - 149 GEL" },
-  { value: "150+", label: "150+ GEL" },
-];
-
 interface ProductFiltersSidebarProps {
   sort: ProductSort;
   onSortChange: (sort: ProductSort) => void;
   categories: ProductCategoryFilter[];
   activeCategory: string | null;
   onCategoryChange: (slug: string | null) => void;
-  priceFilter: ProductPriceFilter;
-  onPriceFilterChange: (value: ProductPriceFilter) => void;
   onClose?: () => void;
   isOpen?: boolean;
 }
@@ -38,14 +26,11 @@ export function ProductFiltersSidebar({
   categories,
   activeCategory,
   onCategoryChange,
-  priceFilter,
-  onPriceFilterChange,
   onClose,
   isOpen = true,
 }: ProductFiltersSidebarProps) {
   const [expandSort, setExpandSort] = useState(true);
   const [expandCategory, setExpandCategory] = useState(true);
-  const [expandPrice, setExpandPrice] = useState(true);
 
   const runAndClose = (action: () => void) => {
     action();
@@ -162,40 +147,6 @@ export function ProductFiltersSidebar({
                     კატეგორიები ჯერ არ არის დამატებული.
                   </p>
                 ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          <div>
-            <button
-              onClick={() => setExpandPrice((prev) => !prev)}
-              className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-black/5 transition-colors"
-            >
-              <h3 className="font-ui font-semibold text-sm text-foreground">ფასი</h3>
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 text-muted-foreground transition-transform",
-                  expandPrice && "rotate-180",
-                )}
-              />
-            </button>
-
-            {expandPrice ? (
-              <div className="mt-2 space-y-1 pl-3">
-                {productPriceFilters.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => runAndClose(() => onPriceFilterChange(option.value))}
-                    className={cn(
-                      "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
-                      priceFilter === option.value
-                        ? "bg-accent/10 font-semibold text-accent"
-                        : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
               </div>
             ) : null}
           </div>

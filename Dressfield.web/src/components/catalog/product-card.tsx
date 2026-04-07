@@ -80,7 +80,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
       onMouseLeave={() => { setIsHovered(false); setCurrentIndex(0); }}
     >
       <div className="relative block aspect-[3/4] overflow-hidden bg-gray-50 rounded-xl">
-        <Link href={`/products/${product.slug}`} className="block h-full w-full">
+        <Link
+          href={{ pathname: "/product", query: { slug: product.slug } }}
+          className="block h-full w-full"
+        >
           <img
             src={currentImageUrl}
             alt={product.name}
@@ -158,7 +161,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
 
       <div className="flex flex-col pt-4 pb-2 px-1">
         <div className="flex justify-between items-start gap-2 mb-1">
-          <Link href={`/products/${product.slug}`} className="block flex-1">
+          <Link
+            href={{ pathname: "/product", query: { slug: product.slug } }}
+            className="block flex-1"
+          >
             <h3 className="font-ui text-sm font-medium text-gray-900 group-hover:text-accent transition-colors line-clamp-1">
               {product.name}
             </h3>

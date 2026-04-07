@@ -2,15 +2,19 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { PRODUCT_TYPES, type ProductTypeId } from "@/config/custom-order";
+import { PRODUCT_TYPES, type ProductType, type ProductTypeId } from "@/config/custom-order";
 
 interface Step1ProductSelectorProps {
+  products?: readonly ProductType[];
   selected: ProductTypeId | null;
+  ownProductMode?: boolean;
   onSelect: (id: ProductTypeId) => void;
 }
 
 export function Step1ProductSelector({
+  products = PRODUCT_TYPES,
   selected,
+  ownProductMode = false,
   onSelect,
 }: Step1ProductSelectorProps) {
   return (
@@ -25,7 +29,8 @@ export function Step1ProductSelector({
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {PRODUCT_TYPES.map((product) => {
+        {products.map((rawProduct) => {
+          const product = ownProductMode ? { ...rawProduct, basePrice: 0 } : rawProduct;
           const isSelected = selected === product.id;
           return (
             <button

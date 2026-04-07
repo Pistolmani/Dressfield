@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Step1ProductSelector } from "@/components/custom-order/Step1_ProductSelector";
 import { Step2SizeAndColor } from "@/components/custom-order/Step2_SizeAndColor";
@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import {
   PRODUCT_TYPES,
   EMBROIDERY_SIZES,
-  PRODUCT_COLORS,
   getSkippedSteps,
   type DesignItem,
   type DesignTransform,
@@ -34,9 +33,11 @@ function isSameTransform(a: DesignTransform | undefined, b: DesignTransform) {
   );
 }
 
+type OrderIntent = "own-product" | "buy-product";
+
 export default function CustomOrderPage() {
   const [step, setStep] = useState(1);
-  const [mobileTab, setMobileTab] = useState<"tools" | "canvas" | "options">("canvas");
+  const [orderIntent, setOrderIntent] = useState<OrderIntent | null>(null);
   const [resizeRequest, setResizeRequest] = useState<{ fraction: number; seq: number } | null>(null);
   const desktopCanvasRef = useRef<ProductCanvasHandle | null>(null);
   const mobileCanvasRef = useRef<ProductCanvasHandle | null>(null);
@@ -55,11 +56,32 @@ export default function CustomOrderPage() {
   // Summary note
   const [orderNote, setOrderNote] = useState("");
 
+  const visibleProducts = useMemo(
+    () => PRODUCT_TYPES.filter((product) => orderIntent === "own-product" || product.id !== "jeans"),
+    [orderIntent],
+  );
+
   // Skipped steps based on selected product
   const skippedSteps = useMemo(
     () => (selectedProduct ? getSkippedSteps(selectedProduct) : []),
     [selectedProduct],
   );
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+    const stillVisible = visibleProducts.some((product) => product.id === selectedProduct);
+    if (stillVisible) return;
+
+    setSelectedProduct(null);
+    setClothingSize(null);
+    setSelectedColor(null);
+    setFrontDesigns([]);
+    setBackDesigns([]);
+    setActiveSide("front");
+    setEmbroiderySize(null);
+    setOrderNote("");
+    setStep(1);
+  }, [selectedProduct, visibleProducts]);
 
   const getNextStep = (current: number): number => {
     let next = current + 1;
@@ -136,11 +158,9 @@ export default function CustomOrderPage() {
     if (step === 3) {
       if (!currentProduct) return false;
       const hasSize = currentProduct.skipClothingSize || clothingSize !== null;
-      const colors = selectedProduct ? (PRODUCT_COLORS[selectedProduct] ?? []) : [];
-      const hasColor = colors.length === 0 || selectedColor !== null;
       const hasDesign = allDesigns.length > 0;
       const hasEmbSize = currentProduct.skipEmbroiderySizePicker || embroiderySize !== null;
-      return hasSize && hasColor && hasDesign && hasEmbSize;
+      return hasSize && hasDesign && hasEmbSize;
     }
     if (step === 5) return true;
     return false;
@@ -204,11 +224,13 @@ export default function CustomOrderPage() {
     embroiderySize !== null
       ? EMBROIDERY_SIZES.find((size) => size.id === embroiderySize) ?? null
       : null;
+  const isOwnProductMode = orderIntent === "own-product";
   const embroideryExtra =
     currentProduct?.skipEmbroiderySizePicker
       ? 0
       : (selectedEmbroidery?.extraPrice ?? 0);
-  const totalPrice = (currentProduct?.basePrice ?? 0) + embroideryExtra;
+  const basePrice = isOwnProductMode ? 0 : (currentProduct?.basePrice ?? 0);
+  const totalPrice = basePrice + embroideryExtra;
 
   return (
     <div className="min-h-screen bg-background">
@@ -229,6 +251,8 @@ export default function CustomOrderPage() {
         <div className="min-h-[500px]">
           {step === 1 && (
             <Step1ProductSelector
+              products={visibleProducts}
+              ownProductMode={isOwnProductMode}
               selected={selectedProduct}
               onSelect={handleProductSelect}
             />
@@ -288,7 +312,7 @@ export default function CustomOrderPage() {
                     skipSize={currentProduct.skipClothingSize}
                     selectedSize={clothingSize}
                     onSizeSelect={setClothingSize}
-                    availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
+                    availableColors={[]}
                     selectedColor={selectedColor}
                     onColorSelect={setSelectedColor}
                   />
@@ -322,93 +346,66 @@ export default function CustomOrderPage() {
                 </div>
               </div>
 
-              {/* ── Mobile: tabbed layout ──────────────────────────────────── */}
+              {/* Mobile: one scrollable layout */}
               <div className="flex flex-col lg:hidden gap-4">
-                {/* Tab bar */}
-                <div className="flex rounded-2xl border border-black/8 bg-black/5 p-1 gap-1">
-                  {(["tools", "canvas", "options"] as const).map((tab) => {
-                    const labels = { tools: "ინსტრუმენტები", canvas: "კანვასი", options: "პარამეტრები" };
-                    return (
-                      <button
-                        key={tab}
-                        onClick={() => setMobileTab(tab)}
-                        className={cn(
-                          "flex-1 rounded-xl py-2 text-xs font-bold transition-all",
-                          mobileTab === tab
-                            ? "bg-white text-accent shadow-sm"
-                            : "text-gray-500 hover:text-black"
-                        )}
-                      >
-                        {labels[tab]}
-                      </button>
-                    );
-                  })}
+                <div className="flex items-center justify-center gap-2 rounded-2xl border border-black/8 bg-black/5 px-4 py-2 text-[11px] font-semibold text-gray-600">
+                  <span>გადაახვიე ქვემოთ ინსტრუმენტებისა და ზომისთვის</span>
+                  <span className="inline-block animate-bounce">↓</span>
                 </div>
 
-                {/* Tab content */}
-                {mobileTab === "tools" && (
-                  <div className="space-y-6">
-                    <Step3DesignUpload
-                      product={currentProduct}
-                      designs={activeDesigns}
-                      activeSide={activeSide}
-                      selectedColor={selectedColor}
-                      onDesignAdd={addDesign}
-                      onDesignRemove={removeDesign}
-                      onDesignReplace={replaceDesignUrl}
-                      onDesignTransformChange={updateDesignTransform}
-                      onSideChange={setActiveSide}
-                      isSidebarMode
-                      sharedCanvasRef={mobileCanvasRef}
-                    />
-                  </div>
-                )}
-
-                <div
-                  className={cn(
-                    "flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-4 min-h-[420px] relative shadow-inner",
-                    mobileTab !== "canvas" && "hidden"
-                  )}
-                >
-                    <Step3DesignUpload
-                      product={currentProduct}
-                      designs={activeDesigns}
-                      activeSide={activeSide}
-                      selectedColor={selectedColor}
-                      onDesignAdd={addDesign}
-                      onDesignRemove={removeDesign}
-                      onDesignReplace={replaceDesignUrl}
-                      onDesignTransformChange={updateDesignTransform}
-                      onSideChange={setActiveSide}
-                      isCanvasOnly
-                      resizeRequest={resizeRequest}
-                      onEmbroiderySizeDetected={handleEmbroiderySizeDetected}
-                      sharedCanvasRef={mobileCanvasRef}
-                    />
+                <div className="flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-4 min-h-[420px] relative shadow-inner">
+                  <Step3DesignUpload
+                    product={currentProduct}
+                    designs={activeDesigns}
+                    activeSide={activeSide}
+                    selectedColor={selectedColor}
+                    onDesignAdd={addDesign}
+                    onDesignRemove={removeDesign}
+                    onDesignReplace={replaceDesignUrl}
+                    onDesignTransformChange={updateDesignTransform}
+                    onSideChange={setActiveSide}
+                    isCanvasOnly
+                    resizeRequest={resizeRequest}
+                    onEmbroiderySizeDetected={handleEmbroiderySizeDetected}
+                    sharedCanvasRef={mobileCanvasRef}
+                  />
                 </div>
 
-                {mobileTab === "options" && (
-                  <div className="space-y-6">
-                    <Step2SizeAndColor
-                      selectedProduct={selectedProduct}
-                      skipSize={currentProduct.skipClothingSize}
-                      selectedSize={clothingSize}
-                      onSizeSelect={setClothingSize}
-                      availableColors={PRODUCT_COLORS[selectedProduct] ?? []}
-                      selectedColor={selectedColor}
-                      onColorSelect={setSelectedColor}
-                    />
-                    <Step4Parameters
-                      product={currentProduct}
-                      embroiderySize={embroiderySize}
-                      onEmbroiderySizeChange={setEmbroiderySize}
-                      isCompact
-                      onSizeButtonClick={handleSizeButtonClick}
-                    />
-                  </div>
-                )}
+                <div className="relative space-y-6 rounded-3xl border border-black/8 bg-white p-4 shadow-sm">
+                  <Step3DesignUpload
+                    product={currentProduct}
+                    designs={activeDesigns}
+                    activeSide={activeSide}
+                    selectedColor={selectedColor}
+                    onDesignAdd={addDesign}
+                    onDesignRemove={removeDesign}
+                    onDesignReplace={replaceDesignUrl}
+                    onDesignTransformChange={updateDesignTransform}
+                    onSideChange={setActiveSide}
+                    isSidebarMode
+                    sharedCanvasRef={mobileCanvasRef}
+                  />
 
-                {/* Always-visible bottom bar on mobile */}
+                  <Step2SizeAndColor
+                    selectedProduct={selectedProduct}
+                    skipSize={currentProduct.skipClothingSize}
+                    selectedSize={clothingSize}
+                    onSizeSelect={setClothingSize}
+                    availableColors={[]}
+                    selectedColor={selectedColor}
+                    onColorSelect={setSelectedColor}
+                  />
+                  <Step4Parameters
+                    product={currentProduct}
+                    embroiderySize={embroiderySize}
+                    onEmbroiderySizeChange={setEmbroiderySize}
+                    isCompact
+                    onSizeButtonClick={handleSizeButtonClick}
+                  />
+
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 rounded-b-3xl bg-gradient-to-t from-white to-transparent" />
+                </div>
+
                 <div className="sticky bottom-4 bg-white rounded-2xl border border-black/8 shadow-xl p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">სულ</span>
@@ -429,6 +426,7 @@ export default function CustomOrderPage() {
           {step === 5 && selectedProduct !== null && embroiderySize !== null && (
             <Step5Summary
               selectedProduct={selectedProduct}
+              orderIntent={orderIntent ?? undefined}
               clothingSize={clothingSize}
               selectedColor={selectedColor}
               frontDesigns={frontDesigns}
@@ -440,6 +438,43 @@ export default function CustomOrderPage() {
           )}
         </div>
       </div>
+
+      {orderIntent === null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-3xl border border-black/10 bg-white p-6 shadow-2xl sm:p-8">
+            <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              დიზაინის დაწყებამდე
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 sm:text-base">
+              გთხოვთ, დიზაინის რედაქტორის გახსნამდე აირჩიოთ ერთი ვარიანტი.
+            </p>
+
+            <div className="mt-6 grid gap-3">
+              <button
+                type="button"
+                onClick={() => setOrderIntent("own-product")}
+                className="w-full rounded-2xl border border-black/10 bg-white px-5 py-4 text-left transition hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <p className="text-base font-semibold text-gray-900">ჩემს პროდუქტზე დიზაინი</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  პროდუქტების სიაში გამოჩნდება ჯინსი.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOrderIntent("buy-product")}
+                className="w-full rounded-2xl border border-black/10 bg-white px-5 py-4 text-left transition hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <p className="text-base font-semibold text-gray-900">პროდუქტის ყიდვა + დიზაინი</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  პროდუქტების სიაში ჯინსი არ გამოჩნდება.
+                </p>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

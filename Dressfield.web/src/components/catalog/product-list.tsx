@@ -75,7 +75,10 @@ export function ProductList({
             key={product.id}
             className="flex gap-4 p-4 border-b border-black/8 last:border-b-0 hover:bg-black/2 transition-colors"
           >
-          <Link href={`/products/${product.slug}`} className="flex-shrink-0">
+          <Link
+            href={{ pathname: "/product", query: { slug: product.slug } }}
+            className="flex-shrink-0"
+          >
             <img
               src={product.primaryImageUrl || fallbackImage}
               alt={product.name}
@@ -90,7 +93,10 @@ export function ProductList({
           </Link>
 
           <div className="flex-1 min-w-0">
-            <Link href={`/products/${product.slug}`} className="block">
+            <Link
+              href={{ pathname: "/product", query: { slug: product.slug } }}
+              className="block"
+            >
               <h3 className="font-ui text-base font-semibold text-foreground truncate hover:underline">
                 {product.name}
               </h3>

@@ -6,10 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Grid3x3, List, Menu } from "lucide-react";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { ProductList } from "@/components/catalog/product-list";
-import {
-  ProductFiltersSidebar,
-  type ProductPriceFilter,
-} from "@/components/catalog/product-filters-sidebar";
+import { ProductFiltersSidebar } from "@/components/catalog/product-filters-sidebar";
 import { Button } from "@/components/ui/button";
 import {
   getProducts,
@@ -18,24 +15,6 @@ import {
   type ProductSort,
 } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
-import type { ProductSummaryDto } from "@/types/catalog";
-
-function matchesPriceFilter(product: ProductSummaryDto, priceFilter: ProductPriceFilter) {
-  const effectivePrice = product.effectivePrice ?? product.basePrice;
-
-  switch (priceFilter) {
-    case "0-49":
-      return effectivePrice <= 49;
-    case "50-99":
-      return effectivePrice >= 50 && effectivePrice <= 99;
-    case "100-149":
-      return effectivePrice >= 100 && effectivePrice <= 149;
-    case "150+":
-      return effectivePrice >= 150;
-    default:
-      return true;
-  }
-}
 
 function ProductsPageContent() {
   const router = useRouter();
@@ -43,7 +22,6 @@ function ProductsPageContent() {
   const activeCategory = searchParams.get("category") ?? null;
 
   const [sort, setSort] = useState<ProductSort>("newest");
-  const [priceFilter, setPriceFilter] = useState<ProductPriceFilter>("all");
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -72,12 +50,8 @@ function ProductsPageContent() {
       ? base.filter((product) => product.categorySlug === activeCategory)
       : base;
 
-    const priceFiltered = categoryFiltered.filter((product) =>
-      matchesPriceFilter(product, priceFilter),
-    );
-
-    return sortProducts(priceFiltered, sort);
-  }, [activeCategory, priceFilter, productsQuery.data, sort]);
+    return sortProducts(categoryFiltered, sort);
+  }, [activeCategory, productsQuery.data, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -104,7 +78,7 @@ function ProductsPageContent() {
           <div className="mb-8 flex flex-col gap-3 pb-0">
             <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">პროდუქტები</p>
             <h1 className="font-ui text-3xl sm:text-4xl font-semibold tracking-[0.03em]">
-              ნაკარგი პროდუქციის კატალოგი
+              ნაქარგი პროდუქციის კატალოგი
             </h1>
             <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
               დაათვალიერე მზა ნამუშევრები, ნახე დეტალები და დაამატე სასურველი ნივთები კალათაში.
@@ -154,11 +128,6 @@ function ProductsPageContent() {
           categories={categories}
           activeCategory={activeCategory}
           onCategoryChange={(slug) => setCategory(slug)}
-          priceFilter={priceFilter}
-          onPriceFilterChange={(value) => {
-            setPriceFilter(value);
-            setPage(1);
-          }}
           onClose={() => setSidebarOpen(false)}
           isOpen={sidebarOpen}
         />

@@ -1,21 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-const InteractiveHeroGallery = dynamic(
-  () =>
-    import("@/components/ui/interactive-hero-gallery").then(
-      (module) => module.InteractiveHeroGallery
-    ),
-  { ssr: false }
-);
+import { InteractiveHeroGallery } from "@/components/ui/interactive-hero-gallery";
 
 interface HeroGalleryClientProps {
   images: string[];
   count?: number;
   mobileCount?: number;
   className?: string;
+  disableInteractionOnPhone?: boolean;
 }
 
 const PHONE_MEDIA_QUERY = "(max-width: 639px)";
@@ -23,17 +16,16 @@ const PHONE_MEDIA_QUERY = "(max-width: 639px)";
 export function HeroGalleryClient({
   images,
   count = 8,
-  mobileCount = 6,
+  mobileCount = 4,
   className,
+  disableInteractionOnPhone = true,
 }: HeroGalleryClientProps) {
   const [isPhone, setIsPhone] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia(PHONE_MEDIA_QUERY);
     const apply = (matches: boolean) => setIsPhone(matches);
     apply(media.matches);
-    setMounted(true);
 
     const onChange = (event: MediaQueryListEvent) => apply(event.matches);
 
@@ -46,11 +38,16 @@ export function HeroGalleryClient({
     return () => media.removeListener(onChange);
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
-
   const resolvedCount = isPhone ? mobileCount : count;
+  const interactive = !(disableInteractionOnPhone && isPhone);
 
-  return <InteractiveHeroGallery images={images} count={resolvedCount} className={className} />;
+  return (
+    <InteractiveHeroGallery
+      images={images}
+      count={resolvedCount}
+      className={className}
+      interactive={interactive}
+      compact={isPhone}
+    />
+  );
 }

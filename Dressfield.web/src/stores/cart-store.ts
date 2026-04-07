@@ -6,6 +6,7 @@ import { syncServerCart } from "@/lib/cart-api";
 export interface CustomOrderData {
   productLabel?: string;
   productTypeId: string;
+  orderIntent?: "own-product" | "buy-product";
   clothingSize?: string;
   selectedColor?: { id: string; label: string; hex: string };
   embroiderySize: string;

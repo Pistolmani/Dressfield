@@ -32,6 +32,7 @@ interface Step3DesignUploadProps {
   resizeRequest?: { fraction: number; seq: number } | null;
   onEmbroiderySizeDetected?: (sizeId: EmbroiderySizeId) => void;
   sharedCanvasRef?: RefObject<ProductCanvasHandle | null>;
+  onDesignAdded?: () => void;
 }
 
 export function Step3DesignUpload({
@@ -49,6 +50,7 @@ export function Step3DesignUpload({
   resizeRequest,
   onEmbroiderySizeDetected,
   sharedCanvasRef,
+  onDesignAdded,
 }: Step3DesignUploadProps) {
   const localCanvasRef = useRef<ProductCanvasHandle | null>(null);
   const canvasRef = sharedCanvasRef ?? localCanvasRef;
@@ -61,8 +63,11 @@ export function Step3DesignUpload({
         const url = URL.createObjectURL(file);
         onDesignAdd(url);
       });
+      if (acceptedFiles.length > 0) {
+        onDesignAdded?.();
+      }
     },
-    [onDesignAdd]
+    [onDesignAdd, onDesignAdded]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -125,7 +130,7 @@ export function Step3DesignUpload({
             <Upload className="h-5 w-5" />
           </div>
           <p className="text-xs font-bold text-center text-gray-900 leading-tight mt-1">
-            {isDragActive ? "გაუშვი..." : "ატვირთე დიზაინი"}
+            {isDragActive ? "გაუშვი..." : "ატვირთე დიზაინი (მაგ. პატჩი)"}
           </p>
           <p className="text-[10px] text-gray-400 font-medium">PNG · JPG · SVG</p>
         </div>

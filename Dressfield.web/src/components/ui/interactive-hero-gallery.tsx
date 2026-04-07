@@ -9,6 +9,8 @@ interface InteractiveHeroGalleryProps {
   images: string[];
   className?: string;
   count?: number;
+  interactive?: boolean;
+  compact?: boolean;
 }
 
 interface CardItem {
@@ -20,6 +22,15 @@ interface CardItem {
   zIndex: number;
   floatDelay: number;
   floatDuration: number;
+}
+
+interface ScatterOptions {
+  cols?: number;
+  clampLeftMin?: number;
+  clampLeftMax?: number;
+  clampTopMin?: number;
+  clampTopMax?: number;
+  jitterScale?: number;
 }
 
 function hashString(input: string): number {
@@ -38,7 +49,7 @@ function createSeededRandom(seed: number) {
   };
 }
 
-function createScatteredCards(images: string[], count: number): CardItem[] {
+function createScatteredCards(images: string[], count: number, options: ScatterOptions = {}): CardItem[] {
   if (images.length === 0) return [];
 
   const safeCount = Math.max(1, count);
@@ -48,7 +59,7 @@ function createScatteredCards(images: string[], count: number): CardItem[] {
   while (pool.length < safeCount) pool.push(...images);
   const selected = pool.slice(0, safeCount);
 
-  const cols = 4;
+  const cols = Math.max(1, options.cols ?? 4);
   const rows = Math.ceil(safeCount / cols);
 
   const cells: [number, number][] = [];
@@ -66,13 +77,18 @@ function createScatteredCards(images: string[], count: number): CardItem[] {
   const picked = cells.slice(0, safeCount);
   const cellW = 100 / cols;
   const cellH = 100 / rows;
+  const clampLeftMin = options.clampLeftMin ?? 10;
+  const clampLeftMax = options.clampLeftMax ?? 90;
+  const clampTopMin = options.clampTopMin ?? 10;
+  const clampTopMax = options.clampTopMax ?? 90;
+  const jitterScale = options.jitterScale ?? 0.5;
 
   return selected.map((url, i) => {
     const [c, r] = picked[i];
-    const jitterX = (random() - 0.5) * cellW * 0.5;
-    const jitterY = (random() - 0.5) * cellH * 0.5;
-    const left = `${Math.max(10, Math.min(90, c * cellW + cellW / 2 + jitterX))}%`;
-    const top = `${Math.max(10, Math.min(90, r * cellH + cellH / 2 + jitterY))}%`;
+    const jitterX = (random() - 0.5) * cellW * jitterScale;
+    const jitterY = (random() - 0.5) * cellH * jitterScale;
+    const left = `${Math.max(clampLeftMin, Math.min(clampLeftMax, c * cellW + cellW / 2 + jitterX))}%`;
+    const top = `${Math.max(clampTopMin, Math.min(clampTopMax, r * cellH + cellH / 2 + jitterY))}%`;
 
     return {
       id: `card-${i}`,
@@ -91,10 +107,25 @@ export function InteractiveHeroGallery({
   images,
   className,
   count = 8,
+  interactive = true,
+  compact = false,
 }: InteractiveHeroGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zMap, setZMap] = useState<Record<string, number>>({});
-  const cards = useMemo(() => createScatteredCards(images, count), [images, count]);
+  const cards = useMemo(
+    () =>
+      createScatteredCards(images, count, compact
+        ? {
+            cols: 2,
+            clampLeftMin: 18,
+            clampLeftMax: 82,
+            clampTopMin: 14,
+            clampTopMax: 86,
+            jitterScale: 0.3,
+          }
+        : undefined),
+    [images, count, compact]
+  );
 
   const bringToFront = (id: string) => {
     setZMap((prev) => {
@@ -121,16 +152,22 @@ export function InteractiveHeroGallery({
             top: card.top,
             zIndex: zMap[card.id] ?? card.zIndex,
             translate: "-50% -50%",
-            pointerEvents: "auto",
+            pointerEvents: interactive ? "auto" : "none",
           }}
         >
           <motion.div
-            className="w-40 sm:w-60 aspect-[4/5] p-2 bg-white rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing origin-center"
-            style={{ touchAction: "none", userSelect: "none" }}
+            className={cn(
+              compact
+                ? "w-24 sm:w-32 aspect-[4/5] p-1.5 rounded-xl shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
+                : "w-40 sm:w-60 aspect-[4/5] p-2 rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)]",
+              "bg-white origin-center",
+              interactive ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+            )}
+            style={{ touchAction: interactive ? "none" : "auto", userSelect: "none" }}
             initial={{
               opacity: 0,
-              scale: 0.4,
-              rotate: card.rotate + (index % 2 === 0 ? 30 : -30),
+              scale: compact ? 0.7 : 0.4,
+              rotate: card.rotate + (index % 2 === 0 ? (compact ? 14 : 30) : (compact ? -14 : -30)),
             }}
             animate={{
               opacity: 1,
@@ -139,35 +176,35 @@ export function InteractiveHeroGallery({
             }}
             transition={{
               type: "spring",
-              damping: 20,
-              stiffness: 60,
-              mass: 1,
-              delay: index * 0.1,
+              damping: compact ? 24 : 20,
+              stiffness: compact ? 95 : 60,
+              mass: compact ? 0.8 : 1,
+              delay: index * (compact ? 0.04 : 0.1),
             }}
-            drag
+            drag={interactive}
             dragConstraints={containerRef}
             dragSnapToOrigin={false}
-            dragElastic={0.15}
-            dragMomentum
+            dragElastic={compact ? 0.08 : 0.15}
+            dragMomentum={!compact}
             dragTransition={{
               bounceStiffness: 120,
               bounceDamping: 18,
               power: 0.3,
               timeConstant: 180,
             }}
-            whileHover={{ scale: 1.06, transition: { duration: 0.2 } }}
-            whileDrag={{ scale: 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" }}
-            onPointerDown={(event) => event.stopPropagation()}
-            onHoverStart={() => bringToFront(card.id)}
-            onDragStart={() => bringToFront(card.id)}
+            whileHover={interactive && !compact ? { scale: 1.06, transition: { duration: 0.2 } } : undefined}
+            whileDrag={interactive ? { scale: compact ? 1.03 : 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" } : undefined}
+            onPointerDown={interactive ? (event) => event.stopPropagation() : undefined}
+            onHoverStart={interactive ? () => bringToFront(card.id) : undefined}
+            onDragStart={interactive ? () => bringToFront(card.id) : undefined}
           >
             <motion.div
               className="w-full h-full"
-              animate={{
+              animate={compact ? undefined : {
                 y: [0, -5, 0, 3, 0],
                 rotate: [0, 1, 0, -0.8, 0],
               }}
-              transition={{
+              transition={compact ? undefined : {
                 duration: card.floatDuration,
                 delay: card.floatDelay,
                 repeat: Infinity,
@@ -180,12 +217,14 @@ export function InteractiveHeroGallery({
                   alt=""
                   aria-hidden="true"
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                   draggable={false}
                   onError={(event) => {
                     const image = event.currentTarget;
                     if (image.dataset.fallbackApplied === "1") return;
                     image.dataset.fallbackApplied = "1";
-                    image.src = "/hero-embroidery.jpg";
+                    image.src = "/hero-main-bg.jpg";
                   }}
                 />
               </div>

@@ -501,6 +501,8 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       const observer = new ResizeObserver((entries) => {
         for (const entry of entries) {
           const { width } = entry.contentRect;
+          // Ignore collapsed widths when parent tab is hidden on mobile.
+          if (width < 40) continue;
           const baseScale = width / CANVAS_SIZE;
           baseScaleRef.current = baseScale;
           const targetZoom = baseScale * zoomFactorRef.current;

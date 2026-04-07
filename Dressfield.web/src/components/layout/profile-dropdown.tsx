@@ -53,19 +53,21 @@ export function ProfileDropdown() {
       <DropdownMenuContent align="end" className="w-56 mt-2 bg-black/90 backdrop-blur-md border-white/10 text-white p-2 rounded-xl shadow-2xl animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="px-2 py-1.5 font-bold text-xs uppercase tracking-[0.15em] text-white/50">
-            ჩემი პროფილი
+            {isAdmin ? "ადმინის ანგარიში" : "ჩემი პროფილი"}
           </DropdownMenuLabel>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator className="bg-white/10" />
 
         <DropdownMenuGroup>
-          <Link href="/profile">
-            <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10">
-              <UserCircle className="h-4 w-4" />
-              <span className="text-sm">პროფილი</span>
-            </DropdownMenuItem>
-          </Link>
+          {!isAdmin ? (
+            <Link href="/profile">
+              <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10">
+                <UserCircle className="h-4 w-4" />
+                <span className="text-sm">პროფილი</span>
+              </DropdownMenuItem>
+            </Link>
+          ) : null}
 
           <Link href="/orders">
             <DropdownMenuItem className="cursor-pointer flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors focus:bg-white/10">
