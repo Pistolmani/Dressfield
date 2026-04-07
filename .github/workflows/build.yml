@@ -43,7 +43,7 @@ jobs:
           security: loose
           local-dir: Dressfield.web/out/
           server-dir: public_html/
-          dangerous-clean-slate: false
+          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
