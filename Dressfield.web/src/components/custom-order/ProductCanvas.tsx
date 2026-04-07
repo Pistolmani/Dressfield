@@ -379,7 +379,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         selection: false, backgroundColor: "#F9FAFB",
       });
       fc.setZoom(initialScale);
-      fc.defaultCursor = "grab";
+      fc.defaultCursor = "default";
       fabricRef.current = fc;
 
       const baseSvgUrl = activeSide === "back" ? product.svgTemplateBack : product.svgTemplate;
@@ -461,11 +461,12 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         opt.e.stopPropagation();
       });
 
-      // Pan viewport by dragging empty area (or Alt + drag).
+      // Pan viewport: only via Alt+drag (desktop). Disabled for single-touch to
+      // prevent the "running away" issue on phones.
       fc.on("mouse:down", (opt) => {
         const event = opt.e as MouseEvent;
-        const shouldPan = !opt.target || event.altKey;
-        if (!shouldPan) return;
+        // Only pan if Alt key is held (desktop only gesture)
+        if (!event.altKey) return;
 
         isPanningRef.current = true;
         lastPanRef.current = { x: event.clientX, y: event.clientY };
@@ -491,7 +492,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       const stopPanning = () => {
         isPanningRef.current = false;
         lastPanRef.current = null;
-        fc.defaultCursor = "grab";
+        fc.defaultCursor = "default";
       };
 
       fc.on("mouse:up", stopPanning);
@@ -508,10 +509,16 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
           const targetZoom = baseScale * zoomFactorRef.current;
           if (fabricRef.current) {
             fabricRef.current.setDimensions({ width, height: width });
-            fabricRef.current.zoomToPoint(
-              new fabricModule.fabric.Point(width / 2, width / 2),
-              targetZoom
-            );
+            // Reset viewport transform cleanly instead of zoomToPoint
+            // which accumulates offset drift causing the "running away" bug.
+            const vpt = fabricRef.current.viewportTransform;
+            if (vpt) {
+              vpt[0] = targetZoom;
+              vpt[3] = targetZoom;
+              vpt[4] = 0;
+              vpt[5] = 0;
+            }
+            fabricRef.current.setZoom(targetZoom);
             fabricRef.current.requestRenderAll();
           }
         }

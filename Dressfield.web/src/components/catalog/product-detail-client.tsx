@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, Minus, Plus, RotateCcw, Shield, Truck } from "lucide-react";
+import { Check, ChevronDown, Minus, Plus, Shield, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { trackAddToCart, trackViewContent } from "@/lib/analytics";
@@ -375,13 +375,6 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-foreground">დაცული ყიდვა</p>
                   <p className="text-xs text-muted-foreground">თქვენი შენაძენი დაცულია ჩვენი გარანტიით</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <RotateCcw className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground">დაბრუნება 30 დღის განმავლობაში</p>
-                  <p className="text-xs text-muted-foreground">უსიტყვო დაბრუნება თუ კმაყოფილი არ ხართ</p>
                 </div>
               </div>
             </div>
