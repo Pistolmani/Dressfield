@@ -1,19 +1,28 @@
 import type { Metadata } from "next";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
+
 export const metadata: Metadata = {
-  title: "Custom Order",
-  description: "Upload your design and request a custom embroidery order at DressField.",
+  title: "ინდივიდუალური შეკვეთა",
+  description:
+    "ატვირთე შენი დიზაინი და შექმენი ინდივიდუალური ნაქარგი DressField-ზე.",
+  alternates: {
+    canonical: "/custom-order",
+  },
   openGraph: {
-    title: "Custom Order - DressField",
-    description: "Upload your design and request a custom embroidery order at DressField.",
+    title: "ინდივიდუალური შეკვეთა — DressField",
+    description:
+      "ატვირთე შენი დიზაინი და შექმენი ინდივიდუალური ნაქარგი DressField-ზე.",
     type: "website",
     locale: "ka_GE",
     siteName: "DressField",
+    url: `${siteUrl}/custom-order`,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Custom Order - DressField",
-    description: "Upload your design and request a custom embroidery order at DressField.",
+    title: "ინდივიდუალური შეკვეთა — DressField",
+    description:
+      "ატვირთე შენი დიზაინი და შექმენი ინდივიდუალური ნაქარგი DressField-ზე.",
   },
 };
 
@@ -24,4 +33,3 @@ export default function CustomOrderLayout({
 }) {
   return children;
 }
-

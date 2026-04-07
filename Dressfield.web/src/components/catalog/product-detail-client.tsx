@@ -4,14 +4,14 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, ChevronDown, Minus, Plus, RotateCcw, Shield, Truck } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import { formatPrice } from "@/lib/catalog";
 import { useCartStore } from "@/stores/cart-store";
 import type { ProductDetailDto } from "@/types/catalog";
 
-const fallbackImage =
-  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80";
+const fallbackImage = "/dressfield-fallback.jpg";
 
 function groupVariants(product: ProductDetailDto) {
   const groups = new Map<string, ProductDetailDto["variants"]>();
@@ -23,6 +23,11 @@ function groupVariants(product: ProductDetailDto) {
   }
 
   return Array.from(groups.entries()).map(([name, items]) => ({ name, items }));
+}
+
+function isSizeGroup(name: string): boolean {
+  const normalized = name.trim().toLowerCase();
+  return normalized.includes("size") || normalized.includes("ზომ") || normalized.includes("áƒ–áƒáƒ›");
 }
 
 export function ProductDetailClient({ product }: { product: ProductDetailDto }) {
@@ -51,15 +56,21 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
   const [addedFeedback, setAddedFeedback] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, number>>(() =>
     Object.fromEntries(
-      variantGroups.map((group) => [group.name, group.items[0]?.id]).filter((entry) => entry[1])
+      variantGroups
+        .map((group) => {
+          if (isSizeGroup(group.name)) return null;
+          return [group.name, group.items[0]?.id] as const;
+        })
+        .filter((entry): entry is readonly [string, number] => Boolean(entry && entry[1]))
     )
   );
 
   const selectedVariantItems = variantGroups
-    .map((group) =>
-      group.items.find((item) => item.id === selectedVariants[group.name]) ?? group.items[0]
-    )
-    .filter(Boolean);
+    .map((group) => group.items.find((item) => item.id === selectedVariants[group.name]))
+    .filter((item): item is ProductDetailDto["variants"][number] => Boolean(item));
+
+  const sizeGroups = variantGroups.filter((group) => isSizeGroup(group.name));
+  const missingRequiredSize = sizeGroups.some((group) => !selectedVariants[group.name]);
 
   const variantAdjustmentsTotal = selectedVariantItems.reduce(
     (sum, item) => sum + item.priceAdjustment,
@@ -92,7 +103,13 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
   );
 
   const handleAddToCart = useCallback(() => {
-    const primaryVariant = selectedVariantItems[0];
+    if (missingRequiredSize) {
+      toast.error("აირჩიე ზომა");
+      return;
+    }
+
+    const primaryVariant =
+      selectedVariantItems.find((variant) => isSizeGroup(variant.name)) ?? selectedVariantItems[0];
     const variantLabel =
       selectedVariantItems.length > 0
         ? selectedVariantItems.map((v) => `${v.name}: ${v.value || v.name}`).join(", ")
@@ -117,7 +134,16 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
 
     setAddedFeedback(true);
     setTimeout(() => setAddedFeedback(false), 1500);
-  }, [addItem, product.id, product.name, quantity, selectedImage.imageUrl, selectedVariantItems, totalPrice]);
+  }, [
+    addItem,
+    missingRequiredSize,
+    product.id,
+    product.name,
+    quantity,
+    selectedImage.imageUrl,
+    selectedVariantItems,
+    totalPrice,
+  ]);
 
   return (
     <div className="bg-background py-10 sm:py-12">
@@ -314,7 +340,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                   onClick={handleAddToCart}
                   disabled={addedFeedback}
                 >
-                  {addedFeedback ? (
+                  {missingRequiredSize ? "აირჩიე ზომა" : addedFeedback ? (
                     <>
                       <Check className="mr-2 h-6 w-6" />
                       კალათაშია

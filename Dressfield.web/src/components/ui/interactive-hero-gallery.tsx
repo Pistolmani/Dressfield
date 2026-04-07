@@ -158,12 +158,16 @@ export function InteractiveHeroGallery({
           <motion.div
             className={cn(
               compact
-                ? "w-24 sm:w-32 aspect-[4/5] p-1.5 rounded-xl shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
+                ? "w-28 sm:w-36 aspect-[4/5] p-1.5 rounded-xl shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
                 : "w-40 sm:w-60 aspect-[4/5] p-2 rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)]",
               "bg-white origin-center",
               interactive ? "cursor-grab active:cursor-grabbing" : "cursor-default"
             )}
-            style={{ touchAction: interactive ? "none" : "auto", userSelect: "none" }}
+            style={{
+              touchAction: interactive ? "none" : "auto",
+              userSelect: "none",
+              willChange: "transform",
+            }}
             initial={{
               opacity: 0,
               scale: compact ? 0.7 : 0.4,
@@ -184,17 +188,21 @@ export function InteractiveHeroGallery({
             drag={interactive}
             dragConstraints={containerRef}
             dragSnapToOrigin={false}
-            dragElastic={compact ? 0.08 : 0.15}
-            dragMomentum={!compact}
+            dragElastic={compact ? 0.14 : 0.15}
+            dragMomentum
             dragTransition={{
               bounceStiffness: 120,
               bounceDamping: 18,
               power: 0.3,
               timeConstant: 180,
             }}
-            whileHover={interactive && !compact ? { scale: 1.06, transition: { duration: 0.2 } } : undefined}
+            whileHover={interactive ? { scale: 1.06, transition: { duration: 0.2 } } : undefined}
+            whileTap={interactive ? { scale: compact ? 1.04 : 1.06 } : undefined}
             whileDrag={interactive ? { scale: compact ? 1.03 : 1.1, boxShadow: "0px 20px 50px rgba(0,0,0,0.4)" } : undefined}
-            onPointerDown={interactive ? (event) => event.stopPropagation() : undefined}
+            onPointerDown={interactive ? (event) => {
+              event.stopPropagation();
+              bringToFront(card.id);
+            } : undefined}
             onHoverStart={interactive ? () => bringToFront(card.id) : undefined}
             onDragStart={interactive ? () => bringToFront(card.id) : undefined}
           >
@@ -217,14 +225,15 @@ export function InteractiveHeroGallery({
                   alt=""
                   aria-hidden="true"
                   className="w-full h-full object-cover"
-                  loading="lazy"
+                  loading={index < 4 ? "eager" : "lazy"}
+                  fetchPriority={index < 2 ? "high" : "auto"}
                   decoding="async"
                   draggable={false}
                   onError={(event) => {
                     const image = event.currentTarget;
                     if (image.dataset.fallbackApplied === "1") return;
                     image.dataset.fallbackApplied = "1";
-                    image.src = "/hero-main-bg.jpg";
+                    image.src = "/dressfield-fallback.jpg";
                   }}
                 />
               </div>

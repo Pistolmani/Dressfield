@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "@/lib/catalog";
 import { HeroGalleryClient } from "@/components/ui/hero-gallery-client";
 
-const FALLBACK_HERO_IMAGES = ["/hero-main-bg.jpg"];
+const FALLBACK_HERO_IMAGES = ["/dressfield-fallback.jpg"];
 
 interface HomeHeroGalleryClientProps {
   count?: number;
@@ -16,7 +16,7 @@ interface HomeHeroGalleryClientProps {
 
 export function HomeHeroGalleryClient({
   count = 8,
-  mobileCount = 4,
+  mobileCount = 6,
   className,
   maxImages = 18,
 }: HomeHeroGalleryClientProps) {

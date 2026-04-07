@@ -1,3 +1,7 @@
 # Local scratch files
 Dressfield_Roadmap.html
 out*.txt
+
+# Local runtime artifacts
+node_modules/
+*.log

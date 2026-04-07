@@ -1,13 +1,81 @@
 /* eslint-disable @next/next/no-img-element */
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Eye, ShoppingBag, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HomeHeroGalleryClient } from "@/components/home/home-hero-gallery-client";
 import { HomeShowcaseClient } from "@/components/home/home-showcase-client";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
+
+export const metadata: Metadata = {
+  title: "DressField — ქართული ნაქარგი, შენი სტილით",
+  description:
+    "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე შენი დიზაინი და შექმენი უნიკალური სტილი.",
+  keywords: [
+    "DressField",
+    "dressfield",
+    "dressfield.ge",
+    "embroidery",
+    "custom embroidery",
+    "custom order",
+    "ნაქარგი",
+    "ქართული ნაქარგი",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "DressField — ქართული ნაქარგი, შენი სტილით",
+    description:
+      "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე დიზაინი და შეუკვეთე.",
+    url: siteUrl,
+    type: "website",
+    siteName: "DressField",
+    locale: "ka_GE",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DressField — ქართული ნაქარგი, შენი სტილით",
+    description:
+      "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე დიზაინი და შეუკვეთე.",
+  },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "DressField",
+  url: siteUrl,
+  logo: `${siteUrl}/favicon.ico`,
+  description:
+    "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "DressField",
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${siteUrl}/products?search={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function HomePage() {
   return (
     <div className="flex-1 bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+
       <section className="relative overflow-hidden bg-black">
         <div className="absolute inset-0">
           <img
@@ -41,6 +109,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <div className="h-24 bg-gradient-to-b from-black to-white w-full pointer-events-none" />
 
       <HomeShowcaseClient />
 

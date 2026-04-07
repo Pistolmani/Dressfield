@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Scissors, Heart, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
 
 export const metadata: Metadata = {
   title: "ჩვენ შესახებ",
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     url: "https://dressfield.ge/about",
     images: [
       {
-        url: "https://dressfield.ge/hero-embroidery.jpg",
+        url: "https://dressfield.ge/dressfield-fallback.jpg",
         width: 1200,
         height: 630,
         alt: "DressField — ქართული ნაქარგები",
@@ -103,19 +103,12 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-background">
+    <div className="bg-black text-white">
 
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative bg-foreground overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <img
-            src="/hero-embroidery.jpg"
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full object-cover"
-          />
-        </div>
+      <section className="relative overflow-hidden border-b border-white/10">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+          <Logo className="h-8 w-auto text-white mb-8" />
           <nav className="text-sm text-white/50 mb-8">
             <Link href="/" className="hover:text-white/80 transition-colors">მთავარი</Link>
             {" / "}
@@ -133,15 +126,15 @@ export default function AboutPage() {
       </section>
 
       {/* ── STORY ────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-20">
+      <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground mb-4">ჩვენი ისტორია</p>
-              <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+              <p className="text-xs uppercase tracking-[0.24em] text-white/60 mb-4">ჩვენი ისტორია</p>
+              <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight mb-6 text-white">
                 სიყვარულით შექმნილი, საქართველოში
               </h2>
-              <div className="space-y-4 text-base text-muted-foreground leading-relaxed">
+              <div className="space-y-4 text-base text-white/75 leading-relaxed">
                 <p>
                   DressField-ის ისტორია თბილისში დაიწყო, ერთი მარტივი იდეით — შეგვექმნა ადგილი, სადაც ნაქარგი
                   და პატჩები გახდებოდა თვითგამოხატვის თანამედროვე ფორმა. ჩვენთვის ეს მხოლოდ დეკორი არ არის;
@@ -159,12 +152,8 @@ export default function AboutPage() {
             </div>
 
             <div className="relative">
-              <div className="aspect-[4/5] rounded-3xl overflow-hidden border border-black/8 shadow-xl">
-                <img
-                  src="/hero-embroidery.jpg"
-                  alt="DressField ნაქარგი სახელოსნო"
-                  className="h-full w-full object-cover"
-                />
+              <div className="aspect-[4/5] rounded-3xl border border-white/15 bg-white/[0.03] shadow-xl flex items-center justify-center">
+                <Logo className="h-20 sm:h-24 w-auto text-white" />
               </div>
             </div>
           </div>
@@ -172,11 +161,11 @@ export default function AboutPage() {
       </section>
 
       {/* ── VALUES ───────────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 bg-black/2">
+      <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground mb-4">ჩვენი ფასეულობები</p>
-            <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight">
+            <p className="text-xs uppercase tracking-[0.24em] text-white/60 mb-4">ჩვენი ფასეულობები</p>
+            <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight text-white">
               რით გამოვირჩევით
             </h2>
           </div>
@@ -184,13 +173,13 @@ export default function AboutPage() {
             {values.map(({ icon: Icon, title, body }) => (
               <div
                 key={title}
-                className="bg-white rounded-2xl border border-black/8 p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-2xl border border-white/15 bg-white/[0.03] p-6 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="h-10 w-10 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
                   <Icon className="h-5 w-5 text-accent" />
                 </div>
-                <h3 className="font-ui text-lg font-semibold mb-2">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+                <h3 className="font-ui text-lg font-semibold mb-2 text-white">{title}</h3>
+                <p className="text-sm text-white/70 leading-relaxed">{body}</p>
               </div>
             ))}
           </div>
@@ -198,11 +187,11 @@ export default function AboutPage() {
       </section>
 
       {/* ── PROCESS ──────────────────────────────────────────── */}
-      <section className="py-16 sm:py-20">
+      <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground mb-4">როგორ ვმუშაობთ</p>
-            <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight">
+            <p className="text-xs uppercase tracking-[0.24em] text-white/60 mb-4">როგორ ვმუშაობთ</p>
+            <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight text-white">
               ინდივიდუალური შეკვეთის პროცესი
             </h2>
           </div>
@@ -230,8 +219,8 @@ export default function AboutPage() {
                     {step}
                   </span>
                   <div className="pt-1">
-                    <h3 className="font-ui text-xl font-semibold mb-2">{title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+                    <h3 className="font-ui text-xl font-semibold mb-2 text-white">{title}</h3>
+                    <p className="text-sm text-white/70 leading-relaxed">{body}</p>
                   </div>
                 </div>
               </div>
@@ -241,7 +230,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 bg-foreground">
+      <section className="py-16 sm:py-20 bg-black">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="font-ui text-3xl sm:text-4xl font-bold text-white mb-4">
             მზად ხარ შენი უნიკალური ნაქარგისთვის?
@@ -257,7 +246,11 @@ export default function AboutPage() {
               </Button>
             </Link>
             <Link href="/products">
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white bg-white text-black hover:bg-white/90 px-8"
+              >
                 პროდუქციის კატალოგი
               </Button>
             </Link>

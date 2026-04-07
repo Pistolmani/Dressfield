@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Shirt, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Step1ProductSelector } from "@/components/custom-order/Step1_ProductSelector";
 import { Step2SizeAndColor } from "@/components/custom-order/Step2_SizeAndColor";
@@ -449,27 +450,37 @@ export default function CustomOrderPage() {
               გთხოვთ, დიზაინის რედაქტორის გახსნამდე აირჩიოთ ერთი ვარიანტი.
             </p>
 
-            <div className="mt-6 grid gap-3">
+            <div className="mt-6 grid gap-4">
               <button
                 type="button"
                 onClick={() => setOrderIntent("own-product")}
-                className="w-full rounded-2xl border border-black/10 bg-white px-5 py-4 text-left transition hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="group flex w-full items-center gap-4 rounded-2xl border border-black/10 bg-white p-5 text-left transition-all hover:border-accent hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                <p className="text-base font-semibold text-gray-900">ჩემს პროდუქტზე დიზაინი</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  პროდუქტების სიაში გამოჩნდება ჯინსი.
-                </p>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-transform group-hover:scale-110">
+                  <Shirt className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-gray-900">ჩემს პროდუქტზე დიზაინი</p>
+                  <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                    გამოგვიგზავნე შენი ტანსაცმელი და ჩვენ მოვქარგავთ (მაგ. ჯინსი).
+                  </p>
+                </div>
               </button>
 
               <button
                 type="button"
                 onClick={() => setOrderIntent("buy-product")}
-                className="w-full rounded-2xl border border-black/10 bg-white px-5 py-4 text-left transition hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="group flex w-full items-center gap-4 rounded-2xl border border-black/10 bg-white p-5 text-left transition-all hover:border-accent hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                <p className="text-base font-semibold text-gray-900">პროდუქტის ყიდვა + დიზაინი</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  პროდუქტების სიაში ჯინსი არ გამოჩნდება.
-                </p>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-transform group-hover:scale-110">
+                  <ShoppingBag className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-gray-900">პროდუქტის ყიდვა + დიზაინი</p>
+                  <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                    შეარჩიე ჩვენი კატალოგიდან და შექმენი უნიკალური დიზაინი.
+                  </p>
+                </div>
               </button>
             </div>
           </div>

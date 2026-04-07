@@ -22,6 +22,18 @@ const notoGeorgianFallback = Noto_Sans_Georgian({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
+const apiOrigin = (() => {
+  const value = process.env.NEXT_PUBLIC_API_URL;
+  if (!value) return null;
+  try {
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+})();
+const googleSiteVerification =
+  process.env.GOOGLE_SITE_VERIFICATION ??
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -30,7 +42,22 @@ export const metadata: Metadata = {
     template: "%s — DressField",
   },
   description:
-    "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე შენი დიზაინი და შექმენი უნიკალური სტილი. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+    "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე შენი დიზაინი და შექმენი უნიკალური სტილი.",
+  keywords: [
+    "DressField",
+    "dressfield",
+    "dressfield.ge",
+    "embroidery",
+    "custom embroidery",
+    "custom order",
+    "Georgian embroidery",
+    "ნაქარგი",
+    "ქართული ნაქარგი",
+    "ინდივიდუალური შეკვეთა",
+  ],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     siteName: "DressField",
     locale: "ka_GE",
@@ -50,6 +77,13 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: {
+    google: googleSiteVerification,
+  },
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    shortcut: ["/favicon.ico"],
+  },
 };
 
 export default function RootLayout({
@@ -66,11 +100,21 @@ export default function RootLayout({
         notoGeorgianFallback.variable
       )}
     >
+      <head>
+        {apiOrigin ? (
+          <>
+            <link rel="preconnect" href={apiOrigin} crossOrigin="" />
+            <link rel="dns-prefetch" href={apiOrigin} />
+          </>
+        ) : null}
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
           <MetaPixel />
           <Header />
-          <main className="flex-1"><PageTransition>{children}</PageTransition></main>
+          <main className="flex-1">
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
           <Toaster position="bottom-right" richColors />
         </Providers>

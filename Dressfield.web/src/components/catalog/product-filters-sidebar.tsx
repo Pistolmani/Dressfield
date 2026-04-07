@@ -97,59 +97,56 @@ export function ProductFiltersSidebar({
             ) : null}
           </div>
 
-          <div className="hidden md:block h-px bg-black/8" />
-
-          <div>
-            <button
-              onClick={() => setExpandCategory((prev) => !prev)}
-              className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-black/5 transition-colors"
-            >
-              <h3 className="font-ui font-semibold text-sm text-foreground">კატეგორია</h3>
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 text-muted-foreground transition-transform",
-                  expandCategory && "rotate-180",
-                )}
-              />
-            </button>
-
-            {expandCategory ? (
-              <div className="mt-2 space-y-1 pl-3">
+          {categories.length > 0 && (
+            <>
+              <div className="hidden md:block h-px bg-black/8" />
+              <div>
                 <button
-                  onClick={() => runAndClose(() => onCategoryChange(null))}
-                  className={cn(
-                    "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
-                    activeCategory === null
-                      ? "bg-accent/10 font-semibold text-accent"
-                      : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
-                  )}
+                  onClick={() => setExpandCategory((prev) => !prev)}
+                  className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-black/5 transition-colors"
                 >
-                  ყველა
+                  <h3 className="font-ui font-semibold text-sm text-foreground">კატეგორია</h3>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-muted-foreground transition-transform",
+                      expandCategory && "rotate-180",
+                    )}
+                  />
                 </button>
 
-                {categories.map((category) => (
-                  <button
-                    key={category.slug}
-                    onClick={() => runAndClose(() => onCategoryChange(category.slug))}
-                    className={cn(
-                      "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
-                      activeCategory === category.slug
-                        ? "bg-accent/10 font-semibold text-accent"
-                        : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
-                    )}
-                  >
-                    {category.name}
-                  </button>
-                ))}
+                {expandCategory ? (
+                  <div className="mt-2 space-y-1 pl-3">
+                    <button
+                      onClick={() => runAndClose(() => onCategoryChange(null))}
+                      className={cn(
+                        "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
+                        activeCategory === null
+                          ? "bg-accent/10 font-semibold text-accent"
+                          : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
+                      )}
+                    >
+                      ყველა
+                    </button>
 
-                {categories.length === 0 ? (
-                  <p className="px-2 py-2 text-xs text-muted-foreground">
-                    კატეგორიები ჯერ არ არის დამატებული.
-                  </p>
+                    {categories.map((category) => (
+                      <button
+                        key={category.slug}
+                        onClick={() => runAndClose(() => onCategoryChange(category.slug))}
+                        className={cn(
+                          "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
+                          activeCategory === category.slug
+                            ? "bg-accent/10 font-semibold text-accent"
+                            : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
+                        )}
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
                 ) : null}
               </div>
-            ) : null}
-          </div>
+            </>
+          )}
         </div>
       </aside>
     </>

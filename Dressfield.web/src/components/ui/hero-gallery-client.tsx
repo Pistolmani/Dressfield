@@ -8,7 +8,6 @@ interface HeroGalleryClientProps {
   count?: number;
   mobileCount?: number;
   className?: string;
-  disableInteractionOnPhone?: boolean;
 }
 
 const PHONE_MEDIA_QUERY = "(max-width: 639px)";
@@ -16,9 +15,8 @@ const PHONE_MEDIA_QUERY = "(max-width: 639px)";
 export function HeroGalleryClient({
   images,
   count = 8,
-  mobileCount = 4,
+  mobileCount = 6,
   className,
-  disableInteractionOnPhone = true,
 }: HeroGalleryClientProps) {
   const [isPhone, setIsPhone] = useState(false);
 
@@ -39,14 +37,13 @@ export function HeroGalleryClient({
   }, []);
 
   const resolvedCount = isPhone ? mobileCount : count;
-  const interactive = !(disableInteractionOnPhone && isPhone);
 
   return (
     <InteractiveHeroGallery
       images={images}
       count={resolvedCount}
       className={className}
-      interactive={interactive}
+      interactive
       compact={isPhone}
     />
   );

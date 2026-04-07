@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ProductSummaryDto } from "@/types/catalog";
 
-const fallbackImage = "/hero-embroidery.jpg";
+const fallbackImage = "/dressfield-fallback.jpg";
 
 export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const addItem = useCartStore((state) => state.addItem);
@@ -88,6 +88,8 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
             src={currentImageUrl}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
+            decoding="async"
             onError={(event) => {
               const img = event.currentTarget;
               if (img.dataset.fallbackApplied === "1") return;
@@ -133,10 +135,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         )}
 
         {/* Hover Action Overlay */}
-        <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/60 to-transparent flex justify-center">
+        <div className="absolute inset-x-0 bottom-0 p-4 pb-5 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex justify-center">
           <Button
             size="sm"
-            className="w-full bg-white text-black hover:bg-white/90 rounded-full font-bold shadow-lg"
+            className="w-full bg-accent text-white hover:bg-black hover:text-white border border-transparent hover:border-white transition-all duration-300 rounded-full font-bold shadow-xl"
             onClick={(e) => {
               e.preventDefault();
               handleAddToCart();

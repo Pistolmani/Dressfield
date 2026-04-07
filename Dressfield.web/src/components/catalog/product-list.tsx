@@ -9,7 +9,7 @@ import { trackAddToCart } from "@/lib/analytics";
 import { toast } from "sonner";
 import type { ProductSummaryDto } from "@/types/catalog";
 
-const fallbackImage = "/hero-embroidery.jpg";
+const fallbackImage = "/dressfield-fallback.jpg";
 
 export function ProductList({
   products,
@@ -83,6 +83,8 @@ export function ProductList({
               src={product.primaryImageUrl || fallbackImage}
               alt={product.name}
               className="h-24 w-24 object-cover rounded-md"
+              loading="lazy"
+              decoding="async"
               onError={(event) => {
                 const img = event.currentTarget;
                 if (img.dataset.fallbackApplied === "1") return;
