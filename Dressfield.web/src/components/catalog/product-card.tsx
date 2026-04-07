@@ -11,14 +11,21 @@ import { formatPrice, getProductBySlug } from "@/lib/catalog";
 import { trackAddToCart } from "@/lib/analytics";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { ProductSummaryDto } from "@/types/catalog";
+import type { ProductSummaryDto, ProductVariantDto } from "@/types/catalog";
 
 const fallbackImage = "/dressfield-fallback.jpg";
+
+function isSizeVariant(variant: ProductVariantDto): boolean {
+  const n = variant.name?.trim().toLowerCase() ?? "";
+  return n.includes("size") || n.includes("ზომ");
+}
 
 export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const addItem = useCartStore((state) => state.addItem);
   const [isHovered, setIsHovered] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
+  const [addedFeedback, setAddedFeedback] = useState(false);
 
   const detailQuery = useQuery({
     queryKey: ["product-detail", product.slug],
@@ -40,6 +47,13 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const displayPrice = product.effectivePrice ?? product.basePrice;
   const hasSale = product.isOnSale && product.salePercentage > 0 && displayPrice < product.basePrice;
 
+  // Size variants from the loaded detail
+  const sizeVariants = detailQuery.data?.variants
+    ? detailQuery.data.variants.filter((v) => v.isActive && isSizeVariant(v))
+    : [];
+  const hasVariants = sizeVariants.length > 0;
+  const needsSizeSelection = hasVariants && selectedVariantId === null;
+
   function handlePrev(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
@@ -52,11 +66,34 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
     setCurrentIndex((i) => (i === imageCount - 1 ? 0 : i + 1));
   }
 
-  function handleAddToCart() {
+  function handleSizeSelect(e: React.MouseEvent, variantId: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedVariantId((prev) => (prev === variantId ? null : variantId));
+  }
+
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (hasVariants && needsSizeSelection) {
+      toast.error("აირჩიე ზომა");
+      return;
+    }
+
+    const selectedVariant = sizeVariants.find((v) => v.id === selectedVariantId);
+    const variantLabel = selectedVariant
+      ? `${selectedVariant.name}: ${selectedVariant.value || selectedVariant.name}`
+      : undefined;
+    const priceAdjustment = selectedVariant?.priceAdjustment ?? 0;
+    const finalPrice = displayPrice + priceAdjustment;
+
     addItem({
       productId: product.id,
+      variantId: selectedVariantId ?? undefined,
       name: product.name,
-      price: displayPrice,
+      variantLabel,
+      price: finalPrice,
       quantity: 1,
       imageUrl: product.primaryImageUrl || undefined,
     });
@@ -64,13 +101,17 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
     trackAddToCart({
       contentId: String(product.id),
       contentName: product.name,
-      value: displayPrice,
+      value: finalPrice,
       quantity: 1,
     });
 
-    toast.success(`${product.name} კალათაში დაემატა`, {
-      duration: 2500,
-    });
+    toast.success(
+      `${product.name}${selectedVariant ? ` (${selectedVariant.value ?? ""})` : ""} კალათაში დაემატა`,
+      { duration: 2500 }
+    );
+
+    setAddedFeedback(true);
+    setTimeout(() => setAddedFeedback(false), 1500);
   }
 
   return (
@@ -99,7 +140,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
           />
         </Link>
 
-        {/* Prev / Next arrows — only when multiple images loaded */}
+        {/* Prev / Next arrows */}
         {imageCount > 1 && (
           <>
             <button
@@ -135,16 +176,51 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         )}
 
         {/* Hover Action Overlay */}
-        <div className="absolute inset-x-0 bottom-0 p-4 pb-5 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex justify-center">
+        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/85 via-black/50 to-transparent flex flex-col gap-2 px-3 pt-8 pb-4">
+          {/* Size chips — shown when product has size variants */}
+          {hasVariants && (
+            <div className="flex flex-wrap gap-1.5 justify-center">
+              {sizeVariants.map((v) => {
+                const isSelected = selectedVariantId === v.id;
+                const outOfStock = v.stockQuantity === 0;
+                return (
+                  <button
+                    key={v.id}
+                    onClick={(e) => !outOfStock && handleSizeSelect(e, v.id)}
+                    disabled={outOfStock}
+                    className={cn(
+                      "rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all duration-150 border",
+                      isSelected
+                        ? "bg-white text-black border-white shadow"
+                        : outOfStock
+                          ? "bg-white/10 text-white/30 border-white/10 line-through cursor-not-allowed"
+                          : "bg-white/15 text-white border-white/30 hover:bg-white/30"
+                    )}
+                  >
+                    {v.value || v.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <Button
             size="sm"
-            className="w-full bg-accent text-white hover:bg-black hover:text-white border border-transparent hover:border-white transition-all duration-300 rounded-full font-bold shadow-xl"
-            onClick={(e) => {
-              e.preventDefault();
-              handleAddToCart();
-            }}
+            className={cn(
+              "w-full rounded-full font-bold shadow-xl border transition-all duration-300",
+              addedFeedback
+                ? "bg-green-500 text-white border-transparent"
+                : needsSizeSelection
+                  ? "bg-white/20 text-white border-white/40 hover:bg-white/30"
+                  : "bg-accent text-white hover:bg-black hover:text-white border-transparent hover:border-white"
+            )}
+            onClick={handleAddToCart}
           >
-            კალათაში
+            {addedFeedback
+              ? "✓ დაემატა"
+              : needsSizeSelection
+                ? "აირჩიე ზომა"
+                : "კალათაში"}
           </Button>
         </div>
 
