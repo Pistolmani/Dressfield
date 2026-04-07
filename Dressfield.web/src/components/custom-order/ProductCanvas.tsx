@@ -413,6 +413,17 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         }
       });
 
+      // Clamp position during drag — prevents design from flying off canvas
+      // on mobile where touch→canvas coordinate mapping can be slightly off.
+      fc.on("object:moving", (e) => {
+        const obj = e.target;
+        if (!obj) return;
+        const halfW = ((obj.width  || 0) * (obj.scaleX ?? 1)) / 2;
+        const halfH = ((obj.height || 0) * (obj.scaleY ?? 1)) / 2;
+        obj.left = Math.max(halfW,              Math.min(CANVAS_SIZE - halfW, obj.left ?? 0));
+        obj.top  = Math.max(halfH,              Math.min(CANVAS_SIZE - halfH, obj.top  ?? 0));
+      });
+
       const persistTransform = (obj?: FabricCanvasObject) => {
         if (!obj?._designId || !onDesignTransformChange) return;
         onDesignTransformChange(obj._designId, {
@@ -427,6 +438,26 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       // Persist once interaction finishes + auto-detect embroidery size.
       fc.on("object:modified", (e) => {
         const target = e.target as FabricCanvasObject | undefined;
+
+        // Safety snap-back: if design landed at an invalid position (NaN, 0,0,
+        // or fully outside canvas) snap it to the zone center.
+        if (target && (target as FabricCanvasObject)._designId) {
+          const l = target.left ?? 0;
+          const t = target.top  ?? 0;
+          const badPosition =
+            !Number.isFinite(l) || !Number.isFinite(t) ||
+            l <= 0 || t <= 0 ||
+            l >= CANVAS_SIZE || t >= CANVAS_SIZE;
+          if (badPosition) {
+            target.set({
+              left: zone.x + zone.width  / 2,
+              top:  zone.y + zone.height / 2,
+            });
+            target.setCoords();
+            fc.requestRenderAll();
+          }
+        }
+
         persistTransform(target);
 
         if (!target || !zoneRef.current || !onEmbroiderySizeDetectedRef.current) return;
