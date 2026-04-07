@@ -1,5 +1,3 @@
-Options -Indexes
-
 # Serve pre-rendered Next.js static export on Apache/Hostinger
 # Handles trailing-slash URLs → index.html
 
