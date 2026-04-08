@@ -35,6 +35,28 @@ const googleSiteVerification =
   process.env.GOOGLE_SITE_VERIFICATION ??
   process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
+const organizationSchemaJson = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "DressField",
+  url: siteUrl,
+  logo: `${siteUrl}/dressfield-logo.png`,
+  image: `${siteUrl}/dressfield-logo.png`,
+  sameAs: ["https://www.instagram.com/dressfield.stitch/"],
+});
+
+const websiteSchemaJson = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "DressField",
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${siteUrl}/products?search={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
@@ -66,7 +88,9 @@ export const metadata: Metadata = {
     description:
       "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
     url: siteUrl,
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "DressField" }],
   },
+  manifest: "/manifest.webmanifest",
   twitter: {
     card: "summary_large_image",
     title: "DressField — ქართული ნაქარგი, შენი სტილით",
@@ -79,10 +103,6 @@ export const metadata: Metadata = {
   },
   verification: {
     google: googleSiteVerification,
-  },
-  icons: {
-    icon: [{ url: "/favicon.ico", sizes: "any" }],
-    shortcut: ["/favicon.ico"],
   },
 };
 
@@ -107,6 +127,14 @@ export default function RootLayout({
             <link rel="dns-prefetch" href={apiOrigin} />
           </>
         ) : null}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: organizationSchemaJson }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: websiteSchemaJson }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
