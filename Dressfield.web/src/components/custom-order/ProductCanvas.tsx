@@ -135,7 +135,9 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         // Only clamp new designs (no transform) to center them within the zone.
         // Reject transforms with invalid positions (0 or negative) to prevent top-left placement.
         if (transform && Number.isFinite(transform.left) && Number.isFinite(transform.top)) {
-          if (transform.left <= 0 || transform.top <= 0) {
+          const tl = Number(transform.left);
+          const tt = Number(transform.top);
+          if (tl <= 0 || tt <= 0) {
             // Invalid position saved (likely uninitialized) — fall through to zone center
           } else {
             return { left: rawLeft, top: rawTop, scaleX: rawScaleX, scaleY: rawScaleY, angle };
