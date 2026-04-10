@@ -11,6 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { GoogleLogin } from "@react-oauth/google";
 
 const registerSchema = z
   .object({
@@ -38,9 +39,24 @@ const registerSchema = z
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, loginWithGoogle } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
+    if (!credentialResponse.credential) return;
+    setGoogleLoading(true);
+    try {
+      await loginWithGoogle(credentialResponse.credential);
+      toast.success("წარმატებით დარეგისტრირდით");
+      router.push("/");
+    } catch {
+      toast.error("Google-ით შესვლა ვერ მოხერხდა");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const {
     register,
@@ -112,6 +128,27 @@ export function RegisterForm() {
   };
 
   return (
+    <div className="space-y-5">
+      {/* Google Sign-In */}
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => toast.error("Google-ით შესვლა ვერ მოხერხდა")}
+          theme="outline"
+          size="large"
+          text="signup_with"
+          width="360"
+          useOneTap={false}
+        />
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs font-medium text-gray-400">ან შეავსე ფორმა</span>
+        <div className="flex-1 h-px bg-gray-200" />
+      </div>
+
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
@@ -186,10 +223,11 @@ export function RegisterForm() {
       <Button
         type="submit"
         className="w-full h-12 text-base bg-accent hover:bg-accent-hover text-accent-foreground mt-2"
-        disabled={loading}
+        disabled={loading || googleLoading}
       >
         {loading ? "იტვირთება..." : "რეგისტრაცია"}
       </Button>
     </form>
+    </div>
   );
 }

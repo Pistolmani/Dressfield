@@ -19,6 +19,7 @@ interface AuthContextType {
   loading: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
 }
@@ -89,6 +90,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [handleAuthResponse, hydrateCartAfterAuth]
   );
 
+  const loginWithGoogle = useCallback(
+    async (idToken: string) => {
+      const { data: res } = await api.post<AuthResponse>("/api/auth/google", { idToken });
+      handleAuthResponse(res);
+      await hydrateCartAfterAuth("merge");
+    },
+    [handleAuthResponse, hydrateCartAfterAuth]
+  );
+
   const logout = useCallback(async () => {
     try {
       await api.post("/api/auth/logout");
@@ -102,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, isAdmin: user?.role === "Admin" }}
+      value={{ user, loading, login, register, loginWithGoogle, logout, isAdmin: user?.role === "Admin" }}
     >
       {children}
     </AuthContext.Provider>

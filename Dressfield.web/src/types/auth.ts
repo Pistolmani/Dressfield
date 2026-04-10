@@ -36,3 +36,7 @@ export interface ResetPasswordRequest {
   token: string;
   newPassword: string;
 }
+
+export interface GoogleLoginRequest {
+  idToken: string;
+}
