@@ -5,8 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "@/lib/catalog";
 import { HeroGalleryClient } from "@/components/ui/hero-gallery-client";
 
-const FALLBACK_HERO_IMAGES = ["/dressfield-fallback.jpg"];
-
 interface HomeHeroGalleryClientProps {
   count?: number;
   mobileCount?: number;
@@ -31,13 +29,14 @@ export function HomeHeroGalleryClient({
       .map((product) => product.primaryImageUrl)
       .filter((image): image is string => Boolean(image));
 
-    const merged = [...productImages, ...FALLBACK_HERO_IMAGES];
-    return Array.from(new Set(merged)).slice(0, maxImages);
+    return Array.from(new Set(productImages)).slice(0, maxImages);
   }, [productsQuery.data, maxImages]);
+
+  if (images.length === 0) return null;
 
   return (
     <HeroGalleryClient
-      images={images.length > 0 ? images : FALLBACK_HERO_IMAGES}
+      images={images}
       count={count}
       mobileCount={mobileCount}
       className={className}
