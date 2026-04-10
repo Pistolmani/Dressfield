@@ -2,7 +2,7 @@
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ZoomIn, ZoomOut } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, Circle, Triangle, Square, Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EMBROIDERY_SIZES } from "@/config/custom-order";
 import type {
@@ -17,10 +17,14 @@ const MIN_ZOOM_FACTOR = 0.6;
 const MAX_ZOOM_FACTOR = 4;
 const ZOOM_STEP = 1.15;
 
+export type ClipShape = "none" | "circle" | "oval" | "triangle" | "diamond";
+
 export interface ProductCanvasHandle {
   flipH: () => void;
   flipV: () => void;
   setBrightness: (value: number) => void;
+  setOpacity: (value: number) => void;
+  setClipShape: (shape: ClipShape) => void;
   getActiveDesignUrl: () => string | null;
   getActiveDesignId: () => string | null;
   resizeToFraction: (fraction: number) => void;
@@ -33,6 +37,7 @@ interface ProductCanvasProps {
   onDesignTransformChange?: (id: string, transform: DesignTransform) => void;
   onEmbroiderySizeDetected?: (sizeId: EmbroiderySizeId) => void;
   resizeRequest?: { fraction: number; seq: number } | null;
+  onSelectionChange?: (hasSelection: boolean) => void;
 }
 
 type FabricModule = typeof import("fabric");
@@ -76,6 +81,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     onDesignTransformChange,
     onEmbroiderySizeDetected,
     resizeRequest,
+    onSelectionChange,
   }, ref) {
     const canvasElRef    = useRef<HTMLCanvasElement>(null);
     const fabricRef      = useRef<FabricCanvas | null>(null);
@@ -118,20 +124,25 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
             ? Math.max(0.01, Number(transform.scaleY))
             : defaultScale;
 
-        const halfW = (safeImgW * rawScaleX) / 2;
-        const halfH = (safeImgH * rawScaleY) / 2;
-
-        const minLeft = zone.x + Math.min(halfW, zone.width / 2);
-        const maxLeft = zone.x + Math.max(zone.width - halfW, zone.width / 2);
-        const minTop = zone.y + Math.min(halfH, zone.height / 2);
-        const maxTop = zone.y + Math.max(zone.height - halfH, zone.height / 2);
-
         const rawLeft =
           transform && Number.isFinite(transform.left) ? Number(transform.left) : centerLeft;
         const rawTop =
           transform && Number.isFinite(transform.top) ? Number(transform.top) : centerTop;
         const angle =
           transform && Number.isFinite(transform.angle) ? Number(transform.angle) : 0;
+
+        // When restoring a saved transform, trust the exact position to prevent drift.
+        // Only clamp new designs (no transform) to center them within the zone.
+        if (transform && Number.isFinite(transform.left) && Number.isFinite(transform.top)) {
+          return { left: rawLeft, top: rawTop, scaleX: rawScaleX, scaleY: rawScaleY, angle };
+        }
+
+        const halfW = (safeImgW * rawScaleX) / 2;
+        const halfH = (safeImgH * rawScaleY) / 2;
+        const minLeft = zone.x + Math.min(halfW, zone.width / 2);
+        const maxLeft = zone.x + Math.max(zone.width - halfW, zone.width / 2);
+        const minTop = zone.y + Math.min(halfH, zone.height / 2);
+        const maxTop = zone.y + Math.max(zone.height - halfH, zone.height / 2);
 
         return {
           left: clampNumber(rawLeft, minLeft, maxLeft),
@@ -239,6 +250,62 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         const filter = new fabric.fabric.Image.filters.Brightness({ brightness: value });
         obj.filters  = [filter];
         obj.applyFilters();
+        fc.renderAll();
+      },
+      setOpacity(value: number) {
+        const fc = fabricRef.current;
+        const obj = getPreferredDesignObject();
+        if (!obj || !fc) return;
+        fc.setActiveObject(obj);
+        obj.set({ opacity: clampNumber(value, 0, 1) });
+        fc.renderAll();
+      },
+      setClipShape(shape: ClipShape) {
+        const fc = fabricRef.current;
+        const fabric = fabricModule;
+        const obj = getPreferredDesignObject() as FabricImage | null;
+        if (!obj || !fc || !fabric) return;
+        fc.setActiveObject(obj);
+
+        const w = (obj.width ?? 100);
+        const h = (obj.height ?? 100);
+
+        if (shape === "none") {
+          obj.clipPath = undefined;
+        } else if (shape === "circle") {
+          const r = Math.min(w, h) / 2;
+          obj.clipPath = new fabric.fabric.Circle({
+            radius: r,
+            originX: "center",
+            originY: "center",
+          });
+        } else if (shape === "oval") {
+          obj.clipPath = new fabric.fabric.Ellipse({
+            rx: w / 2,
+            ry: h / 2,
+            originX: "center",
+            originY: "center",
+          });
+        } else if (shape === "triangle") {
+          obj.clipPath = new fabric.fabric.Triangle({
+            width: w,
+            height: h,
+            originX: "center",
+            originY: "center",
+          });
+        } else if (shape === "diamond") {
+          // Diamond = rotated square
+          const side = Math.min(w, h) * 0.72;
+          obj.clipPath = new fabric.fabric.Rect({
+            width: side,
+            height: side,
+            angle: 45,
+            originX: "center",
+            originY: "center",
+          });
+        }
+
+        obj.dirty = true;
         fc.renderAll();
       },
       getActiveDesignUrl() {
@@ -376,7 +443,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       const fc = new fabricModule.fabric.Canvas(canvasElRef.current, {
         width: initialWidth, height: initialWidth,
-        selection: false, backgroundColor: "#F9FAFB",
+        selection: false, backgroundColor: "#f1f5f9",
       });
       fc.setZoom(initialScale);
       fc.defaultCursor = "default";
@@ -529,6 +596,11 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       fc.on("mouse:up", stopPanning);
       fc.on("mouse:out", stopPanning);
 
+      // Selection tracking for floating toolbar
+      fc.on("selection:created", () => onSelectionChange?.(true));
+      fc.on("selection:updated", () => onSelectionChange?.(true));
+      fc.on("selection:cleared", () => onSelectionChange?.(false));
+
       // Responsive resizing
       const observer = new ResizeObserver((entries) => {
         for (const entry of entries) {
@@ -564,6 +636,19 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         isPanningRef.current = false;
         lastPanRef.current = null;
         canvasSessionRef.current += 1;
+        // Persist all design transforms before disposing so positions survive side switches
+        const changeFn = onDesignTransformChangeRef.current;
+        if (changeFn) {
+          designObjs.forEach((obj, id) => {
+            changeFn(id, {
+              left: obj.left ?? 0,
+              top: obj.top ?? 0,
+              scaleX: obj.scaleX ?? 1,
+              scaleY: obj.scaleY ?? 1,
+              angle: obj.angle ?? 0,
+            });
+          });
+        }
         fc.dispose();
         fabricRef.current = null;
         designObjs.clear();
@@ -714,43 +799,86 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     }
 
     return (
-      <div className="relative flex flex-col items-center gap-2 w-full max-w-[500px] mx-auto">
+      <div className="relative flex flex-col items-center gap-2 w-full max-w-[600px] mx-auto">
         {isLoading && <Skeleton className="absolute inset-0 rounded-xl" />}
         <div
           ref={containerRef}
-          className="w-full aspect-square overflow-hidden rounded-xl border border-gray-200 shadow-sm"
+          className="w-full aspect-square overflow-hidden rounded-2xl border border-gray-200 shadow-md"
+          style={{ background: "#f1f5f9" }}
         >
           <canvas ref={canvasElRef} />
         </div>
 
-        <div className="w-full max-w-[460px] flex items-center gap-2">
-          <Button variant="outline" size="icon-sm" onClick={() => handleZoom("out")} title="Zoom out">
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-          <input
-            type="range"
-            min={Math.round(MIN_ZOOM_FACTOR * 100)}
-            max={Math.round(MAX_ZOOM_FACTOR * 100)}
-            step={1}
-            value={zoomPercent}
-            onChange={(event) => handleZoomSlider(Number(event.target.value))}
-            className="flex-1 accent-accent"
-            aria-label="Canvas zoom"
-          />
-          <span className="min-w-12 text-xs text-muted-foreground select-none text-right">
-            {zoomPercent}%
-          </span>
-          <Button variant="outline" size="icon-sm" onClick={() => handleZoom("in")} title="Zoom in">
-            <ZoomIn className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleFit} title="Fit canvas">
-            Fit
-          </Button>
+        {/* Zoom bar */}
+        <div className="w-full flex items-center gap-2 px-1">
+          <div className="flex items-center gap-1 bg-gray-50 rounded-xl border border-gray-200 px-1.5 py-1">
+            <button
+              onClick={() => handleZoom("out")}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-black hover:bg-white transition-colors"
+              title="Zoom out"
+            >
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <input
+              type="range"
+              min={Math.round(MIN_ZOOM_FACTOR * 100)}
+              max={Math.round(MAX_ZOOM_FACTOR * 100)}
+              step={1}
+              value={zoomPercent}
+              onChange={(event) => handleZoomSlider(Number(event.target.value))}
+              className="w-20 accent-accent"
+              aria-label="Canvas zoom"
+            />
+            <button
+              onClick={() => handleZoom("in")}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-black hover:bg-white transition-colors"
+              title="Zoom in"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+            <span className="text-[10px] font-bold text-gray-400 tabular-nums min-w-[36px] text-center select-none">
+              {zoomPercent}%
+            </span>
+          </div>
+
+          <button
+            onClick={handleFit}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-black hover:bg-gray-100 border border-gray-200 transition-colors"
+            title="მორგება"
+          >
+            <Maximize2 className="h-3.5 w-3.5" />
+          </button>
+
+          {/* Shape clip tools */}
+          {designs.length > 0 && (
+            <div className="ml-auto flex items-center gap-0.5 bg-gray-50 rounded-xl border border-gray-200 px-1.5 py-1">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider px-1">ფორმა</span>
+              {([
+                { shape: "none" as const, icon: <Square className="h-3.5 w-3.5" />, title: "კვადრატი" },
+                { shape: "circle" as const, icon: <Circle className="h-3.5 w-3.5" />, title: "წრე" },
+                { shape: "oval" as const, icon: <Circle className="h-3.5 w-3.5 scale-x-75" />, title: "ოვალი" },
+                { shape: "triangle" as const, icon: <Triangle className="h-3.5 w-3.5" />, title: "სამკუთხედი" },
+                { shape: "diamond" as const, icon: <Diamond className="h-3.5 w-3.5" />, title: "რომბი" },
+              ]).map(({ shape, icon, title }) => (
+                <button
+                  key={shape}
+                  onClick={() => {
+                    const handle = ref as React.MutableRefObject<ProductCanvasHandle | null> | null;
+                    handle?.current?.setClipShape(shape);
+                  }}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-black hover:bg-white transition-colors"
+                  title={title}
+                >
+                  {icon}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {designs.length > 0 && (
-          <p className="text-center text-xs text-gray-400">
-            გადაათრიე სურათი / ცარიელ ადგილას გადაათრიე პროდუქტი
+          <p className="text-center text-[10px] text-gray-400">
+            გადაათრიე სურათი · Alt+Drag პანორამა · Scroll ზუმი
           </p>
         )}
       </div>

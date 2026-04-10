@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useCallback, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, X, Plus } from "lucide-react";
+import { Upload, Trash2, Plus, Copy, ChevronUp, ChevronDown, Undo2, Redo2, FlipHorizontal, FlipVertical, Eraser } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
@@ -26,6 +26,8 @@ interface Step3DesignUploadProps {
   onDesignRemove: (id: string) => void;
   onDesignReplace: (id: string, newUrl: string) => void;
   onDesignTransformChange: (id: string, transform: DesignTransform) => void;
+  onDesignDuplicate?: (id: string) => void;
+  onDesignMove?: (id: string, direction: "up" | "down") => void;
   onSideChange: (side: "front" | "back") => void;
   isSidebarMode?: boolean;
   isCanvasOnly?: boolean;
@@ -33,6 +35,10 @@ interface Step3DesignUploadProps {
   onEmbroiderySizeDetected?: (sizeId: EmbroiderySizeId) => void;
   sharedCanvasRef?: RefObject<ProductCanvasHandle | null>;
   onDesignAdded?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export function Step3DesignUpload({
@@ -44,6 +50,8 @@ export function Step3DesignUpload({
   onDesignRemove,
   onDesignReplace,
   onDesignTransformChange,
+  onDesignDuplicate,
+  onDesignMove,
   onSideChange,
   isSidebarMode,
   isCanvasOnly,
@@ -51,11 +59,26 @@ export function Step3DesignUpload({
   onEmbroiderySizeDetected,
   sharedCanvasRef,
   onDesignAdded,
+  onUndo,
+  onRedo,
+  canUndo,
+  canRedo,
 }: Step3DesignUploadProps) {
   const localCanvasRef = useRef<ProductCanvasHandle | null>(null);
   const canvasRef = sharedCanvasRef ?? localCanvasRef;
   const waitToastAtRef = useRef(0);
   const [isRemovingBg, setIsRemovingBg] = useState(false);
+  const [hasSelection, setHasSelection] = useState(false);
+  const [showDragHint, setShowDragHint] = useState(false);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (designs.length === 1) {
+      setShowDragHint(true);
+      hintTimerRef.current = setTimeout(() => setShowDragHint(false), 4000);
+    }
+    return () => { if (hintTimerRef.current) clearTimeout(hintTimerRef.current); };
+  }, [designs.length]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -108,31 +131,31 @@ export function Step3DesignUpload({
   }
 
   const renderTools = () => (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <div>
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
           ინსტრუმენტები
         </p>
 
-        {/* Upload button */}
+        {/* Upload button — compact single row */}
         <div
           {...getRootProps()}
           className={cn(
-            "flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-dashed transition-all",
+            "flex items-center gap-2.5 h-11 w-full px-3 rounded-xl border-2 border-dashed cursor-pointer transition-all",
             isDragActive
               ? "border-accent bg-accent/5"
-              : "border-gray-200 bg-white hover:border-accent hover:shadow-md",
+              : "border-gray-200 bg-white hover:border-accent hover:shadow-sm",
             isRemovingBg && "opacity-50 pointer-events-none"
           )}
         >
           <input {...getInputProps()} />
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-white shadow-lg shadow-accent/20">
-            <Upload className="h-5 w-5" />
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent text-white flex-shrink-0">
+            <Upload className="h-3.5 w-3.5" />
           </div>
-          <p className="text-xs font-bold text-center text-gray-900 leading-tight mt-1">
-            {isDragActive ? "გაუშვი..." : "ატვირთე დიზაინი (მაგ. პატჩი)"}
-          </p>
-          <p className="text-[10px] text-gray-400 font-medium">PNG · JPG · SVG</p>
+          <span className="text-[11px] font-bold text-gray-900 truncate">
+            {isDragActive ? "გაუშვი..." : "ატვირთე დიზაინი"}
+          </span>
+          <span className="ml-auto text-[9px] text-gray-400 font-medium flex-shrink-0">PNG JPG SVG</span>
         </div>
 
         {/* ImageToolbar */}
@@ -148,24 +171,39 @@ export function Step3DesignUpload({
         )}
       </div>
 
-      <div className="border-t border-black/5 pt-4">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
-          ატვირთული ფოტოები ({designs.length})
-        </p>
-        
-        {designs.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-center">
-            <Plus className="h-5 w-5 text-gray-300 mx-auto mb-2" />
-            <p className="text-[11px] text-gray-400 leading-relaxed">
-              ატვირთეთ ფოტო
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+      {designs.length > 0 && (
+      <div className="border-t border-black/5 pt-3">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            შრეები ({designs.length})
+          </p>
+          {/* Undo / Redo */}
+          {(onUndo || onRedo) && (
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={onUndo}
+                disabled={!canUndo}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="გაუქმება (Ctrl+Z)"
+              >
+                <Undo2 className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={onRedo}
+                disabled={!canRedo}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="თავიდან (Ctrl+Shift+Z)"
+              >
+                <Redo2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
             {designs.map((d, index) => (
               <div
                 key={d.id}
-                className="group relative flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-2 hover:border-accent/40 transition-all shadow-sm hover:shadow-md"
+                className="group relative flex items-center gap-2 rounded-xl border border-gray-100 bg-white p-2 hover:border-accent/40 transition-all shadow-sm hover:shadow-md min-h-[44px]"
               >
                 <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-gray-50 border border-gray-100">
                   <img
@@ -176,29 +214,67 @@ export function Step3DesignUpload({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-bold text-gray-900 truncate">
-                    შერე {index + 1}
+                    შრე {index + 1}
                   </p>
                   <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
-                    {activeSide === "front" ? "FRONT" : "BACK"}
+                    {activeSide === "front" ? "წინა" : "უკანა"}
                   </p>
                 </div>
-                <button
-                  onClick={() => onDesignRemove(d.id)}
-                  className="p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
-                  title="წაშლა"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
+
+                {/* Layer controls */}
+                <div className="flex items-center gap-0.5 flex-shrink-0">
+                  {/* Reorder arrows */}
+                  {onDesignMove && designs.length > 1 && (
+                    <div className="flex flex-col">
+                      <button
+                        onClick={() => onDesignMove(d.id, "up")}
+                        disabled={index === designs.length - 1}
+                        className="p-0.5 text-gray-300 hover:text-gray-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                        title="ზემოთ"
+                      >
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onDesignMove(d.id, "down")}
+                        disabled={index === 0}
+                        className="p-0.5 text-gray-300 hover:text-gray-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                        title="ქვემოთ"
+                      >
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Duplicate */}
+                  {onDesignDuplicate && (
+                    <button
+                      onClick={() => onDesignDuplicate(d.id)}
+                      className="p-1.5 rounded-full text-gray-300 hover:text-accent hover:bg-accent/5 transition-all"
+                      title="დუბლირება"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => onDesignRemove(d.id)}
+                    className="p-1.5 rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all"
+                    title="წაშლა"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
-          </div>
-        )}
+        </div>
       </div>
+      )}
     </div>
   );
 
   const renderCanvas = () => (
-    <div className="flex flex-col items-center gap-4 w-full max-w-[500px]">
+    <div className="flex flex-col items-center gap-4 w-full max-w-[600px]">
       {/* Front / Back toggle */}
       {product.hasBack && (
         <div className="flex items-center gap-1.5 rounded-full border border-black/10 bg-white p-1.5 shadow-md">
@@ -229,7 +305,7 @@ export function Step3DesignUpload({
         </div>
       )}
 
-      <div className="relative group/canvas w-full aspect-square max-w-[500px]">
+      <div className="relative group/canvas w-full aspect-square max-w-[600px]">
         <ProductCanvas
           ref={canvasRef}
           product={product}
@@ -238,6 +314,7 @@ export function Step3DesignUpload({
           onDesignTransformChange={onDesignTransformChange}
           onEmbroiderySizeDetected={onEmbroiderySizeDetected}
           resizeRequest={resizeRequest}
+          onSelectionChange={setHasSelection}
         />
         
         {/* Loading Overlay */}
@@ -251,6 +328,56 @@ export function Step3DesignUpload({
               </div>
               <p className="text-xs font-bold text-gray-900 uppercase tracking-widest">ვშლი ფონს...</p>
             </div>
+          </div>
+        )}
+
+        {/* First-upload drag hint */}
+        {showDragHint && !isRemovingBg && (
+          <div className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-sm text-white text-[10px] font-semibold tracking-wide animate-fade-in">
+            გადაათრიე · შეცვალე ზომა · დაატრიალე
+          </div>
+        )}
+
+        {/* Floating contextual toolbar */}
+        {hasSelection && !isRemovingBg && designs.length > 0 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1 bg-white/95 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-lg border border-black/8">
+            <button
+              onClick={() => canvasRef.current?.flipH()}
+              className="p-2 rounded-full text-gray-500 hover:text-black hover:bg-gray-100 transition-colors"
+              title="ჰორიზონტალური"
+            >
+              <FlipHorizontal className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => canvasRef.current?.flipV()}
+              className="p-2 rounded-full text-gray-500 hover:text-black hover:bg-gray-100 transition-colors"
+              title="ვერტიკალური"
+            >
+              <FlipVertical className="h-4 w-4" />
+            </button>
+            <div className="w-px h-5 bg-gray-200" />
+            {onDesignDuplicate && (
+              <button
+                onClick={() => {
+                  const id = canvasRef.current?.getActiveDesignId();
+                  if (id) onDesignDuplicate(id);
+                }}
+                className="p-2 rounded-full text-gray-500 hover:text-accent hover:bg-accent/5 transition-colors"
+                title="დუბლირება"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            )}
+            <button
+              onClick={() => {
+                const id = canvasRef.current?.getActiveDesignId();
+                if (id) onDesignRemove(id);
+              }}
+              className="p-2 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="წაშლა"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
           </div>
         )}
       </div>

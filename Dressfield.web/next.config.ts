@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   output: "export",
   images: { unoptimized: true },
   trailingSlash: true,
+  turbopack: {},
   webpack: (config) => {
     // Fabric.js bundles a native Node canvas binary for SSR — we don't need it
     // since ProductCanvas only runs in the browser. Excluding it prevents

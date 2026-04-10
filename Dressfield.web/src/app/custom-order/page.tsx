@@ -10,6 +10,7 @@ import { Step4Parameters } from "@/components/custom-order/Step4_Parameters";
 import { Step5Summary } from "@/components/custom-order/Step5_Summary";
 import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanvas";
 import { cn } from "@/lib/utils";
+import { useDesignHistory } from "@/hooks/useDesignHistory";
 import {
   PRODUCT_TYPES,
   EMBROIDERY_SIZES,
@@ -56,6 +57,62 @@ export default function CustomOrderPage() {
   const [embroiderySize, setEmbroiderySize] = useState<EmbroiderySizeId | null>(null);
   // Summary note
   const [orderNote, setOrderNote] = useState("");
+
+  // Undo/redo history
+  const history = useDesignHistory();
+  const [historyTick, setHistoryTick] = useState(0);
+
+  const pushHistory = useCallback(() => {
+    // Use a microtask so state has settled
+    queueMicrotask(() => {
+      setHistoryTick((t) => t + 1);
+    });
+  }, []);
+
+  // Snapshot after historyTick changes (design state has settled)
+  const frontDesignsRef = useRef(frontDesigns);
+  frontDesignsRef.current = frontDesigns;
+  const backDesignsRef = useRef(backDesigns);
+  backDesignsRef.current = backDesigns;
+
+  useEffect(() => {
+    if (historyTick === 0) return;
+    history.pushState(frontDesignsRef.current, backDesignsRef.current);
+  }, [historyTick, history]);
+
+  const handleUndo = useCallback(() => {
+    const snapshot = history.undo();
+    if (!snapshot) return;
+    setFrontDesigns(snapshot.front);
+    setBackDesigns(snapshot.back);
+  }, [history]);
+
+  const handleRedo = useCallback(() => {
+    const snapshot = history.redo();
+    if (!snapshot) return;
+    setFrontDesigns(snapshot.front);
+    setBackDesigns(snapshot.back);
+  }, [history]);
+
+  // Keyboard shortcuts: Ctrl+Z / Ctrl+Shift+Z
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      if (e.key === "z" || e.key === "Z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      } else if (e.key === "y" || e.key === "Y") {
+        e.preventDefault();
+        handleRedo();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleUndo, handleRedo]);
 
   const visibleProducts = useMemo(
     () => PRODUCT_TYPES.filter((product) => orderIntent === "own-product" || product.id !== "jeans"),
@@ -109,6 +166,7 @@ export default function CustomOrderPage() {
   function addDesign(url: string) {
     const id = `d-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setActiveDesigns((prev) => [...prev, { id, url }]);
+    pushHistory();
   }
 
   function removeDesign(id: string) {
@@ -123,6 +181,7 @@ export default function CustomOrderPage() {
       if (target) revokeIfBlobUrl(target.url);
       return prev.filter((d) => d.id !== id);
     });
+    pushHistory();
   }
 
   function replaceDesignUrl(id: string, newUrl: string) {
@@ -134,6 +193,7 @@ export default function CustomOrderPage() {
 
     setFrontDesigns((prev) => replaceIn(prev));
     setBackDesigns((prev) => replaceIn(prev));
+    pushHistory();
   }
 
   const updateDesignTransform = useCallback((id: string, transform: DesignTransform) => {
@@ -153,6 +213,32 @@ export default function CustomOrderPage() {
     setFrontDesigns((prev) => applyTransform(prev));
     setBackDesigns((prev) => applyTransform(prev));
   }, []);
+
+  function duplicateDesign(id: string) {
+    setActiveDesigns((prev) => {
+      const source = prev.find((d) => d.id === id);
+      if (!source) return prev;
+      const newId = `d-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const offsetTransform: DesignTransform | undefined = source.transform
+        ? { ...source.transform, left: source.transform.left + 10, top: source.transform.top + 10 }
+        : undefined;
+      return [...prev, { id: newId, url: source.url, transform: offsetTransform }];
+    });
+    pushHistory();
+  }
+
+  function moveDesign(id: string, direction: "up" | "down") {
+    setActiveDesigns((prev) => {
+      const idx = prev.findIndex((d) => d.id === id);
+      if (idx < 0) return prev;
+      const targetIdx = direction === "up" ? idx + 1 : idx - 1;
+      if (targetIdx < 0 || targetIdx >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[targetIdx]] = [next[targetIdx], next[idx]];
+      return next;
+    });
+    pushHistory();
+  }
 
   const isStepComplete = (): boolean => {
     if (step === 1) return selectedProduct !== null;
@@ -263,9 +349,9 @@ export default function CustomOrderPage() {
           {step === 3 && currentProduct && selectedProduct && (
             <>
               {/* ── Desktop: 3-column layout ────────────────────────────── */}
-              <div className="hidden lg:flex flex-row gap-8 items-start">
+              <div className="hidden lg:flex flex-row gap-5 items-start">
                 {/* Left Panel: Tools & Layers */}
-                <div className="w-52 space-y-6 sticky top-8">
+                <div className="w-44 space-y-5 sticky top-8 flex-shrink-0">
                   <Step3DesignUpload
                     product={currentProduct}
                     designs={activeDesigns}
@@ -275,14 +361,20 @@ export default function CustomOrderPage() {
                     onDesignRemove={removeDesign}
                     onDesignReplace={replaceDesignUrl}
                     onDesignTransformChange={updateDesignTransform}
+                    onDesignDuplicate={duplicateDesign}
+                    onDesignMove={moveDesign}
                     onSideChange={setActiveSide}
                     isSidebarMode
                     sharedCanvasRef={desktopCanvasRef}
+                    onUndo={handleUndo}
+                    onRedo={handleRedo}
+                    canUndo={history.canUndo()}
+                    canRedo={history.canRedo()}
                   />
                 </div>
 
                 {/* Center Panel: Preview */}
-                <div className="flex-1 w-full flex flex-col items-center justify-center bg-gray-50 rounded-[2.5rem] border border-black/5 p-8 min-h-[500px] relative shadow-inner">
+                <div className="flex-1 w-full flex flex-col items-center justify-center bg-slate-100 rounded-[2.5rem] border border-black/5 p-8 min-h-[500px] relative shadow-inner">
                   <Step3DesignUpload
                     product={currentProduct}
                     designs={activeDesigns}
@@ -308,7 +400,7 @@ export default function CustomOrderPage() {
                 </div>
 
                 {/* Right Panel: Options & Purchase */}
-                <div className="w-80 space-y-8 sticky top-8">
+                <div className="w-64 space-y-6 sticky top-8 flex-shrink-0">
                   <Step2SizeAndColor
                     selectedProduct={selectedProduct}
                     skipSize={currentProduct.skipClothingSize}
@@ -380,9 +472,15 @@ export default function CustomOrderPage() {
                     onDesignRemove={removeDesign}
                     onDesignReplace={replaceDesignUrl}
                     onDesignTransformChange={updateDesignTransform}
+                    onDesignDuplicate={duplicateDesign}
+                    onDesignMove={moveDesign}
                     onSideChange={setActiveSide}
                     isSidebarMode
                     sharedCanvasRef={mobileCanvasRef}
+                    onUndo={handleUndo}
+                    onRedo={handleRedo}
+                    canUndo={history.canUndo()}
+                    canRedo={history.canRedo()}
                   />
 
                   <Step2SizeAndColor

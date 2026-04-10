@@ -123,7 +123,14 @@ export function InteractiveHeroGallery({
             clampTopMax: 86,
             jitterScale: 0.3,
           }
-        : undefined),
+        : {
+            cols: 3,
+            clampLeftMin: 8,
+            clampLeftMax: 92,
+            clampTopMin: 8,
+            clampTopMax: 92,
+            jitterScale: 0.45,
+          }),
     [images, count, compact]
   );
 
@@ -159,7 +166,7 @@ export function InteractiveHeroGallery({
             className={cn(
               compact
                 ? "w-28 sm:w-36 aspect-[4/5] p-1.5 rounded-xl shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
-                : "w-40 sm:w-60 aspect-[4/5] p-2 rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)]",
+                : "w-52 sm:w-72 aspect-[4/5] p-2 rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)]",
               "bg-white origin-center",
               interactive ? "cursor-grab active:cursor-grabbing" : "cursor-default"
             )}

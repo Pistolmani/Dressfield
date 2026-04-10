@@ -30,15 +30,15 @@ export function Step2SizeAndColor({
   const hasColors = availableColors && availableColors.length > 0;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
       {!skipSize && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <h2 className="text-3xl font-semibold text-gray-600">ტანსაცმლის ზომა</h2>
-            <p className="mt-1 text-base text-gray-400">აირჩიე სასურველი ზომა</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">ტანსაცმლის ზომა</p>
+            <p className="text-xs text-gray-400">აირჩიე სასურველი ზომა</p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {CLOTHING_SIZES.map((size) => {
               const isSelected = selectedSize === size;
               return (
@@ -47,7 +47,7 @@ export function Step2SizeAndColor({
                   type="button"
                   onClick={() => onSizeSelect(size)}
                   className={cn(
-                    "flex min-w-[80px] items-center justify-center rounded-2xl border px-6 py-3 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    "flex min-w-[56px] items-center justify-center rounded-xl border px-4 py-2 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                     isSelected
                       ? "border-accent bg-violet-50 shadow-md"
                       : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm",
@@ -55,7 +55,7 @@ export function Step2SizeAndColor({
                 >
                   <span
                     className={cn(
-                      "text-2xl font-bold",
+                      "text-base font-bold",
                       isSelected ? "text-accent" : "text-foreground",
                     )}
                   >

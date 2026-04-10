@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { FlipHorizontal, FlipVertical, Sun, Eraser, Loader2 } from "lucide-react";
+import { FlipHorizontal, FlipVertical, Sun, Eraser, Loader2, CircleDot } from "lucide-react";
 import type { ProductCanvasHandle } from "./ProductCanvas";
 
 interface ImageToolbarProps {
@@ -100,6 +100,7 @@ export function ImageToolbar({
 }: ImageToolbarProps) {
   const [removingBg, setRemovingBg] = useState(false);
   const [brightness, setBrightness] = useState(100);
+  const [opacity, setOpacity] = useState(100);
   const blobUrlRef = useRef<string | null>(null);
   const operationIdRef = useRef(0);
   const mountedRef = useRef(true);
@@ -205,48 +206,64 @@ export function ImageToolbar({
     canvasRef.current?.setBrightness(val - 1);
   }
 
+  function handleOpacityChange(values: number[]) {
+    const val = values[0];
+    setOpacity(val);
+    canvasRef.current?.setOpacity(val / 100);
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div className="h-px bg-black/8" />
 
-      {/* Compact vertical tool buttons */}
+      {/* Tool buttons with icon badges */}
       <button
         onClick={handleRemoveBg}
         disabled={removingBg}
-        className="flex items-center gap-2 w-full rounded-lg px-2.5 py-2 text-[11px] font-medium text-left border border-black/10 bg-white hover:bg-black/3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center gap-2.5 w-full rounded-xl px-3 py-2.5 text-[11px] font-semibold text-left border border-black/8 bg-white hover:bg-gray-50 hover:border-accent/30 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
-        {removingBg ? (
-          <Loader2 className="h-3.5 w-3.5 text-accent animate-spin flex-shrink-0" />
-        ) : (
-          <Eraser className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-        )}
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-50 flex-shrink-0">
+          {removingBg ? (
+            <Loader2 className="h-3.5 w-3.5 text-violet-500 animate-spin" />
+          ) : (
+            <Eraser className="h-3.5 w-3.5 text-violet-500" />
+          )}
+        </span>
         {removingBg ? "მუშავდება..." : "ფონის წაშლა"}
       </button>
 
-      <button
-        onClick={() => canvasRef.current?.flipH()}
-        className="flex items-center gap-2 w-full rounded-lg px-2.5 py-2 text-[11px] font-medium text-left border border-black/10 bg-white hover:bg-black/3 transition-colors"
-      >
-        <FlipHorizontal className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-        ჰორიზ. პარ.
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={() => canvasRef.current?.flipH()}
+          className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold text-left border border-black/8 bg-white hover:bg-gray-50 hover:border-accent/30 hover:shadow-sm transition-all"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 flex-shrink-0">
+            <FlipHorizontal className="h-3.5 w-3.5 text-blue-500" />
+          </span>
+          ჰორიზ.
+        </button>
 
-      <button
-        onClick={() => canvasRef.current?.flipV()}
-        className="flex items-center gap-2 w-full rounded-lg px-2.5 py-2 text-[11px] font-medium text-left border border-black/10 bg-white hover:bg-black/3 transition-colors"
-      >
-        <FlipVertical className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-        ვერტიკ. პარ.
-      </button>
+        <button
+          onClick={() => canvasRef.current?.flipV()}
+          className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold text-left border border-black/8 bg-white hover:bg-gray-50 hover:border-accent/30 hover:shadow-sm transition-all"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 flex-shrink-0">
+            <FlipVertical className="h-3.5 w-3.5 text-blue-500" />
+          </span>
+          ვერტიკ.
+        </button>
+      </div>
 
       {/* Brightness */}
-      <div className="space-y-1.5 pt-1">
+      <div className="space-y-1.5 pt-1 px-1">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[11px] text-foreground">
-            <Sun className="h-3.5 w-3.5 text-gray-500" />
-            <span>სინათლე</span>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-50 flex-shrink-0">
+              <Sun className="h-3 w-3 text-amber-500" />
+            </span>
+            სინათლე
           </div>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
             {brightness > 100 ? `+${brightness - 100}` : brightness < 100 ? `${brightness - 100}` : "0"}%
           </span>
         </div>
@@ -257,6 +274,30 @@ export function ImageToolbar({
           step={1}
           value={brightness}
           onChange={(e) => handleBrightnessChange([Number(e.target.value)])}
+          className="w-full accent-accent"
+        />
+      </div>
+
+      {/* Opacity */}
+      <div className="space-y-1.5 px-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 flex-shrink-0">
+              <CircleDot className="h-3 w-3 text-gray-500" />
+            </span>
+            გამჭვირვალობა
+          </div>
+          <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
+            {opacity}%
+          </span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={1}
+          value={opacity}
+          onChange={(e) => handleOpacityChange([Number(e.target.value)])}
           className="w-full accent-accent"
         />
       </div>

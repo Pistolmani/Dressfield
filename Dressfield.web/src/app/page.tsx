@@ -84,7 +84,7 @@ export default function HomePage() {
             className="h-full w-full object-cover opacity-40 pointer-events-none"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 pointer-events-none" />
-          <HomeHeroGalleryClient count={8} className="z-20 opacity-60" />
+          <HomeHeroGalleryClient count={6} className="z-20 opacity-60" />
         </div>
 
         <div className="pointer-events-none relative z-30 mx-auto flex min-h-[80vh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
@@ -100,7 +100,7 @@ export default function HomePage() {
             <Link href="/custom-order">
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-white/90 px-10 py-4 text-lg font-bold shadow-2xl hover:scale-105 transition-all duration-300 rounded-full"
+                className="bg-white text-black hover:bg-white/90 px-14 py-5 text-xl font-bold shadow-2xl shadow-white/20 hover:scale-105 transition-all duration-300 rounded-full"
               >
                 <Upload className="h-5 w-5 mr-3" />
                 შექმენი
