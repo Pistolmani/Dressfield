@@ -232,7 +232,7 @@ export function ImageToolbar({
         {removingBg ? "მუშავდება..." : "ფონის წაშლა"}
       </button>
 
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <button
           onClick={() => canvasRef.current?.flipH()}
           className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold text-left border border-black/8 bg-white hover:bg-gray-50 hover:border-accent/30 hover:shadow-sm transition-all"

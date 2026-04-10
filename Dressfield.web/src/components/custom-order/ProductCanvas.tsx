@@ -2,7 +2,7 @@
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ZoomIn, ZoomOut, Maximize2, Circle, Triangle, Square, Diamond } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EMBROIDERY_SIZES } from "@/config/custom-order";
 import type {
@@ -458,8 +458,9 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         await loadBackground(fabricModule, fc, baseSvgUrl);
         if (canvasSessionRef.current !== sessionId || fabricRef.current !== fc) return;
 
-        // Re-add all current designs
-        designs.forEach((d) => addDesignObj(fabricModule, fc, d, zone, sessionId));
+        // Designs are added by the sync useEffect below once isLoading becomes false.
+        // Do NOT add them here — setIsLoading(false) fires before fromURL callbacks
+        // complete, causing the sync effect to double-add every design.
         setIsLoading(false);
       })();
 
@@ -849,31 +850,6 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
             <Maximize2 className="h-3.5 w-3.5" />
           </button>
 
-          {/* Shape clip tools */}
-          {designs.length > 0 && (
-            <div className="ml-auto flex items-center gap-0.5 bg-gray-50 rounded-xl border border-gray-200 px-1.5 py-1">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider px-1">ფორმა</span>
-              {([
-                { shape: "none" as const, icon: <Square className="h-3.5 w-3.5" />, title: "კვადრატი" },
-                { shape: "circle" as const, icon: <Circle className="h-3.5 w-3.5" />, title: "წრე" },
-                { shape: "oval" as const, icon: <Circle className="h-3.5 w-3.5 scale-x-75" />, title: "ოვალი" },
-                { shape: "triangle" as const, icon: <Triangle className="h-3.5 w-3.5" />, title: "სამკუთხედი" },
-                { shape: "diamond" as const, icon: <Diamond className="h-3.5 w-3.5" />, title: "რომბი" },
-              ]).map(({ shape, icon, title }) => (
-                <button
-                  key={shape}
-                  onClick={() => {
-                    const handle = ref as React.MutableRefObject<ProductCanvasHandle | null> | null;
-                    handle?.current?.setClipShape(shape);
-                  }}
-                  className="p-1.5 rounded-lg text-gray-400 hover:text-black hover:bg-white transition-colors"
-                  title={title}
-                >
-                  {icon}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {designs.length > 0 && (
