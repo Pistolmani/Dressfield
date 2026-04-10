@@ -133,8 +133,13 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
         // When restoring a saved transform, trust the exact position to prevent drift.
         // Only clamp new designs (no transform) to center them within the zone.
+        // Reject transforms with invalid positions (0 or negative) to prevent top-left placement.
         if (transform && Number.isFinite(transform.left) && Number.isFinite(transform.top)) {
-          return { left: rawLeft, top: rawTop, scaleX: rawScaleX, scaleY: rawScaleY, angle };
+          if (transform.left <= 0 || transform.top <= 0) {
+            // Invalid position saved (likely uninitialized) — fall through to zone center
+          } else {
+            return { left: rawLeft, top: rawTop, scaleX: rawScaleX, scaleY: rawScaleY, angle };
+          }
         }
 
         const halfW = (safeImgW * rawScaleX) / 2;
@@ -641,9 +646,16 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         const changeFn = onDesignTransformChangeRef.current;
         if (changeFn) {
           designObjs.forEach((obj, id) => {
+            const l = obj.left ?? 0;
+            const t = obj.top ?? 0;
+            // Only save if position looks valid (not at origin, not NaN)
+            // Skip positions where both coords are ≤ 0, as these are likely uninitialized
+            if (!Number.isFinite(l) || !Number.isFinite(t) || (l <= 0 && t <= 0)) {
+              return;
+            }
             changeFn(id, {
-              left: obj.left ?? 0,
-              top: obj.top ?? 0,
+              left: l,
+              top: t,
               scaleX: obj.scaleX ?? 1,
               scaleY: obj.scaleY ?? 1,
               angle: obj.angle ?? 0,
