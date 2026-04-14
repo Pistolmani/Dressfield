@@ -290,8 +290,15 @@ export default function CustomOrderPage() {
     setFrontDesigns([]);
     setBackDesigns([]);
     setActiveSide("front");
-    // Auto-set embroidery size for products with a fixed zone (e.g. cap)
-    setEmbroiderySize(product?.skipEmbroiderySizePicker ? "S" : null);
+    // Auto-set embroidery size for fixed-zone products (e.g. cap).
+    // Cap uses fixed 6x30cm placement and maps to L pricing.
+    setEmbroiderySize(
+      id === "cap"
+        ? "L"
+        : product?.skipEmbroiderySizePicker
+          ? "S"
+          : null
+    );
     setOrderNote("");
     setStep(3); // Auto-advance to unified editor
   };
@@ -312,11 +319,12 @@ export default function CustomOrderPage() {
     embroiderySize !== null
       ? EMBROIDERY_SIZES.find((size) => size.id === embroiderySize) ?? null
       : null;
+  const capScaleLimitFraction =
+    currentProduct?.id === "cap"
+      ? selectedEmbroidery?.zoneScaleFraction ?? null
+      : null;
   const isOwnProductMode = orderIntent === "own-product";
-  const embroideryExtra =
-    currentProduct?.skipEmbroiderySizePicker
-      ? 0
-      : (selectedEmbroidery?.extraPrice ?? 0);
+  const embroideryExtra = selectedEmbroidery?.extraPrice ?? 0;
   const basePrice = isOwnProductMode ? 0 : (currentProduct?.basePrice ?? 0);
   const designCount = Math.max(allDesigns.length, 1);
   const totalPrice = basePrice + embroideryExtra * designCount;
@@ -367,6 +375,7 @@ export default function CustomOrderPage() {
                     onDesignMove={moveDesign}
                     onSideChange={setActiveSide}
                     isSidebarMode
+                    maxScaleFraction={capScaleLimitFraction}
                     sharedCanvasRef={desktopCanvasRef}
                     onUndo={handleUndo}
                     onRedo={handleRedo}
@@ -376,7 +385,7 @@ export default function CustomOrderPage() {
                 </div>
 
                 {/* Center Panel: Preview */}
-                <div className="flex-1 w-full flex flex-col items-center justify-center bg-slate-100 rounded-[2.5rem] border border-black/5 p-8 min-h-[500px] relative shadow-inner">
+                <div className="flex-1 w-full flex flex-col items-center justify-center bg-gradient-to-b from-slate-50/80 to-slate-200/40 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 min-h-[500px] relative shadow-[inset_0_5px_30px_rgba(0,0,0,0.03)] ring-1 ring-black/[0.02]">
                   <Step3DesignUpload
                     product={currentProduct}
                     designs={activeDesigns}
@@ -389,6 +398,7 @@ export default function CustomOrderPage() {
                     onSideChange={setActiveSide}
                     isCanvasOnly
                     resizeRequest={resizeRequest}
+                    maxScaleFraction={capScaleLimitFraction}
                     onEmbroiderySizeDetected={handleEmbroiderySizeDetected}
                     sharedCanvasRef={desktopCanvasRef}
                   />
@@ -416,6 +426,7 @@ export default function CustomOrderPage() {
                     product={currentProduct}
                     embroiderySize={embroiderySize}
                     onEmbroiderySizeChange={setEmbroiderySize}
+                    designCount={allDesigns.length}
                     isCompact
                     onSizeButtonClick={handleSizeButtonClick}
                   />
@@ -459,6 +470,7 @@ export default function CustomOrderPage() {
                     onSideChange={setActiveSide}
                     isCanvasOnly
                     resizeRequest={resizeRequest}
+                    maxScaleFraction={capScaleLimitFraction}
                     onEmbroiderySizeDetected={handleEmbroiderySizeDetected}
                     sharedCanvasRef={mobileCanvasRef}
                   />
@@ -478,6 +490,7 @@ export default function CustomOrderPage() {
                     onDesignMove={moveDesign}
                     onSideChange={setActiveSide}
                     isSidebarMode
+                    maxScaleFraction={capScaleLimitFraction}
                     sharedCanvasRef={mobileCanvasRef}
                     onUndo={handleUndo}
                     onRedo={handleRedo}
@@ -498,6 +511,7 @@ export default function CustomOrderPage() {
                     product={currentProduct}
                     embroiderySize={embroiderySize}
                     onEmbroiderySizeChange={setEmbroiderySize}
+                    designCount={allDesigns.length}
                     isCompact
                     onSizeButtonClick={handleSizeButtonClick}
                   />

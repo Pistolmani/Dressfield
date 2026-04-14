@@ -58,9 +58,15 @@ export function Step5Summary({
   const embrSize = EMBROIDERY_SIZES.find((s) => s.id === embroiderySize)!;
   const isOwnProductMode = orderIntent === "own-product";
   const basePrice = isOwnProductMode ? 0 : product.basePrice;
-  const embroideryExtra = product.skipEmbroiderySizePicker ? 0 : embrSize.extraPrice;
+  const embroideryExtra = embrSize.extraPrice;
   const designCount = Math.max(frontDesigns.length + backDesigns.length, 1);
   const totalPrice = basePrice + embroideryExtra * designCount;
+  const embroiderySizeDisplay =
+    selectedProduct === "cap"
+      ? embroiderySize === "L"
+        ? "MAX (სიმაღლე 6სმ · სიგრძე 30სმ)"
+        : `${embrSize.label} (${embrSize.note})`
+      : embrSize.label;
 
   const handleSubmit = () => {
     const existingCustomIds = useCartStore
@@ -76,7 +82,13 @@ export function Step5Summary({
     const labelParts: string[] = [];
     if (clothingSize) labelParts.push(`Size: ${clothingSize}`);
     if (selectedColor) labelParts.push(`Color: ${selectedColor.label}`);
-    if (!product.skipEmbroiderySizePicker) labelParts.push(`Embroidery: ${embrSize.label}`);
+    if (!product.skipEmbroiderySizePicker) {
+      labelParts.push(
+        product.id === "cap" && embrSize.id === "L"
+          ? "Embroidery: MAX (Height 6cm · Length 30cm)"
+          : `Embroidery: ${embrSize.label}`
+      );
+    }
     const variantLabel = labelParts.join(" | ") || undefined;
 
     addItem({
@@ -158,7 +170,7 @@ export function Step5Summary({
           {selectedColor && <SummaryRow label="ფერი" value={selectedColor.label} />}
           <SummaryRow
             label="ნაქარგის ზომა"
-            value={product.skipEmbroiderySizePicker ? "6x30სმ (მაქს)" : embrSize.label}
+            value={embroiderySizeDisplay}
           />
           <SummaryRow
             label="დიზაინები"

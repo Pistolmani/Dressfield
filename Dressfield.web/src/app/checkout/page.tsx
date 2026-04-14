@@ -463,6 +463,10 @@ export default function CheckoutPage() {
         setSubmitError("კალათაში გაქვთ custom და ჩვეულებრივი პროდუქტი ერთად. გთხოვთ, შეუკვეთეთ ცალ-ცალკე.");
         return;
       }
+      if (customItems.length > 1) {
+        setSubmitError("კალათაში რამდენიმე ინდ. შეკვეთაა. გთხოვთ, გააფორმეთ ეს შეკვეთები ცალ-ცალკე.");
+        return;
+      }
 
       const contactName = form.contactName.trim();
       const contactPhone = `+995${form.contactPhone}`;
@@ -588,7 +592,7 @@ export default function CheckoutPage() {
           // Persist orderId for confirmation page recovery
           localStorage.setItem("dressfield_pending_order_id", String(customOrder.orderId));
 
-          // Redirect to BOG payment on first custom item (subsequent items share the session)
+          // Redirect to BOG payment as soon as session is ready.
           if (createdCustomOrderIds.length === 1 && customOrder.paymentRedirectUrl) {
             clearCart();
             window.location.href = customOrder.paymentRedirectUrl;

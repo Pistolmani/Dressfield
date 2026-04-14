@@ -74,7 +74,7 @@ export const PRODUCT_TYPES = [
     designZoneBack: { x: 148, y: 142, width: 104, height: 96 },
     basePrice: 25,
     skipClothingSize: true,
-    skipEmbroiderySizePicker: true,
+    skipEmbroiderySizePicker: false,
     skipDesign: false,
     hasBack: true,
   },

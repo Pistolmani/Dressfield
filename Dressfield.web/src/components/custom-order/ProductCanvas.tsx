@@ -37,6 +37,7 @@ interface ProductCanvasProps {
   onDesignTransformChange?: (id: string, transform: DesignTransform) => void;
   onEmbroiderySizeDetected?: (sizeId: EmbroiderySizeId) => void;
   resizeRequest?: { fraction: number; seq: number } | null;
+  maxScaleFraction?: number | null;
   onSelectionChange?: (hasSelection: boolean) => void;
 }
 
@@ -81,6 +82,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     onDesignTransformChange,
     onEmbroiderySizeDetected,
     resizeRequest,
+    maxScaleFraction,
     onSelectionChange,
   }, ref) {
     const canvasElRef    = useRef<HTMLCanvasElement>(null);
@@ -97,11 +99,15 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
     const isPanningRef  = useRef(false);
     const lastPanRef    = useRef<{ x: number; y: number } | null>(null);
     const zoneRef       = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+    const maxScaleFractionRef = useRef<number | null>(maxScaleFraction ?? null);
     const lastDetectedSizeRef = useRef<EmbroiderySizeId | null>(null);
     const onEmbroiderySizeDetectedRef = useRef(onEmbroiderySizeDetected);
     onEmbroiderySizeDetectedRef.current = onEmbroiderySizeDetected;
     const onDesignTransformChangeRef = useRef(onDesignTransformChange);
     onDesignTransformChangeRef.current = onDesignTransformChange;
+    useEffect(() => {
+      maxScaleFractionRef.current = maxScaleFraction ?? null;
+    }, [maxScaleFraction]);
     const computeDesignPlacement = useCallback(
       (
         imgW: number,
@@ -480,7 +486,13 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         // Clamp so the design cannot exceed the embroidery zone dimensions
         const maxScaleX = zone.width / (obj.width || 1);
         const maxScaleY = zone.height / (obj.height || 1);
-        const maxScale = Math.min(maxScaleX, maxScaleY);
+        const zoneMaxScale = Math.min(maxScaleX, maxScaleY);
+        const zoneMinDim = Math.min(zone.width, zone.height);
+        const selectedFraction = maxScaleFractionRef.current;
+        const selectedSizeMaxScale = selectedFraction != null
+          ? (selectedFraction * zoneMinDim) / Math.max(obj.width || 1, obj.height || 1)
+          : Number.POSITIVE_INFINITY;
+        const maxScale = Math.min(zoneMaxScale, selectedSizeMaxScale);
         const currentScaleX = obj.scaleX ?? 1;
         if (currentScaleX > maxScale) {
           obj.scaleX = maxScale;
@@ -517,6 +529,21 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         // Safety snap-back: if design landed at an invalid position (NaN, 0,0,
         // or fully outside canvas) snap it to the zone center.
         if (target && (target as FabricCanvasObject)._designId) {
+          const selectedFraction = maxScaleFractionRef.current;
+          if (selectedFraction != null) {
+            const zoneMinDim = Math.min(zone.width, zone.height);
+            const tW = target.width || 1;
+            const tH = target.height || 1;
+            const selectedSizeMaxScale = (selectedFraction * zoneMinDim) / Math.max(tW, tH);
+            const currentScale = target.scaleX ?? 1;
+            if (currentScale > selectedSizeMaxScale) {
+              target.set({
+                scaleX: selectedSizeMaxScale,
+                scaleY: selectedSizeMaxScale,
+              });
+            }
+          }
+
           const l = target.left ?? 0;
           const t = target.top  ?? 0;
           const badPosition =

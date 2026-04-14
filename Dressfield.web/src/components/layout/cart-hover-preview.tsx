@@ -249,7 +249,7 @@ export function CartHoverPreview() {
               </span>
             )}
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[85vh] rounded-t-[2rem] bg-black border-t border-white/10 p-0 flex flex-col text-white pb-safe">
+          <SheetContent side="bottom" className="h-[85vh] rounded-t-[2rem] bg-black border-t border-white/10 p-0 flex flex-col text-white pb-[env(safe-area-inset-bottom)]">
             <SheetHeader className="sr-only">
               <SheetTitle>შენი კალათა</SheetTitle>
             </SheetHeader>

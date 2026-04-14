@@ -14,7 +14,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-header-bg text-header-text">
+    <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl text-white border-b border-white/5 transition-all duration-300">
       <div className="mx-auto max-w-7xl flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
         <Link href="/" aria-label="DressField — მთავარი">
           <Logo className="h-5 w-auto" />

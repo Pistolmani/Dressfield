@@ -113,7 +113,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
 
   return (
     <article
-      className="group relative flex flex-col overflow-hidden bg-white transition-all duration-300"
+      className="group relative flex flex-col bg-white transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] rounded-2xl pb-3"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => { setIsHovered(false); setCurrentIndex(0); }}
     >

@@ -12,6 +12,7 @@ interface Step4ParametersProps {
   product: ProductType;
   embroiderySize: EmbroiderySizeId | null;
   onEmbroiderySizeChange: (id: EmbroiderySizeId) => void;
+  designCount?: number;
   isCompact?: boolean;
   onSizeButtonClick?: (fraction: number) => void;
 }
@@ -20,24 +21,35 @@ export function Step4Parameters({
   product,
   embroiderySize,
   onEmbroiderySizeChange,
+  designCount = 1,
   isCompact,
   onSizeButtonClick,
 }: Step4ParametersProps) {
   const selectedEmbSize = EMBROIDERY_SIZES.find((size) => size.id === embroiderySize);
-  const extraPrice = product.skipEmbroiderySizePicker ? 0 : (selectedEmbSize?.extraPrice ?? 0);
+  const extraPrice = selectedEmbSize?.extraPrice ?? 0;
+  const isCap = product.id === "cap";
+  const sizeOptions = isCap
+    ? EMBROIDERY_SIZES
+        .filter((size) => size.id === "S" || size.id === "M" || size.id === "L")
+        .map((size) =>
+          size.id === "L"
+            ? { ...size, label: "MAX", note: "სიმაღლე 6სმ · სიგრძე 30სმ" }
+            : size
+        )
+    : EMBROIDERY_SIZES;
 
   return (
     <div className="space-y-8">
       <div className="space-y-3">
         <h3 className="text-2xl font-semibold text-gray-500">ნაქარგის ზომა</h3>
-        {product.skipEmbroiderySizePicker ? (
+        {product.skipEmbroiderySizePicker && !isCap ? (
           <div className="rounded-2xl border border-accent/30 bg-violet-50 px-5 py-4">
             <p className="text-sm font-bold text-accent">ნაქარგის ზომა: 6×30სმ (მაქს.)</p>
             <p className="text-xs text-gray-500 mt-1">კეპისთვის ნაქარგის ზონა ფიქსირებულია</p>
           </div>
         ) : (
           <div className="flex flex-wrap gap-3">
-            {EMBROIDERY_SIZES.map((size) => {
+            {sizeOptions.map((size) => {
               const isSelected = embroiderySize === size.id;
               return (
                 <button
@@ -85,10 +97,17 @@ export function Step4Parameters({
             })}
           </div>
         )}
+        {isCap ? (
+          <p className="text-xs text-gray-500">
+            მაქსიმალური ზომაა{" "}
+            <span className="font-semibold text-foreground">სიმაღლე 6სმ × სიგრძე 30სმ (MAX)</span>.
+            შეგიძლიათ აირჩიოთ უფრო პატარა ზომაც და ფასი ავტომატურად გადაითვლება.
+          </p>
+        ) : null}
       </div>
 
       {!isCompact ? (
-        <PricingSummary basePrice={product.basePrice} embroideryExtra={extraPrice} />
+        <PricingSummary basePrice={product.basePrice} embroideryExtra={extraPrice} designCount={designCount} />
       ) : null}
     </div>
   );

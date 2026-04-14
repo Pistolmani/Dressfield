@@ -84,9 +84,9 @@ export function ProductFiltersSidebar({
                     key={option.value}
                     onClick={() => runAndClose(() => onSortChange(option.value))}
                     className={cn(
-                      "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
+                      "block w-full text-left py-2 px-3 rounded-full text-sm transition-all duration-200",
                       sort === option.value
-                        ? "bg-accent/10 font-semibold text-accent"
+                        ? "bg-accent text-white font-bold shadow-md shadow-accent/20"
                         : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
                     )}
                   >
@@ -119,9 +119,9 @@ export function ProductFiltersSidebar({
                     <button
                       onClick={() => runAndClose(() => onCategoryChange(null))}
                       className={cn(
-                        "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
+                        "block w-full text-left py-2 px-3 rounded-full text-sm transition-all duration-200",
                         activeCategory === null
-                          ? "bg-accent/10 font-semibold text-accent"
+                          ? "bg-accent text-white font-bold shadow-md shadow-accent/20"
                           : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
                       )}
                     >
@@ -133,9 +133,9 @@ export function ProductFiltersSidebar({
                         key={category.slug}
                         onClick={() => runAndClose(() => onCategoryChange(category.slug))}
                         className={cn(
-                          "block w-full text-left py-2 px-2 rounded text-sm transition-colors",
+                          "block w-full text-left py-2 px-3 rounded-full text-sm transition-all duration-200",
                           activeCategory === category.slug
-                            ? "bg-accent/10 font-semibold text-accent"
+                            ? "bg-accent text-white font-bold shadow-md shadow-accent/20"
                             : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
                         )}
                       >

@@ -3,13 +3,17 @@
 interface PricingSummaryProps {
   basePrice: number;
   embroideryExtra: number;
+  designCount?: number;
 }
 
 export function PricingSummary({
   basePrice,
   embroideryExtra,
+  designCount = 1,
 }: PricingSummaryProps) {
-  const total = basePrice + embroideryExtra;
+  const safeDesignCount = Math.max(designCount, 1);
+  const embroideryTotal = embroideryExtra * safeDesignCount;
+  const total = basePrice + embroideryTotal;
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -20,9 +24,11 @@ export function PricingSummary({
           <span className="font-medium">₾{basePrice}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">+ ნაქარგის ზომა:</span>
+          <span className="text-gray-600">
+            + ნაქარგის ზომა{safeDesignCount > 1 ? ` × ${safeDesignCount}` : ""}:
+          </span>
           <span className="font-medium">
-            {embroideryExtra > 0 ? `₾${embroideryExtra}` : "—"}
+            {embroideryTotal > 0 ? `₾${embroideryTotal}` : "—"}
           </span>
         </div>
         <div className="my-2 border-t border-gray-200" />

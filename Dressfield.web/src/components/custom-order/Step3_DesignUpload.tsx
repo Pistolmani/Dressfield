@@ -32,6 +32,7 @@ interface Step3DesignUploadProps {
   isSidebarMode?: boolean;
   isCanvasOnly?: boolean;
   resizeRequest?: { fraction: number; seq: number } | null;
+  maxScaleFraction?: number | null;
   onEmbroiderySizeDetected?: (sizeId: EmbroiderySizeId) => void;
   sharedCanvasRef?: RefObject<ProductCanvasHandle | null>;
   onDesignAdded?: () => void;
@@ -56,6 +57,7 @@ export function Step3DesignUpload({
   isSidebarMode,
   isCanvasOnly,
   resizeRequest,
+  maxScaleFraction,
   onEmbroiderySizeDetected,
   sharedCanvasRef,
   onDesignAdded,
@@ -314,6 +316,7 @@ export function Step3DesignUpload({
           onDesignTransformChange={onDesignTransformChange}
           onEmbroiderySizeDetected={onEmbroiderySizeDetected}
           resizeRequest={resizeRequest}
+          maxScaleFraction={maxScaleFraction}
           onSelectionChange={setHasSelection}
         />
         

@@ -50,8 +50,8 @@ export function NavLinks({
               "font-[family-name:var(--font-brand-text)]",
               isActive
                 ? (activeClassName ??
-                  "bg-white text-[#1b1512] shadow-[0_12px_30px_-18px_rgba(0,0,0,0.55)]")
-                : (inactiveClassName ?? "text-white/74 hover:bg-white/8 hover:text-white"),
+                  "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]")
+                : (inactiveClassName ?? "text-white/70 hover:bg-white/10 hover:text-white hover:scale-105 active:scale-95"),
               className
             )}
           >

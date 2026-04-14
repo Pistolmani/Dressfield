@@ -47,10 +47,10 @@ export function Step2SizeAndColor({
                   type="button"
                   onClick={() => onSizeSelect(size)}
                   className={cn(
-                    "flex min-w-[56px] items-center justify-center rounded-xl border px-4 py-2 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    "flex min-w-[56px] items-center justify-center rounded-2xl border-2 px-4 py-3 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                     isSelected
-                      ? "border-accent bg-violet-50 shadow-md"
-                      : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm",
+                      ? "border-accent bg-accent/5 shadow-[0_4px_15px_rgba(0,0,0,0.1)] translate-y-[1px]"
+                      : "border-gray-100 bg-white hover:border-accent/40 hover:bg-gray-50 hover:shadow-xl hover:-translate-y-1",
                   )}
                 >
                   <span
@@ -84,11 +84,11 @@ export function Step2SizeAndColor({
                   onClick={() => onColorSelect(color)}
                   title={color.label}
                   className={cn(
-                    "relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 hover:scale-110",
-                    isLightColor ? "border border-gray-300" : "border border-transparent",
+                    "relative flex h-12 w-12 items-center justify-center rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 cursor-pointer",
+                    isLightColor ? "border-2 border-gray-200" : "border border-white/20 shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]",
                     isSelected
-                      ? "ring-2 ring-accent ring-offset-2 scale-110 shadow-sm"
-                      : "shadow-sm hover:shadow-md",
+                      ? "ring-[2.5px] ring-accent ring-offset-4 scale-110 shadow-lg"
+                      : "shadow-md hover:shadow-xl hover:scale-110 hover:-translate-y-1",
                   )}
                   style={{ backgroundColor: color.hex }}
                 >
