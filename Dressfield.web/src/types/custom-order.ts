@@ -1,14 +1,21 @@
-export type CustomOrderStatus = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type CustomOrderStatus = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export const CustomOrderStatusLabels: Record<CustomOrderStatus, string> = {
   0: "მოლოდინში",
-  1: "განხილვაში",
-  2: "დამტკიცებულია",
-  3: "წარმოებაში",
-  4: "დასრულებულია",
-  5: "უარყოფილია",
-  6: "გაუქმებულია",
+  1: "გადახდის მოლოდინში",
+  2: "განხილვაში",
+  3: "დამტკიცებულია",
+  4: "წარმოებაში",
+  5: "დასრულებულია",
+  6: "უარყოფილია",
+  7: "გაუქმებულია",
 };
+
+export interface CustomOrderCheckoutResponse {
+  orderId: number;
+  paymentRedirectUrl: string | null;
+  paymentSuccess: boolean;
+}
 
 export interface CustomOrderDesignDto {
   id: number;

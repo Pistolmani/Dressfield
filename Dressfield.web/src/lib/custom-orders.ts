@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import type {
   CreateCustomOrderRequest,
+  CustomOrderCheckoutResponse,
   CustomOrderDetailDto,
   CustomOrderStatus,
   CustomOrderSummaryDto,
@@ -50,8 +51,8 @@ export function getSizePriceAdjustment(size: string | null | undefined) {
 
 export async function submitCustomOrder(
   payload: CreateCustomOrderRequest
-): Promise<CustomOrderDetailDto> {
-  const { data } = await api.post<CustomOrderDetailDto>("/api/custom-orders", payload);
+): Promise<CustomOrderCheckoutResponse> {
+  const { data } = await api.post<CustomOrderCheckoutResponse>("/api/custom-orders", payload);
   return data;
 }
 

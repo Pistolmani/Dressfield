@@ -583,7 +583,17 @@ export default function CheckoutPage() {
             designs,
           });
 
-          createdCustomOrderIds.push(customOrder.id);
+          createdCustomOrderIds.push(customOrder.orderId);
+
+          // Persist orderId for confirmation page recovery
+          localStorage.setItem("dressfield_pending_order_id", String(customOrder.orderId));
+
+          // Redirect to BOG payment on first custom item (subsequent items share the session)
+          if (createdCustomOrderIds.length === 1 && customOrder.paymentRedirectUrl) {
+            clearCart();
+            window.location.href = customOrder.paymentRedirectUrl;
+            return;
+          }
         }
 
         clearCart();
