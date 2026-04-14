@@ -19,6 +19,7 @@ import type { PromoCodeValidationResultDto } from "@/types/promo-code";
 type Step = "form" | "review";
 const TBILISI_SHIPPING_COST = 5;
 const OTHER_CITIES_SHIPPING_COST = 15;
+const CHECKOUT_PREFILL_STORAGE_KEY = "dressfield-checkout-prefill-v1";
 
 interface FormData {
   contactName: string;
@@ -39,6 +40,11 @@ const emptyForm: FormData = {
   shippingAddressLine2: "",
   customerNotes: "",
 };
+
+type CheckoutPrefillSnapshot = Pick<
+  FormData,
+  "contactName" | "contactPhone" | "contactEmail" | "shippingCity" | "shippingAddressLine1" | "shippingAddressLine2"
+>;
 
 // Validation helpers
 const NAME_REGEX = /^[\u10A0-\u10FFa-zA-Z\s\-']+$/;
@@ -187,10 +193,49 @@ function getShippingCostByCity(city: string): number {
   return OTHER_CITIES_SHIPPING_COST;
 }
 
+function loadCheckoutPrefill(): CheckoutPrefillSnapshot | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CHECKOUT_PREFILL_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<CheckoutPrefillSnapshot>;
+    return {
+      contactName: typeof parsed.contactName === "string" ? parsed.contactName : "",
+      contactPhone: typeof parsed.contactPhone === "string" ? parsed.contactPhone : "",
+      contactEmail: typeof parsed.contactEmail === "string" ? parsed.contactEmail : "",
+      shippingCity: typeof parsed.shippingCity === "string" ? parsed.shippingCity : "",
+      shippingAddressLine1:
+        typeof parsed.shippingAddressLine1 === "string" ? parsed.shippingAddressLine1 : "",
+      shippingAddressLine2:
+        typeof parsed.shippingAddressLine2 === "string" ? parsed.shippingAddressLine2 : "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveCheckoutPrefill(snapshot: CheckoutPrefillSnapshot) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CHECKOUT_PREFILL_STORAGE_KEY, JSON.stringify(snapshot));
+  } catch {
+    // Ignore localStorage failures.
+  }
+}
+
+function splitFullName(fullName: string): { firstName: string; lastName: string } | null {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return null;
+  return {
+    firstName: parts[0],
+    lastName: parts.slice(1).join(" "),
+  };
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalPrice, clearCart } = useCartStore();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, updateProfile } = useAuth();
   const [step, setStep] = useState<Step>("form");
   const [form, setForm] = useState<FormData>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -212,6 +257,43 @@ export default function CheckoutPage() {
       router.replace("/cart");
     }
   }, [items.length, router]);
+
+  useEffect(() => {
+    const snapshot = loadCheckoutPrefill();
+    if (!snapshot) return;
+
+    setForm((prev) => {
+      const next = { ...prev };
+      let changed = false;
+
+      if (!prev.contactName && snapshot.contactName) {
+        next.contactName = snapshot.contactName;
+        changed = true;
+      }
+      if (!prev.contactPhone && snapshot.contactPhone) {
+        next.contactPhone = snapshot.contactPhone;
+        changed = true;
+      }
+      if (!prev.contactEmail && snapshot.contactEmail) {
+        next.contactEmail = snapshot.contactEmail;
+        changed = true;
+      }
+      if (!prev.shippingCity && snapshot.shippingCity) {
+        next.shippingCity = snapshot.shippingCity;
+        changed = true;
+      }
+      if (!prev.shippingAddressLine1 && snapshot.shippingAddressLine1) {
+        next.shippingAddressLine1 = snapshot.shippingAddressLine1;
+        changed = true;
+      }
+      if (!prev.shippingAddressLine2 && snapshot.shippingAddressLine2) {
+        next.shippingAddressLine2 = snapshot.shippingAddressLine2;
+        changed = true;
+      }
+
+      return changed ? next : prev;
+    });
+  }, []);
 
   useEffect(() => {
     if (promoEligible) return;
@@ -242,6 +324,8 @@ export default function CheckoutPage() {
     const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
     const userEmail = user.email?.trim().toLowerCase() ?? "";
     const userPhone = normalizeLocalPhone(user.phoneNumber ?? user.phone);
+    const userCity = user.city?.trim() ?? "";
+    const userAddressLine1 = user.addressLine1?.trim() ?? "";
 
     setForm((prev) => {
       const next = { ...prev };
@@ -257,6 +341,14 @@ export default function CheckoutPage() {
       }
       if (!prev.contactPhone && userPhone) {
         next.contactPhone = userPhone;
+        changed = true;
+      }
+      if (!prev.shippingCity && userCity) {
+        next.shippingCity = userCity;
+        changed = true;
+      }
+      if (!prev.shippingAddressLine1 && userAddressLine1) {
+        next.shippingAddressLine1 = userAddressLine1;
         changed = true;
       }
 
@@ -379,6 +471,35 @@ export default function CheckoutPage() {
       const shippingAddressLine1 = form.shippingAddressLine1.trim();
       const shippingAddressLine2 = form.shippingAddressLine2.trim() || undefined;
       const sharedCustomerNotes = form.customerNotes.trim();
+
+      saveCheckoutPrefill({
+        contactName,
+        contactPhone: form.contactPhone,
+        contactEmail,
+        shippingCity,
+        shippingAddressLine1,
+        shippingAddressLine2: shippingAddressLine2 ?? "",
+      });
+
+      if (user) {
+        const parsedName = splitFullName(contactName);
+        const firstName = parsedName?.firstName ?? user.firstName?.trim() ?? "";
+        const lastName = parsedName?.lastName ?? user.lastName?.trim() ?? "";
+
+        if (firstName && lastName) {
+          try {
+            await updateProfile({
+              firstName,
+              lastName,
+              phone: contactPhone,
+              city: shippingCity || undefined,
+              addressLine1: shippingAddressLine1 || undefined,
+            });
+          } catch {
+            // Do not block checkout if profile sync fails.
+          }
+        }
+      }
 
       if (customItems.length > 0) {
         const createdCustomOrderIds: number[] = [];

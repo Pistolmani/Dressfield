@@ -574,15 +574,30 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         // Only pan if Alt key is held (desktop only gesture)
         if (!event.altKey) return;
 
+        // Enter pan mode and temporarily disable target hit-testing so canvas drag
+        // cannot leave an object in a weird partial-interaction state.
+        fc.discardActiveObject();
+        fc.selection = false;
+        (fc as FabricCanvas & { skipTargetFind?: boolean }).skipTargetFind = true;
         isPanningRef.current = true;
         lastPanRef.current = { x: event.clientX, y: event.clientY };
         fc.defaultCursor = "grabbing";
+        fc.requestRenderAll();
       });
 
       fc.on("mouse:move", (opt) => {
         if (!isPanningRef.current) return;
 
         const event = opt.e as MouseEvent;
+        if (!event.altKey || event.buttons === 0) {
+          isPanningRef.current = false;
+          lastPanRef.current = null;
+          fc.defaultCursor = "default";
+          fc.selection = true;
+          (fc as FabricCanvas & { skipTargetFind?: boolean }).skipTargetFind = false;
+          return;
+        }
+
         const prev = lastPanRef.current;
         const vpt = fc.viewportTransform;
         if (!prev || !vpt) return;
@@ -599,10 +614,24 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         isPanningRef.current = false;
         lastPanRef.current = null;
         fc.defaultCursor = "default";
+        fc.selection = true;
+        (fc as FabricCanvas & { skipTargetFind?: boolean }).skipTargetFind = false;
       };
 
       fc.on("mouse:up", stopPanning);
       fc.on("mouse:out", stopPanning);
+
+      // Safety net: ensure pan mode can't get "stuck" if key/mouse events are
+      // released outside the canvas or the browser window loses focus.
+      const onWindowMouseUp = () => stopPanning();
+      const onWindowBlur = () => stopPanning();
+      const onWindowKeyUp = (event: KeyboardEvent) => {
+        if (event.key === "Alt") stopPanning();
+      };
+
+      window.addEventListener("mouseup", onWindowMouseUp);
+      window.addEventListener("blur", onWindowBlur);
+      window.addEventListener("keyup", onWindowKeyUp);
 
       // Selection tracking for floating toolbar
       fc.on("selection:created", () => onSelectionChange?.(true));
@@ -640,6 +669,9 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
       }
 
       return () => {
+        window.removeEventListener("mouseup", onWindowMouseUp);
+        window.removeEventListener("blur", onWindowBlur);
+        window.removeEventListener("keyup", onWindowKeyUp);
         observer.disconnect();
         isPanningRef.current = false;
         lastPanRef.current = null;
