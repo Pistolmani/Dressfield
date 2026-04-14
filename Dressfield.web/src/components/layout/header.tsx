@@ -1,24 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
-import { ShoppingCart, Menu } from "lucide-react";
+import { useState } from "react";
+import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinks } from "./nav-links";
 import { ProfileDropdown } from "./profile-dropdown";
 import { Logo } from "@/components/ui/logo";
-import { useCartStore } from "@/stores/cart-store";
 import { CartHoverPreview } from "./cart-hover-preview";
 
 export function Header() {
-  const cartCount = useCartStore((s) => s.totalItems());
   const [mobileOpen, setMobileOpen] = useState(false);
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
 
   return (
     <header className="sticky top-0 z-50 bg-header-bg text-header-text">
@@ -33,17 +26,6 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           <CartHoverPreview />
-          <Link
-            href="/cart"
-            className="relative p-2 hover:bg-white/10 rounded-lg transition-colors md:hidden"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {isHydrated && cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-white text-black text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                {cartCount > 9 ? "9+" : cartCount}
-              </span>
-            )}
-          </Link>
 
           <div className="hidden md:flex items-center gap-1">
             <ProfileDropdown />
