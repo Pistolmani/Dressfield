@@ -337,7 +337,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
 
               <div className="space-y-3">
                 <Button
-                  className="h-14 w-full rounded-2xl bg-accent text-lg font-bold text-white shadow-xl transition-all duration-300 hover:scale-[1.02] hover:bg-accent-hover"
+                  className="h-14 w-full rounded-full bg-accent text-lg font-bold text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] shadow-accent/20 transition-all duration-300 hover:scale-[1.02] hover:bg-accent-hover"
                   onClick={handleAddToCart}
                   disabled={addedFeedback}
                 >

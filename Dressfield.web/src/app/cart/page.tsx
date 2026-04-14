@@ -40,7 +40,7 @@ export default function CartPage() {
           კალათა
         </h1>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-8 lg:grid-cols-[1fr_360px] pb-48 lg:pb-0">
           {/* Items */}
           <div className="space-y-4">
             {items.map((item) => (
@@ -114,7 +114,7 @@ export default function CartPage() {
           </div>
 
           {/* Summary */}
-          <div className="rounded-2xl border border-black/8 bg-white p-6 h-fit space-y-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 space-y-4 rounded-t-[2rem] border-t border-black/10 bg-white p-5 pb-8 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] lg:static lg:h-fit lg:rounded-2xl lg:border lg:border-black/8 lg:p-6 lg:pb-6 lg:shadow-none">
             <h2 className="font-ui text-2xl font-semibold">
               შეკვეთის შეჯამება
             </h2>

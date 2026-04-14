@@ -249,9 +249,9 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
 
         {/* ── Add to Cart ── */}
         <Button
-          size="sm"
+          size="default"
           className={cn(
-            "w-full rounded-xl font-bold transition-all duration-300",
+            "w-full h-11 rounded-full text-sm font-bold transition-all duration-300",
             addedFeedback
               ? "bg-green-500 text-white hover:bg-green-500"
               : needsSizeSelection

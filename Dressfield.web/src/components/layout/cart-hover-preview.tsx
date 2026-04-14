@@ -72,7 +72,10 @@ export function CartHoverPreview() {
     const showMoreText = !isMobile && hasMore;
 
     return (
-      <div className={`flex flex-col h-full w-full ${isMobile ? "bg-black/90 text-white" : ""}`}>
+      <div className={`flex flex-col h-full w-full ${isMobile ? "bg-black/90 text-white rounded-t-[2rem] pt-2" : ""}`}>
+        {isMobile && (
+          <div className="mx-auto mt-2 mb-4 h-1.5 w-12 rounded-full bg-white/20 shrink-0" />
+        )}
         <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between shrink-0">
           <p className="text-sm font-semibold tracking-wide">შენი კალათა</p>
           <span className="text-xs text-white/70">{totalItems} პროდუქტი</span>
@@ -246,7 +249,7 @@ export function CartHoverPreview() {
               </span>
             )}
           </SheetTrigger>
-          <SheetContent side="right" className="w-[85%] max-w-sm bg-black border-white/10 p-0 flex flex-col text-white">
+          <SheetContent side="bottom" className="h-[85vh] rounded-t-[2rem] bg-black border-t border-white/10 p-0 flex flex-col text-white pb-safe">
             <SheetHeader className="sr-only">
               <SheetTitle>შენი კალათა</SheetTitle>
             </SheetHeader>
