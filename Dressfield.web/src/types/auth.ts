@@ -6,6 +6,16 @@ export interface User {
   phone?: string;
   phoneNumber?: string;
   role: "Admin" | "Customer";
+  addressLine1?: string | null;
+  city?: string | null;
+}
+
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  addressLine1?: string;
+  city?: string;
 }
 
 export interface LoginRequest {

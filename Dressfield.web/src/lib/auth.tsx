@@ -12,7 +12,7 @@ import api, { setAccessToken } from "./api";
 import { getServerCart, syncServerCart } from "@/lib/cart-api";
 import { mapServerCartToLocal, mergeCarts } from "@/lib/cart-merge";
 import { setCartSyncSuppressed, useCartStore } from "@/stores/cart-store";
-import type { User, LoginRequest, RegisterRequest, AuthResponse } from "@/types/auth";
+import type { User, LoginRequest, RegisterRequest, AuthResponse, UpdateProfileRequest } from "@/types/auth";
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +21,8 @@ interface AuthContextType {
   register: (data: RegisterRequest) => Promise<void>;
   loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: UpdateProfileRequest) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   isAdmin: boolean;
 }
 
@@ -110,9 +112,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const updateProfile = useCallback(async (data: UpdateProfileRequest) => {
+    const { data: updated } = await api.put<User>("/api/auth/profile", data);
+    setUser(updated);
+  }, []);
+
+  const deleteAccount = useCallback(async () => {
+    await api.delete("/api/auth/account");
+    setAccessToken(null);
+    setUser(null);
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, loginWithGoogle, logout, isAdmin: user?.role === "Admin" }}
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        loginWithGoogle,
+        logout,
+        updateProfile,
+        deleteAccount,
+        isAdmin: user?.role === "Admin",
+      }}
     >
       {children}
     </AuthContext.Provider>

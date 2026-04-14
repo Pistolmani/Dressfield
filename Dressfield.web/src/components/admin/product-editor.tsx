@@ -163,7 +163,7 @@ function ProductImageUploader({ image, index, isUploading, onChange, onRemove }:
                   const img = event.currentTarget;
                   if (img.dataset.fallbackApplied === "1") return;
                   img.dataset.fallbackApplied = "1";
-                  img.src = "/hero-embroidery.jpg";
+                  img.src = "/dressfield-fallback.jpg";
                 }}
               />
             ) : (

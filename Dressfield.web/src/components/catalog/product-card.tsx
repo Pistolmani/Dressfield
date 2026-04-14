@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice, getProductBySlug } from "@/lib/catalog";
@@ -27,10 +27,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
   const [addedFeedback, setAddedFeedback] = useState(false);
 
+  // Fetch product detail eagerly to get variants — cached per session
   const detailQuery = useQuery({
     queryKey: ["product-detail", product.slug],
     queryFn: () => getProductBySlug(product.slug),
-    enabled: isHovered,
     staleTime: Infinity,
   });
 
@@ -54,6 +54,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const hasVariants = sizeVariants.length > 0;
   const needsSizeSelection = hasVariants && selectedVariantId === null;
 
+  const selectedVariant = sizeVariants.find((v) => v.id === selectedVariantId);
+  const priceAdjustment = selectedVariant?.priceAdjustment ?? 0;
+  const finalPrice = displayPrice + priceAdjustment;
+
   function handlePrev(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
@@ -66,27 +70,19 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
     setCurrentIndex((i) => (i === imageCount - 1 ? 0 : i + 1));
   }
 
-  function handleSizeSelect(e: React.MouseEvent, variantId: number) {
-    e.preventDefault();
-    e.stopPropagation();
+  function handleSizeSelect(variantId: number) {
     setSelectedVariantId((prev) => (prev === variantId ? null : variantId));
   }
 
-  function handleAddToCart(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-
+  function handleAddToCart() {
     if (hasVariants && needsSizeSelection) {
       toast.error("აირჩიე ზომა");
       return;
     }
 
-    const selectedVariant = sizeVariants.find((v) => v.id === selectedVariantId);
     const variantLabel = selectedVariant
       ? `${selectedVariant.name}: ${selectedVariant.value || selectedVariant.name}`
       : undefined;
-    const priceAdjustment = selectedVariant?.priceAdjustment ?? 0;
-    const finalPrice = displayPrice + priceAdjustment;
 
     addItem({
       productId: product.id,
@@ -120,6 +116,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => { setIsHovered(false); setCurrentIndex(0); }}
     >
+      {/* ── Image ── */}
       <div className="relative block aspect-[3/4] overflow-hidden bg-gray-50 rounded-xl">
         <Link
           href={{ pathname: "/product", query: { slug: product.slug } }}
@@ -159,7 +156,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
             </button>
 
             {/* Dot indicators */}
-            <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10">
               {images!.map((_, i) => (
                 <span
                   key={i}
@@ -175,55 +172,6 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
           </>
         )}
 
-        {/* Hover Action Overlay */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/85 via-black/50 to-transparent flex flex-col gap-2 px-3 pt-8 pb-4">
-          {/* Size chips — shown when product has size variants */}
-          {hasVariants && (
-            <div className="flex flex-wrap gap-1.5 justify-center">
-              {sizeVariants.map((v) => {
-                const isSelected = selectedVariantId === v.id;
-                const outOfStock = v.stockQuantity === 0;
-                return (
-                  <button
-                    key={v.id}
-                    onClick={(e) => !outOfStock && handleSizeSelect(e, v.id)}
-                    disabled={outOfStock}
-                    className={cn(
-                      "rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all duration-150 border",
-                      isSelected
-                        ? "bg-white text-black border-white shadow"
-                        : outOfStock
-                          ? "bg-white/10 text-white/30 border-white/10 line-through cursor-not-allowed"
-                          : "bg-white/15 text-white border-white/30 hover:bg-white/30"
-                    )}
-                  >
-                    {v.value || v.name}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          <Button
-            size="sm"
-            className={cn(
-              "w-full rounded-full font-bold shadow-xl border transition-all duration-300",
-              addedFeedback
-                ? "bg-green-500 text-white border-transparent"
-                : needsSizeSelection
-                  ? "bg-white/20 text-white border-white/40 hover:bg-white/30"
-                  : "bg-accent text-white hover:bg-black hover:text-white border-transparent hover:border-white"
-            )}
-            onClick={handleAddToCart}
-          >
-            {addedFeedback
-              ? "✓ დაემატა"
-              : needsSizeSelection
-                ? "აირჩიე ზომა"
-                : "კალათაში"}
-          </Button>
-        </div>
-
         {product.isFeatured && (
           <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm text-[10px] font-bold uppercase tracking-wider text-black">
             რჩეული
@@ -237,8 +185,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         )}
       </div>
 
-      <div className="flex flex-col pt-4 pb-2 px-1">
-        <div className="flex justify-between items-start gap-2 mb-1">
+      {/* ── Info ── */}
+      <div className="flex flex-col pt-4 pb-2 px-1 gap-3">
+        {/* Name & Price */}
+        <div className="flex justify-between items-start gap-2">
           <Link
             href={{ pathname: "/product", query: { slug: product.slug } }}
             className="block flex-1"
@@ -259,11 +209,67 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <p className="text-[11px] text-gray-400 font-medium uppercase tracking-tighter">
-            ზომები: S, M, L, XL, XXL
+        {/* ── Size chips ── */}
+        {detailQuery.isLoading ? (
+          <div className="flex gap-1.5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-7 w-10 rounded-lg bg-gray-100 animate-pulse" />
+            ))}
+          </div>
+        ) : hasVariants ? (
+          <div className="flex flex-wrap gap-1.5">
+            {sizeVariants.map((v) => {
+              const isSelected = selectedVariantId === v.id;
+              const outOfStock = v.stockQuantity === 0;
+              return (
+                <button
+                  key={v.id}
+                  onClick={() => !outOfStock && handleSizeSelect(v.id)}
+                  disabled={outOfStock}
+                  className={cn(
+                    "rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all duration-150 border",
+                    isSelected
+                      ? "bg-accent text-white border-accent shadow-sm"
+                      : outOfStock
+                        ? "bg-gray-50 text-gray-300 border-gray-100 line-through cursor-not-allowed"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-accent hover:text-accent"
+                  )}
+                >
+                  {v.value || v.name}
+                </button>
+              );
+            })}
+          </div>
+        ) : detailQuery.data ? (
+          <p className="text-[11px] text-gray-400 font-medium">
+            ერთი ზომა
           </p>
-        </div>
+        ) : null}
+
+        {/* ── Add to Cart ── */}
+        <Button
+          size="sm"
+          className={cn(
+            "w-full rounded-xl font-bold transition-all duration-300",
+            addedFeedback
+              ? "bg-green-500 text-white hover:bg-green-500"
+              : needsSizeSelection
+                ? "bg-gray-100 text-gray-500 hover:bg-gray-200 border border-gray-200"
+                : "bg-accent text-white hover:bg-accent-hover"
+          )}
+          onClick={handleAddToCart}
+        >
+          {addedFeedback ? (
+            "✓ დაემატა"
+          ) : needsSizeSelection ? (
+            "აირჩიე ზომა"
+          ) : (
+            <>
+              <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
+              კალათაში
+            </>
+          )}
+        </Button>
       </div>
     </article>
   );

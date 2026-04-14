@@ -499,10 +499,9 @@ export default function CheckoutPage() {
       if (result.paymentRedirectUrl) {
         window.location.href = result.paymentRedirectUrl;
       } else {
-        router.push(`/order-confirmation?orderId=${result.orderId}&mock=1`);
+        router.push(`/order-confirmation?orderId=${result.orderId}`);
       }
     } catch (error) {
-      console.error("Checkout submit failed", error);
       const apiMessage = extractApiErrorMessage(error);
       if (apiMessage) {
         setSubmitError(apiMessage);

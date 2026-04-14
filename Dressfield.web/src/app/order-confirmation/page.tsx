@@ -38,7 +38,6 @@ function isTerminalStatus(status: OrderStatus | undefined) {
 
 function ConfirmationContent() {
   const params = useSearchParams();
-  const isMock = params.get("mock") === "1";
   const isCustomOrder = params.get("custom") === "1";
   const { user } = useAuth();
   const [phase, setPhase] = useState<PollPhase>("polling");
@@ -171,7 +170,7 @@ function ConfirmationContent() {
   }, [isPending, status]);
 
   useEffect(() => {
-    if (isMock || !myOrderQuery.data || isPending || hasTrackedPurchaseRef.current) return;
+    if (!myOrderQuery.data || isPending || hasTrackedPurchaseRef.current) return;
 
     trackPurchase({
       orderId: String(myOrderQuery.data.id),
@@ -179,7 +178,7 @@ function ConfirmationContent() {
     });
 
     hasTrackedPurchaseRef.current = true;
-  }, [isMock, myOrderQuery.data, isPending]);
+  }, [myOrderQuery.data, isPending]);
 
   if (!orderId || id <= 0) {
     return (
@@ -322,13 +321,7 @@ function ConfirmationContent() {
         </div>
       )}
 
-      {isMock && (
-        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-6">
-          (Dev: mock payment - no real transaction)
-        </p>
-      )}
-
-      <div className="flex flex-col sm:flex-row gap-3">
+<div className="flex flex-col sm:flex-row gap-3">
         {user && (
           <Link href={`/orders/detail?id=${orderId}`}>
             <Button variant="outline">შეკვეთის დეტალები</Button>

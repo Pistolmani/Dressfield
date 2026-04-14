@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { Eye, ShoppingBag, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HomeHeroGalleryClient } from "@/components/home/home-hero-gallery-client";
@@ -33,9 +34,18 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "DressField",
     locale: "ka_GE",
+    images: [
+      {
+        url: `${siteUrl}/dressfield-logo.png`,
+        width: 1024,
+        height: 1024,
+        alt: "DressField logo",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    images: [`${siteUrl}/dressfield-logo.png`],
     title: "DressField — ქართული ნაქარგი, შენი სტილით",
     description:
       "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე დიზაინი და შეუკვეთე.",
@@ -47,9 +57,11 @@ const organizationSchema = {
   "@type": "Organization",
   name: "DressField",
   url: siteUrl,
-  logo: `${siteUrl}/favicon.ico`,
+  logo: `${siteUrl}/dressfield-logo.png`,
+  image: `${siteUrl}/dressfield-logo.png`,
   description:
     "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+  sameAs: ["https://www.instagram.com/dressfield.stitch/"],
 };
 
 const websiteSchema = {
@@ -67,12 +79,16 @@ const websiteSchema = {
 export default function HomePage() {
   return (
     <div className="flex-1 bg-white">
-      <script
+      <Script
+        id="organization-schema"
         type="application/ld+json"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
-      <script
+      <Script
+        id="website-schema"
         type="application/ld+json"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
 

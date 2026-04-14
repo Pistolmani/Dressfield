@@ -137,7 +137,19 @@ export function Step3DesignUpload({
           ინსტრუმენტები
         </p>
 
-        {/* Upload button — compact single row */}
+        {/* ImageToolbar — shown above upload once a design exists */}
+        {designs.length > 0 && (
+          <div className="mb-4">
+            <ImageToolbar
+              canvasRef={canvasRef}
+              designImageUrl={designs[designs.length - 1]?.url ?? ""}
+              onBgRemoved={handleBgRemoved}
+              onRemovingChange={setIsRemovingBg}
+            />
+          </div>
+        )}
+
+        {/* Upload button */}
         <div
           {...getRootProps()}
           className={cn(
@@ -157,18 +169,6 @@ export function Step3DesignUpload({
           </span>
           <span className="ml-auto text-[9px] text-gray-400 font-medium flex-shrink-0">PNG JPG SVG</span>
         </div>
-
-        {/* ImageToolbar */}
-        {designs.length > 0 && (
-          <div className="mt-4">
-            <ImageToolbar
-              canvasRef={canvasRef}
-              designImageUrl={designs[designs.length - 1]?.url ?? ""}
-              onBgRemoved={handleBgRemoved}
-              onRemovingChange={setIsRemovingBg}
-            />
-          </div>
-        )}
       </div>
 
       {designs.length > 0 && (
