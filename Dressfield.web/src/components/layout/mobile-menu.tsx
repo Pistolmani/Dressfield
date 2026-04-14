@@ -1,22 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
-import { 
-  Globe, 
-  ChevronRight, 
-  ChevronDown, 
-  Home, 
-  ShoppingBag, 
-  Wand2, 
-  UserCircle, 
-  LogOut, 
+import {
+  Globe,
+  ChevronRight,
+  Home,
+  ShoppingBag,
+  Wand2,
+  UserCircle,
+  LogOut,
   ListOrdered
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "@/lib/catalog";
-import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/logo";
 
 interface MobileMenuProps {
@@ -25,26 +20,6 @@ interface MobileMenuProps {
 
 export function MobileMenu({ onClose }: MobileMenuProps) {
   const { user, logout } = useAuth();
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
-
-  const productsQuery = useQuery({
-    queryKey: ["products-categories-mobile"],
-    queryFn: () => getProducts(),
-    staleTime: 1000 * 60 * 10,
-  });
-
-  const categories = useMemo(() => {
-    const products = productsQuery.data ?? [];
-    const seen = new Map<string, string>();
-
-    for (const product of products) {
-      if (product.categorySlug && product.categoryName && !seen.has(product.categorySlug)) {
-        seen.set(product.categorySlug, product.categoryName);
-      }
-    }
-
-    return Array.from(seen.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [productsQuery.data]);
 
   return (
     <div className="flex relative h-full flex-col bg-[#050505] text-white overflow-hidden selection:bg-white/20">
@@ -71,48 +46,17 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
               <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-white/60 transition-colors" />
             </Link>
 
-            <div className="flex flex-col border-b border-white/5">
-              <button
-                onClick={() => setCategoriesOpen(!categoriesOpen)}
-                className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-white/[0.05] group"
-              >
-                <div className="flex items-center gap-4">
-                  <ShoppingBag className="h-5 w-5 text-white/40 group-hover:text-white transition-colors" />
-                  <span className="font-ui text-xl tracking-wide text-white/90 group-hover:text-white">პროდუქცია</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-white/30 group-hover:text-white/50">{categories.length} კატეგორია</span>
-                  <ChevronDown className={cn("h-4 w-4 text-white/40 transition-transform duration-300", categoriesOpen ? "rotate-180 text-white" : "")} />
-                </div>
-              </button>
-
-              <div
-                className={cn(
-                  "flex flex-col overflow-hidden transition-all duration-300 bg-black/20",
-                  categoriesOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-                )}
-              >
-                <div className="flex flex-col px-14 py-3 gap-3">
-                  <Link
-                    href="/products"
-                    onClick={onClose}
-                    className="font-ui text-[15px] text-white/50 hover:text-white transition-colors tracking-wide py-1"
-                  >
-                    ყველა პროდუქტი
-                  </Link>
-                  {categories.map((category) => (
-                    <Link
-                      key={category.slug}
-                      href={`/products?category=${category.slug}`}
-                      onClick={onClose}
-                      className="font-ui text-[15px] text-white/50 hover:text-white transition-colors tracking-wide py-1"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
+            <Link
+              href="/products"
+              onClick={onClose}
+              className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-white/[0.05] border-b border-white/5 group"
+            >
+              <div className="flex items-center gap-4">
+                <ShoppingBag className="h-5 w-5 text-white/40 group-hover:text-white transition-colors" />
+                <span className="font-ui text-xl tracking-wide text-white/90 group-hover:text-white">პროდუქცია</span>
               </div>
-            </div>
+              <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-white/60 transition-colors" />
+            </Link>
 
             <Link
               href="/custom-order"
