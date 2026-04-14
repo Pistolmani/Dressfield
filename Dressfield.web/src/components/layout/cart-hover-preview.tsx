@@ -85,68 +85,83 @@ export function CartHoverPreview() {
         ) : (
           <>
             <div className={`overflow-y-auto p-2 space-y-1 ${isMobile ? 'flex-1' : 'max-h-80'}`}>
-              {listItems.map((item) => (
-                <div
-                  key={`${item.productId}-${item.variantId ?? 0}`}
-                  className="flex items-center gap-2.5 rounded-xl p-2 hover:bg-white/5 transition-colors"
-                >
-                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white/10">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(event) => {
-                          const image = event.currentTarget;
-                          if (image.dataset.fallbackApplied === "1") return;
-                          image.dataset.fallbackApplied = "1";
-                          image.src = FALLBACK_IMAGE;
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={FALLBACK_IMAGE}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )}
-                  </div>
+              {listItems.map((item) => {
+                const isCustom = Boolean(item.customOrderData);
+                const itemHref = isCustom ? "/custom-order" : "/products";
+                const designUrl = item.customOrderData?.designs?.[0]?.url;
+                const canvasUrl = item.customOrderData?.canvasPreviewUrl;
+                const resolvedImage = canvasUrl || designUrl || item.imageUrl;
 
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate">{item.name}</p>
-                    {item.variantLabel ? (
-                      <p className="text-[11px] text-white/60 truncate">
-                        {item.variantLabel}
-                      </p>
-                    ) : null}
-                    <p className="text-[11px] text-white/75">
-                      {item.quantity} x {formatPrice(item.price)}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-1">
-                    <button
-                      type="button"
-                      aria-label="ამოღება"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        removeItem(item.productId, item.variantId);
-                      }}
-                      className="rounded-md p-1 text-white/55 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                return (
+                  <div
+                    key={`${item.productId}-${item.variantId ?? 0}`}
+                    className="rounded-xl hover:bg-white/5 transition-colors"
+                  >
+                    <Link
+                      href={itemHref}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2.5 p-2"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                    <p className="text-xs font-semibold tabular-nums">
-                      {formatPrice(item.quantity * item.price)}
-                    </p>
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white/10">
+                        {resolvedImage ? (
+                          <img
+                            src={resolvedImage}
+                            alt={item.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(event) => {
+                              const image = event.currentTarget;
+                              if (image.dataset.fallbackApplied === "1") return;
+                              image.dataset.fallbackApplied = "1";
+                              image.src = FALLBACK_IMAGE;
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={FALLBACK_IMAGE}
+                            alt={item.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold truncate">{item.name}</p>
+                        {item.variantLabel ? (
+                          <p className="text-[11px] text-white/60 truncate">
+                            {item.variantLabel}
+                          </p>
+                        ) : null}
+                        <p className="text-[11px] text-white/75">
+                          {item.quantity} x {formatPrice(item.price)}
+                        </p>
+                      </div>
+
+                      <div className="text-xs font-semibold tabular-nums shrink-0">
+                        {formatPrice(item.quantity * item.price)}
+                      </div>
+                    </Link>
+
+                    <div className="flex justify-end px-2 pb-1">
+                      <button
+                        type="button"
+                        aria-label="ამოღება"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          removeItem(item.productId, item.variantId);
+                        }}
+                        className="rounded-md p-1 text-white/55 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {showMoreText ? (
