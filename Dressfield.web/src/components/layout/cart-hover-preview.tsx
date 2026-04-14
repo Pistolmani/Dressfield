@@ -87,7 +87,11 @@ export function CartHoverPreview() {
             <div className={`overflow-y-auto p-2 space-y-1 ${isMobile ? 'flex-1' : 'max-h-80'}`}>
               {listItems.map((item) => {
                 const isCustom = Boolean(item.customOrderData);
-                const itemHref = isCustom ? "/custom-order" : "/products";
+                const itemHref = isCustom
+                  ? "/custom-order"
+                  : item.productSlug
+                    ? `/product?slug=${encodeURIComponent(item.productSlug)}`
+                    : "/products";
                 const designUrl = item.customOrderData?.designs?.[0]?.url;
                 const canvasUrl = item.customOrderData?.canvasPreviewUrl;
                 const resolvedImage = canvasUrl || designUrl || item.imageUrl;

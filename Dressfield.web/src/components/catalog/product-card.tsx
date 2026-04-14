@@ -86,6 +86,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
 
     addItem({
       productId: product.id,
+      productSlug: product.slug,
       variantId: selectedVariantId ?? undefined,
       name: product.name,
       variantLabel,

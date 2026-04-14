@@ -117,6 +117,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
 
     addItem({
       productId: product.id,
+      productSlug: product.slug,
       variantId: primaryVariant?.id,
       name: product.name,
       variantLabel,

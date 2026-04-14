@@ -25,6 +25,7 @@ export function ProductList({
 
     addItem({
       productId: product.id,
+      productSlug: product.slug,
       name: product.name,
       price: displayPrice,
       quantity: 1,

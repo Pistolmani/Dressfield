@@ -30,6 +30,7 @@ export interface CustomOrderData {
 
 export interface CartItem {
   productId: number;
+  productSlug?: string;
   variantId?: number;
   name: string;
   variantLabel?: string;
