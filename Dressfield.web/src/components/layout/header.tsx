@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
-import { ShoppingCart, Menu, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ShoppingCart, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAuth } from "@/lib/auth";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinks } from "./nav-links";
 import { ProfileDropdown } from "./profile-dropdown";
 import { Logo } from "@/components/ui/logo";
 import { useCartStore } from "@/stores/cart-store";
+import { CartHoverPreview } from "./cart-hover-preview";
 
 export function Header() {
-  const { user, isAdmin, logout } = useAuth();
   const cartCount = useCartStore((s) => s.totalItems());
   const [mobileOpen, setMobileOpen] = useState(false);
   const isHydrated = useSyncExternalStore(
@@ -34,9 +32,10 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <CartHoverPreview />
           <Link
             href="/cart"
-            className="relative p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="relative p-2 hover:bg-white/10 rounded-lg transition-colors md:hidden"
           >
             <ShoppingCart className="h-5 w-5" />
             {isHydrated && cartCount > 0 && (
