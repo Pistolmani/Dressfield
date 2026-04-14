@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useDesignHistory } from "@/hooks/useDesignHistory";
 import {
   PRODUCT_TYPES,
+  PRODUCT_COLORS,
   EMBROIDERY_SIZES,
   getSkippedSteps,
   type DesignItem,
@@ -407,7 +408,7 @@ export default function CustomOrderPage() {
                     skipSize={currentProduct.skipClothingSize}
                     selectedSize={clothingSize}
                     onSizeSelect={setClothingSize}
-                    availableColors={[]}
+                    availableColors={isOwnProductMode || !selectedProduct ? [] : (PRODUCT_COLORS[selectedProduct] ?? [])}
                     selectedColor={selectedColor}
                     onColorSelect={setSelectedColor}
                   />
@@ -489,7 +490,7 @@ export default function CustomOrderPage() {
                     skipSize={currentProduct.skipClothingSize}
                     selectedSize={clothingSize}
                     onSizeSelect={setClothingSize}
-                    availableColors={[]}
+                    availableColors={isOwnProductMode || !selectedProduct ? [] : (PRODUCT_COLORS[selectedProduct] ?? [])}
                     selectedColor={selectedColor}
                     onColorSelect={setSelectedColor}
                   />
