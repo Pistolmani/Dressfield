@@ -40,7 +40,7 @@ export function HomeShowcaseClient() {
         </div>
 
         {productsQuery.isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={`home-skeleton-${index}`}
@@ -51,7 +51,7 @@ export function HomeShowcaseClient() {
         ) : null}
 
         {!productsQuery.isLoading && showcaseProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
             {showcaseProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

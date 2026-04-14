@@ -55,7 +55,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0" />
-                <span>info@dressfield.ge</span>
+                <a href="mailto:contact@dressfield.ge" className="hover:text-white/70 transition-colors">contact@dressfield.ge</a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 shrink-0" />

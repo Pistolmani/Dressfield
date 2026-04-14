@@ -165,8 +165,8 @@ export function InteractiveHeroGallery({
           <motion.div
             className={cn(
               compact
-                ? "w-28 sm:w-36 aspect-[4/5] p-1.5 rounded-xl shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
-                : "w-52 sm:w-72 aspect-[4/5] p-2 rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)]",
+                ? "w-32 sm:w-40 aspect-[4/5] p-2 rounded-xl shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]"
+                : "w-64 sm:w-80 lg:w-96 aspect-[4/5] p-3 rounded-2xl shadow-[0_12px_48px_-12px_rgba(0,0,0,0.5)]",
               "bg-white origin-center",
               interactive ? "cursor-grab active:cursor-grabbing" : "cursor-default"
             )}
