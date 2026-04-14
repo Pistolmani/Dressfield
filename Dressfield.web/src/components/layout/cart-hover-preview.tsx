@@ -95,7 +95,7 @@ export function CartHoverPreview() {
                 return (
                   <div
                     key={`${item.productId}-${item.variantId ?? 0}`}
-                    className="rounded-xl hover:bg-white/5 transition-colors"
+                    className="group relative rounded-xl hover:bg-white/[0.08] transition-all duration-300"
                   >
                     <Link
                       href={itemHref}
@@ -107,7 +107,7 @@ export function CartHoverPreview() {
                           <img
                             src={resolvedImage}
                             alt={item.name}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"
                             decoding="async"
                             onError={(event) => {
@@ -121,15 +121,17 @@ export function CartHoverPreview() {
                           <img
                             src={FALLBACK_IMAGE}
                             alt={item.name}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"
                             decoding="async"
                           />
                         )}
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold truncate">{item.name}</p>
+                      <div className="flex-1 min-w-0 transition-transform duration-300 group-hover:translate-x-1">
+                        <p className="text-xs font-semibold truncate group-hover:text-white transition-colors">
+                          {item.name}
+                        </p>
                         {item.variantLabel ? (
                           <p className="text-[11px] text-white/60 truncate">
                             {item.variantLabel}
@@ -140,7 +142,7 @@ export function CartHoverPreview() {
                         </p>
                       </div>
 
-                      <div className="text-xs font-semibold tabular-nums shrink-0">
+                      <div className="text-xs font-semibold tabular-nums shrink-0 group-hover:text-white transition-colors duration-300">
                         {formatPrice(item.quantity * item.price)}
                       </div>
                     </Link>
