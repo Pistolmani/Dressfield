@@ -112,7 +112,7 @@ export function Step5Summary({
       },
     });
 
-    toast.success("Added to cart", { duration: 2500 });
+    toast.success("კალათაში დაემატა", { duration: 2500 });
     setShowConfetti(true);
     setSubmitted(true);
 
@@ -133,8 +133,8 @@ export function Step5Summary({
         {showConfetti && <Confetti />}
         <CheckCircle2 className="h-14 w-14 text-accent" />
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold text-foreground">Added to cart</h2>
-          <p className="text-sm text-gray-500">Redirecting to cart...</p>
+          <h2 className="text-xl font-semibold text-foreground">კალათაში დაემატა</h2>
+          <p className="text-sm text-gray-500">გადავდივართ კალათაზე...</p>
         </div>
       </div>
     );
@@ -143,25 +143,25 @@ export function Step5Summary({
   return (
     <div className="mx-auto w-full max-w-xl space-y-3">
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">Order summary</h2>
+        <h2 className="text-lg font-semibold text-foreground">შეკვეთის შეჯამება</h2>
 
         <div className="space-y-2">
           {orderIntent && (
             <SummaryRow
-              label="Order type"
-              value={orderIntent === "own-product" ? "Own product" : "Buy product + design"}
+              label="შეკვეთის ტიპი"
+              value={orderIntent === "own-product" ? "ჩემი პროდუქტი" : "პროდუქტის შეძენა + დიზაინი"}
             />
           )}
-          <SummaryRow label="Product" value={product.label} />
-          {clothingSize && <SummaryRow label="Size" value={clothingSize} />}
-          {selectedColor && <SummaryRow label="Color" value={selectedColor.label} />}
+          <SummaryRow label="პროდუქტი" value={product.label} />
+          {clothingSize && <SummaryRow label="ზომა" value={clothingSize} />}
+          {selectedColor && <SummaryRow label="ფერი" value={selectedColor.label} />}
           <SummaryRow
-            label="Embroidery size"
-            value={product.skipEmbroiderySizePicker ? "6x30cm (max)" : embrSize.label}
+            label="ნაქარგის ზომა"
+            value={product.skipEmbroiderySizePicker ? "6x30სმ (მაქს)" : embrSize.label}
           />
           <SummaryRow
-            label="Designs"
-            value={`Front ${frontDesigns.length} / Back ${backDesigns.length}`}
+            label="დიზაინები"
+            value={`წინა ${frontDesigns.length} / უკანა ${backDesigns.length}`}
           />
         </div>
 
@@ -169,14 +169,14 @@ export function Step5Summary({
 
         <div className="space-y-1.5">
           <label htmlFor="custom-order-note" className="text-xs font-medium text-foreground">
-            Note (optional)
+            შენიშვნა (არა სავალდებულო)
           </label>
           <textarea
             id="custom-order-note"
             rows={2}
             value={orderNote}
             onChange={(event) => onOrderNoteChange?.(event.target.value)}
-            placeholder="Any details for this order..."
+            placeholder="დამატებითი დეტალები შეკვეთისთვის..."
             className="w-full rounded-xl border border-black/10 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors resize-none"
           />
         </div>
@@ -185,25 +185,25 @@ export function Step5Summary({
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-2.5">
         {!isOwnProductMode ? (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">Base</span>
-            <span className="font-medium">GEL {basePrice.toFixed(2)}</span>
+            <span className="text-gray-500">ძირითადი ფასი</span>
+            <span className="font-medium">{basePrice.toFixed(2)} ₾</span>
           </div>
         ) : null}
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500">Embroidery</span>
-          <span className="font-medium">GEL {embroideryExtra.toFixed(2)}</span>
+          <span className="text-gray-500">ნაქარგი</span>
+          <span className="font-medium">{embroideryExtra.toFixed(2)} ₾</span>
         </div>
         <div className="h-px bg-gray-100" />
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-foreground">Total</span>
-          <span className="text-xl font-bold text-accent">GEL {totalPrice.toFixed(2)}</span>
+          <span className="font-semibold text-foreground">ჯამი</span>
+          <span className="text-xl font-bold text-accent">{totalPrice.toFixed(2)} ₾</span>
         </div>
 
         <Button
           onClick={handleSubmit}
           className="w-full h-11 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover transition-colors"
         >
-          Add to cart
+          კალათაში დამატება
         </Button>
       </div>
     </div>
