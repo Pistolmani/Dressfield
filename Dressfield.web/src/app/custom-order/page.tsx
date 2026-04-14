@@ -317,7 +317,8 @@ export default function CustomOrderPage() {
       ? 0
       : (selectedEmbroidery?.extraPrice ?? 0);
   const basePrice = isOwnProductMode ? 0 : (currentProduct?.basePrice ?? 0);
-  const totalPrice = basePrice + embroideryExtra;
+  const designCount = Math.max(allDesigns.length, 1);
+  const totalPrice = basePrice + embroideryExtra * designCount;
 
   return (
     <div className="min-h-screen bg-background">

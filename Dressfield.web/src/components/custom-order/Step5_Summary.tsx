@@ -59,7 +59,8 @@ export function Step5Summary({
   const isOwnProductMode = orderIntent === "own-product";
   const basePrice = isOwnProductMode ? 0 : product.basePrice;
   const embroideryExtra = product.skipEmbroiderySizePicker ? 0 : embrSize.extraPrice;
-  const totalPrice = basePrice + embroideryExtra;
+  const designCount = Math.max(frontDesigns.length + backDesigns.length, 1);
+  const totalPrice = basePrice + embroideryExtra * designCount;
 
   const handleSubmit = () => {
     const existingCustomIds = useCartStore
@@ -190,8 +191,8 @@ export function Step5Summary({
           </div>
         ) : null}
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500">ნაქარგი</span>
-          <span className="font-medium">{embroideryExtra.toFixed(2)} ₾</span>
+          <span className="text-gray-500">ნაქარგი{designCount > 1 ? ` × ${designCount}` : ""}</span>
+          <span className="font-medium">{(embroideryExtra * designCount).toFixed(2)} ₾</span>
         </div>
         <div className="h-px bg-gray-100" />
         <div className="flex items-center justify-between">

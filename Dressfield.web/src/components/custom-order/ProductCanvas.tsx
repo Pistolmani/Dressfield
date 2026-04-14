@@ -823,6 +823,32 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
           addDesignObj(fabric, fc, d, zone, sessionId);
         }
       });
+
+      // Sync transforms: both desktop and mobile ProductCanvas instances are always
+      // mounted (one is hidden via CSS). When the user moves a design on the visible
+      // canvas, object:modified saves the new transform to state, but the hidden
+      // canvas object stays at its old position. Without this sync, the hidden
+      // canvas's cleanup would overwrite the correct transform with stale data when
+      // switching sides. Keep both canvases in lock-step with the saved transforms.
+      designs.forEach((d) => {
+        if (!d.transform) return;
+        const obj = designObjsRef.current.get(d.id);
+        if (!obj) return;
+        if (urlMapRef.current.get(d.id) !== d.url) return; // mid-reload, skip
+
+        const t = d.transform;
+        const same =
+          Math.abs((obj.left  ?? 0) - t.left)   < 0.5 &&
+          Math.abs((obj.top   ?? 0) - t.top)    < 0.5 &&
+          Math.abs((obj.scaleX ?? 1) - t.scaleX) < 0.001 &&
+          Math.abs((obj.scaleY ?? 1) - t.scaleY) < 0.001 &&
+          Math.abs((obj.angle  ?? 0) - t.angle)  < 0.001;
+        if (same) return;
+
+        obj.set({ left: t.left, top: t.top, scaleX: t.scaleX, scaleY: t.scaleY, angle: t.angle });
+        obj.setCoords();
+        fc.requestRenderAll();
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [designs, isLoading, computeDesignPlacement]);
 
