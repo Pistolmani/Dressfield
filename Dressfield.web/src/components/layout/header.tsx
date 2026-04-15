@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinks } from "./nav-links";
 import { ProfileDropdown } from "./profile-dropdown";
@@ -12,6 +11,11 @@ import { CartHoverPreview } from "./cart-hover-preview";
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-header-bg text-header-text">
@@ -31,19 +35,17 @@ export function Header() {
             <ProfileDropdown />
           </div>
 
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger
-              className="md:hidden p-2 text-header-text hover:bg-white/10 rounded-lg transition-colors"
-              onClick={() => setMobileOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[80%] max-w-sm bg-black border-white/10 p-0">
-              <MobileMenu onClose={() => setMobileOpen(false)} />
-            </SheetContent>
-          </Sheet>
+          <button
+            className="md:hidden p-2 text-header-text hover:bg-white/10 rounded-lg transition-colors"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={mobileOpen ? "მენიუს დახურვა" : "მენიუს გახსნა"}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   );
 }
