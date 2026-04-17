@@ -98,7 +98,7 @@ export const PRODUCT_TYPES = [
     svgTemplateBack: "/templates/custom.svg",
     designZone:     { x: 60, y: 60, width: 280, height: 280 },
     designZoneBack: { x: 60, y: 60, width: 280, height: 280 },
-    basePrice: 60,
+    basePrice: 0,
     skipClothingSize: true,
     skipEmbroiderySizePicker: false,
     skipDesign: false,
@@ -123,6 +123,14 @@ export const EMBROIDERY_SIZES = [
   { id: "3XL", label: "3XL", extraPrice: 55, note: "30×20სმ", zoneScaleFraction: 0.90 },
 ] as const;
 export type EmbroiderySizeId = (typeof EMBROIDERY_SIZES)[number]["id"];
+
+// Cap preview needs its own visual calibration so S/M don't look too tiny on the curved surface.
+// These only affect canvas preview scaling for caps; price tiers still come from EMBROIDERY_SIZES.
+export const CAP_EMBROIDERY_PREVIEW = {
+  S: { fraction: 0.56, note: "5×5სმ" },
+  M: { fraction: 0.62, note: "8×8სმ" },
+  L: { fraction: 0.68, note: "სიმაღლე 6სმ · სიგრძე 30სმ" },
+} as const;
 
 export const PLACEMENTS = [
   { id: "chest-left",   label: "მკერდი (მარცხენა)" },
