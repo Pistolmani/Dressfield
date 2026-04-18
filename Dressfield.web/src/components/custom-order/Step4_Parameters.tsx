@@ -2,6 +2,7 @@
 
 import { PricingSummary } from "@/components/custom-order/PricingSummary";
 import {
+  CAP_EMBROIDERY_PREVIEW,
   EMBROIDERY_SIZES,
   type EmbroiderySizeId,
   type ProductType,
@@ -28,14 +29,18 @@ export function Step4Parameters({
   const selectedEmbSize = EMBROIDERY_SIZES.find((size) => size.id === embroiderySize);
   const extraPrice = selectedEmbSize?.extraPrice ?? 0;
   const isCap = product.id === "cap";
+  const capSizeIds = ["S", "M", "L"] as const;
   const sizeOptions = isCap
-    ? EMBROIDERY_SIZES
-        .filter((size) => size.id === "S" || size.id === "M" || size.id === "L")
-        .map((size) =>
-          size.id === "L"
-            ? { ...size, label: "MAX", note: "სიმაღლე 6სმ · სიგრძე 30სმ" }
-            : size
-        )
+    ? capSizeIds.map((sizeId) => {
+        const baseSize = EMBROIDERY_SIZES.find((size) => size.id === sizeId)!;
+        const preview = CAP_EMBROIDERY_PREVIEW[sizeId];
+        return {
+          ...baseSize,
+          label: sizeId === "L" ? "MAX" : baseSize.label,
+          note: preview.note,
+          zoneScaleFraction: preview.fraction,
+        };
+      })
     : EMBROIDERY_SIZES;
 
   return (
@@ -98,11 +103,16 @@ export function Step4Parameters({
           </div>
         )}
         {isCap ? (
-          <p className="text-xs text-gray-500">
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500">
             მაქსიმალური ზომაა{" "}
             <span className="font-semibold text-foreground">სიმაღლე 6სმ × სიგრძე 30სმ (MAX)</span>.
             შეგიძლიათ აირჩიოთ უფრო პატარა ზომაც და ფასი ავტომატურად გადაითვლება.
-          </p>
+            </p>
+            <p className="text-xs text-gray-500">
+              თუ გინდა სხვა ზომა, ჩაწერე მე-5 ნაბიჯის შენიშვნაში (მაგ.: სიმაღლე 4სმ, სიგრძე 18სმ) და დაგიდასტურებთ.
+            </p>
+          </div>
         ) : null}
       </div>
 

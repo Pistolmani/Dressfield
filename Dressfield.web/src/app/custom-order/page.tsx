@@ -12,6 +12,7 @@ import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanva
 import { cn } from "@/lib/utils";
 import { useDesignHistory } from "@/hooks/useDesignHistory";
 import {
+  CAP_EMBROIDERY_PREVIEW,
   PRODUCT_TYPES,
   PRODUCT_COLORS,
   EMBROIDERY_SIZES,
@@ -308,8 +309,16 @@ export default function CustomOrderPage() {
   }, []);
 
   const handleEmbroiderySizeDetected = useCallback((sizeId: EmbroiderySizeId) => {
+    if (selectedProduct === "cap") {
+      if (sizeId === "S" || sizeId === "M" || sizeId === "L") {
+        setEmbroiderySize(sizeId);
+        return;
+      }
+      setEmbroiderySize("L");
+      return;
+    }
     setEmbroiderySize(sizeId);
-  }, []);
+  }, [selectedProduct]);
 
   const currentProduct =
     selectedProduct !== null
@@ -321,7 +330,9 @@ export default function CustomOrderPage() {
       : null;
   const capScaleLimitFraction =
     currentProduct?.id === "cap"
-      ? selectedEmbroidery?.zoneScaleFraction ?? null
+      ? embroiderySize === "S" || embroiderySize === "M" || embroiderySize === "L"
+        ? CAP_EMBROIDERY_PREVIEW[embroiderySize].fraction
+        : CAP_EMBROIDERY_PREVIEW.L.fraction
       : null;
   const isOwnProductMode = orderIntent === "own-product";
   const embroideryExtra = selectedEmbroidery?.extraPrice ?? 0;

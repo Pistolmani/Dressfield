@@ -143,14 +143,14 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
           <>
             <button
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/85 rounded-full p-1.5 shadow opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/85 rounded-full p-1.5 shadow opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-white"
               aria-label="წინა ფოტო"
             >
               <ChevronLeft className="h-4 w-4 text-gray-800" />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/85 rounded-full p-1.5 shadow opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/85 rounded-full p-1.5 shadow opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-white"
               aria-label="შემდეგი ფოტო"
             >
               <ChevronRight className="h-4 w-4 text-gray-800" />
