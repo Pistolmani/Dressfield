@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { ProductsPageClient } from "@/components/catalog/products-page-client";
+import { getStaticProducts } from "@/lib/catalog";
+import type { ProductSummaryDto } from "@/types/catalog";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
 
@@ -27,6 +29,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ProductsPage() {
-  return <ProductsPageClient />;
+export default async function ProductsPage() {
+  let initialProducts: ProductSummaryDto[] = [];
+  try {
+    initialProducts = await getStaticProducts();
+  } catch {
+    // API unavailable at build time — client will fetch on mount
+  }
+
+  return <ProductsPageClient initialProducts={initialProducts} />;
 }

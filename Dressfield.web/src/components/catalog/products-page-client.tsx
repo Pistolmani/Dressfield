@@ -15,8 +15,9 @@ import {
   type ProductSort,
 } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
+import type { ProductSummaryDto } from "@/types/catalog";
 
-function ProductsPageContent() {
+function ProductsPageContent({ initialProducts }: { initialProducts: ProductSummaryDto[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category") ?? null;
@@ -29,6 +30,11 @@ function ProductsPageContent() {
   const productsQuery = useQuery({
     queryKey: ["products", activeCategory],
     queryFn: () => getProducts(activeCategory ? { category: activeCategory } : undefined),
+    // Use server-fetched data as the starting point when no category filter is active.
+    // This makes the full product list available in the static HTML for crawlers and
+    // instant rendering. TanStack Query will silently refetch in the background.
+    initialData: activeCategory ? undefined : (initialProducts.length > 0 ? initialProducts : undefined),
+    initialDataUpdatedAt: 0, // treat as stale so a background refetch always happens
   });
 
   const categories = useMemo(() => {
@@ -259,10 +265,10 @@ function ProductsPageContent() {
   );
 }
 
-export function ProductsPageClient() {
+export function ProductsPageClient({ initialProducts = [] }: { initialProducts?: ProductSummaryDto[] }) {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <ProductsPageContent />
+      <ProductsPageContent initialProducts={initialProducts} />
     </Suspense>
   );
 }
