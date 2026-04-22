@@ -593,8 +593,9 @@ export default function CheckoutPage() {
           localStorage.setItem("dressfield_pending_order_id", String(customOrder.orderId));
 
           // Redirect to BOG payment as soon as session is ready.
+          // Do NOT clear the cart here — clear it on the confirmation page after payment succeeds.
+          // This way items are restored if the user cancels or payment fails.
           if (createdCustomOrderIds.length === 1 && customOrder.paymentRedirectUrl) {
-            clearCart();
             window.location.href = customOrder.paymentRedirectUrl;
             return;
           }
@@ -629,11 +630,13 @@ export default function CheckoutPage() {
         localStorage.setItem("dressfield_pending_order_id", String(result.orderId));
       }
 
-      clearCart();
-
       if (result.paymentRedirectUrl) {
+        // Do NOT clear the cart before the BOG redirect — the confirmation page
+        // will clear it once payment is confirmed. This restores items if the
+        // user cancels or payment fails.
         window.location.href = result.paymentRedirectUrl;
       } else {
+        clearCart();
         router.push(`/order-confirmation?orderId=${result.orderId}`);
       }
     } catch (error) {

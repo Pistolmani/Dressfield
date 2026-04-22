@@ -9,6 +9,7 @@ import { AlertTriangle, CheckCircle2, Clock, Package, XCircle } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { getMyOrderById, getPublicOrderStatus } from "@/lib/orders";
+import { useCartStore } from "@/stores/cart-store";
 import { trackPurchase } from "@/lib/analytics";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { formatPrice } from "@/lib/utils";
@@ -58,9 +59,11 @@ function ConfirmationContent() {
   const canPollAsGuest = !isCustomOrder && !user && id > 0 && !!orderKey;
   const canPoll = canPollAsUser || canPollAsGuest;
 
+  const clearCart = useCartStore((state) => state.clearCart);
   const pollStartRef = useRef<number | null>(null);
   const pollSessionRef = useRef<string>("");
   const hasTrackedPurchaseRef = useRef(false);
+  const hasCartClearedRef = useRef(false);
 
   const pollSessionKey = `${id}:${orderKey ?? ""}:${user?.id ?? "guest"}`;
 
@@ -179,6 +182,15 @@ function ConfirmationContent() {
 
     hasTrackedPurchaseRef.current = true;
   }, [myOrderQuery.data, isPending]);
+
+  // Clear the cart once payment is confirmed (Paid or further). This fires here
+  // rather than in checkout so that items are preserved if the user cancels payment.
+  useEffect(() => {
+    if (hasCartClearedRef.current) return;
+    if (!isTerminalStatus(status) || status === "Cancelled" || status === "Refunded") return;
+    clearCart();
+    hasCartClearedRef.current = true;
+  }, [status, clearCart]);
 
   if (!orderId || id <= 0) {
     return (
