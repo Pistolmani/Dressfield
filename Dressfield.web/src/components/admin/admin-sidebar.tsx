@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BadgePercent, LayoutDashboard, Package, ShoppingBag, Scissors, LogOut } from "lucide-react";
+import { BadgePercent, ClipboardList, LayoutDashboard, Package, ShoppingBag, Scissors, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/promo-codes", label: "პრომო კოდები", icon: BadgePercent },
   { href: "/admin/orders", label: "შეკვეთები", icon: ShoppingBag },
   { href: "/admin/custom-orders", label: "ინდ. შეკვეთები", icon: Scissors },
+  { href: "/admin/audit-log", label: "ჟურნალი", icon: ClipboardList },
 ];
 
 export function AdminSidebar() {
