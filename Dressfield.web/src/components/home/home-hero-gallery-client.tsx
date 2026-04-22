@@ -21,9 +21,9 @@ export function HomeHeroGalleryClient({
   maxImages = 18,
 }: HomeHeroGalleryClientProps) {
   const productsQuery = useQuery({
-    queryKey: ["home-hero-products"],
+    queryKey: ["products", null],
     queryFn: () => getProducts(),
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
   });
 
   const images = useMemo(() => {

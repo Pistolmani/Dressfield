@@ -9,9 +9,9 @@ import { getProducts } from "@/lib/catalog";
 
 export function HomeShowcaseClient() {
   const productsQuery = useQuery({
-    queryKey: ["home-showcase-products"],
+    queryKey: ["products", null],
     queryFn: () => getProducts(),
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
   });
 
   const products = productsQuery.data ?? [];
