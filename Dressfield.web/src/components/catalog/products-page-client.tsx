@@ -144,7 +144,7 @@ function ProductsPageContent({ initialProducts }: { initialProducts: ProductSumm
               <div className="flex flex-col gap-4 rounded-lg border border-black/8 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center justify-between gap-4 flex-1">
                   <div>
-                    {productsQuery.isError ? (
+                    {productsQuery.isError && !productsQuery.data ? (
                       <>
                         <p className="text-sm font-semibold text-destructive">
                           პროდუქტების ჩატვირთვა ვერ მოხერხდა
@@ -208,7 +208,8 @@ function ProductsPageContent({ initialProducts }: { initialProducts: ProductSumm
                 </div>
               </div>
 
-              {productsQuery.isError ? (
+              {/* Show error only if we have no data at all to display */}
+              {productsQuery.isError && !productsQuery.data ? (
                 <div className="space-y-3">
                   <div className="rounded-3xl border border-dashed border-destructive/40 bg-white px-6 py-12 text-center text-destructive">
                     პროდუქტების ჩატვირთვა ვერ მოხერხდა. გთხოვთ სცადოთ ხელახლა.
@@ -234,7 +235,7 @@ function ProductsPageContent({ initialProducts }: { initialProducts: ProductSumm
                 </>
               )}
 
-              {!productsQuery.isError ? (
+              {(!productsQuery.isError || productsQuery.data) ? (
                 <div className="flex items-center justify-center gap-3">
                   <Button
                     variant="outline"
