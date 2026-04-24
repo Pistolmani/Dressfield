@@ -48,7 +48,7 @@ export function ProductFiltersSidebar({
 
       <aside
         className={cn(
-          "fixed md:sticky top-0 left-0 h-screen md:h-auto z-50 md:z-0",
+          "fixed md:sticky top-0 left-0 h-screen md:h-auto md:self-start z-50 md:z-0",
           "w-72 md:w-48 lg:w-56",
           "bg-white border-r border-black/8 md:border-r-0 md:border-b md:border-black/8",
           "transform transition-transform duration-300 md:transform-none overflow-y-auto",
