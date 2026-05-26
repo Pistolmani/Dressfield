@@ -31,8 +31,13 @@ function ProductsPageContent() {
     queryFn: () => getProducts(activeCategory ? { category: activeCategory } : undefined),
   });
 
+  const categoriesQuery = useQuery({
+    queryKey: ["products", "categories-source"],
+    queryFn: () => getProducts(),
+  });
+
   const categories = useMemo(() => {
-    const products = productsQuery.data ?? [];
+    const products = categoriesQuery.data ?? productsQuery.data ?? [];
     const seen = new Map<string, string>();
 
     for (const product of products) {
@@ -42,7 +47,7 @@ function ProductsPageContent() {
     }
 
     return Array.from(seen.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [productsQuery.data]);
+  }, [categoriesQuery.data, productsQuery.data]);
 
   const filteredProducts = useMemo(() => {
     const base = productsQuery.data ?? [];

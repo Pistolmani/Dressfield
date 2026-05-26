@@ -56,5 +56,5 @@ export function ProductBySlugPageClient() {
     );
   }
 
-  return <ProductDetailClient product={productQuery.data} />;
+  return <ProductDetailClient key={productQuery.data.slug} product={productQuery.data} />;
 }

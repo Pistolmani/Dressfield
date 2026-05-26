@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Confetti } from "@/components/ui/confetti";
+import { uploadDesignImage } from "@/lib/upload";
 import { useCartStore } from "@/stores/cart-store";
 import {
   EMBROIDERY_SIZES,
@@ -29,6 +30,13 @@ interface Step5SummaryProps {
   onOrderNoteChange?: (value: string) => void;
 }
 
+const CUSTOM_PRODUCT_ID_FLOOR = 1_000_000_000;
+const MISSING_DESIGN_MESSAGE = "გთხოვთ ატვირთოთ მინიმუმ ერთი დიზაინი კალათაში დამატებამდე.";
+const DESIGN_UNAVAILABLE_MESSAGE =
+  "დიზაინის ფაილი აღარ არის ხელმისაწვდომი. გთხოვთ თავიდან ატვირთოთ ფაილი.";
+const DESIGN_UPLOAD_FAILED_MESSAGE =
+  "დიზაინის ატვირთვა ვერ მოხერხდა. გთხოვთ თავიდან ატვირთოთ ფაილი.";
+
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
@@ -36,6 +44,79 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
       <span className="font-semibold text-foreground text-right">{value}</span>
     </div>
   );
+}
+
+type DurableDesign = {
+  url: string;
+  side: "front" | "back";
+  sortOrder: number;
+  transform?: DesignItem["transform"];
+};
+
+function guessExtensionFromMime(type: string | undefined): string {
+  if (!type) return "png";
+  if (type.includes("jpeg") || type.includes("jpg")) return "jpg";
+  if (type.includes("webp")) return "webp";
+  if (type.includes("png")) return "png";
+  return "png";
+}
+
+async function uploadBlobDesignUrl(url: string, sequence: number): Promise<string> {
+  if (!url.startsWith("blob:")) return url;
+
+  let response: Response;
+  try {
+    response = await fetch(url);
+  } catch {
+    throw new Error(DESIGN_UNAVAILABLE_MESSAGE);
+  }
+
+  if (!response.ok) {
+    throw new Error(DESIGN_UNAVAILABLE_MESSAGE);
+  }
+
+  const blob = await response.blob();
+  const type = blob.type || "image/png";
+  const extension = guessExtensionFromMime(type);
+  const file = new File([blob], `custom-design-${Date.now()}-${sequence}.${extension}`, {
+    type,
+  });
+
+  return uploadDesignImage(file);
+}
+
+async function buildDurableDesigns(
+  frontDesigns: DesignItem[],
+  backDesigns: DesignItem[]
+): Promise<DurableDesign[]> {
+  const designs: DurableDesign[] = [
+    ...frontDesigns.map((design, index) => ({
+      url: design.url,
+      side: "front" as const,
+      sortOrder: index,
+      transform: design.transform,
+    })),
+    ...backDesigns.map((design, index) => ({
+      url: design.url,
+      side: "back" as const,
+      sortOrder: frontDesigns.length + index,
+      transform: design.transform,
+    })),
+  ];
+
+  let uploadSequence = 0;
+  const durableDesigns: DurableDesign[] = [];
+
+  for (const design of designs) {
+    const url = await uploadBlobDesignUrl(design.url, uploadSequence);
+    if (design.url.startsWith("blob:")) {
+      uploadSequence += 1;
+    }
+
+    durableDesigns.push({ ...design, url });
+  }
+
+  return durableDesigns;
 }
 
 export function Step5Summary({
@@ -51,7 +132,9 @@ export function Step5Summary({
 }: Step5SummaryProps) {
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
+  const submittingRef = useRef(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const product = PRODUCT_TYPES.find((p) => p.id === selectedProduct)!;
@@ -68,70 +151,80 @@ export function Step5Summary({
         : `${embrSize.label} (${embrSize.note})`
       : embrSize.label;
 
-  const handleSubmit = () => {
-    const existingCustomIds = useCartStore
-      .getState()
-      .items.map((item) => item.productId)
-      .filter((id) => id >= 1_000_000_000);
-    const uniqueId =
-      existingCustomIds.length > 0
-        ? Math.max(...existingCustomIds) + 1
-        : 1_000_000_000;
-    const firstDesign = frontDesigns[0] ?? backDesigns[0];
+  const handleSubmit = async () => {
+    if (submitted || submittingRef.current) return;
 
-    const labelParts: string[] = [];
-    if (clothingSize) labelParts.push(`Size: ${clothingSize}`);
-    if (selectedColor) labelParts.push(`Color: ${selectedColor.label}`);
-    if (!product.skipEmbroiderySizePicker) {
-      labelParts.push(
-        product.id === "cap" && embrSize.id === "L"
-          ? "Embroidery: MAX (Height 6cm · Length 30cm)"
-          : `Embroidery: ${embrSize.label}`
-      );
+    if (frontDesigns.length + backDesigns.length === 0) {
+      toast.error(MISSING_DESIGN_MESSAGE);
+      return;
     }
-    const variantLabel = labelParts.join(" | ") || undefined;
 
-    addItem({
-      productId: uniqueId,
-      name: `${product.label} - Custom order`,
-      variantLabel,
-      price: totalPrice,
-      quantity: 1,
-      imageUrl: firstDesign?.url ?? undefined,
-      customOrderData: {
-        productLabel: product.label,
-        productTypeId: selectedProduct,
-        clothingSize: clothingSize ?? undefined,
-        selectedColor: selectedColor ?? undefined,
-        orderIntent,
-        embroiderySize,
-        frontDesignCount: frontDesigns.length,
-        backDesignCount: backDesigns.length,
-        designs: [
-          ...frontDesigns.map((design, index) => ({
-            url: design.url,
-            side: "front" as const,
-            sortOrder: index,
-            transform: design.transform,
-          })),
-          ...backDesigns.map((design, index) => ({
-            url: design.url,
-            side: "back" as const,
-            sortOrder: frontDesigns.length + index,
-            transform: design.transform,
-          })),
-        ],
-        orderNote: orderNote.trim() || undefined,
-      },
-    });
+    submittingRef.current = true;
+    setSubmitting(true);
 
-    toast.success("კალათაში დაემატა", { duration: 2500 });
-    setShowConfetti(true);
-    setSubmitted(true);
+    try {
+      const existingCustomIds = useCartStore
+        .getState()
+        .items.map((item) => item.productId)
+        .filter((id) => id >= CUSTOM_PRODUCT_ID_FLOOR);
+      const nextSequentialId =
+        existingCustomIds.length > 0
+          ? Math.max(...existingCustomIds) + 1
+          : CUSTOM_PRODUCT_ID_FLOOR;
+      const uniqueId = Math.max(Date.now(), nextSequentialId);
+      const durableDesigns = await buildDurableDesigns(frontDesigns, backDesigns);
+      const firstDesign = durableDesigns[0];
 
-    setTimeout(() => {
-      router.push("/cart");
-    }, 900);
+      const labelParts: string[] = [];
+      if (clothingSize) labelParts.push(`Size: ${clothingSize}`);
+      if (selectedColor) labelParts.push(`Color: ${selectedColor.label}`);
+      if (!product.skipEmbroiderySizePicker) {
+        labelParts.push(
+          product.id === "cap" && embrSize.id === "L"
+            ? "Embroidery: MAX (Height 6cm · Length 30cm)"
+            : `Embroidery: ${embrSize.label}`
+        );
+      }
+      const variantLabel = labelParts.join(" | ") || undefined;
+
+      addItem({
+        productId: uniqueId,
+        name: `${product.label} - Custom order`,
+        variantLabel,
+        price: totalPrice,
+        quantity: 1,
+        imageUrl: firstDesign?.url ?? undefined,
+        customOrderData: {
+          productLabel: product.label,
+          productTypeId: selectedProduct,
+          clothingSize: clothingSize ?? undefined,
+          selectedColor: selectedColor ?? undefined,
+          orderIntent,
+          embroiderySize,
+          frontDesignCount: frontDesigns.length,
+          backDesignCount: backDesigns.length,
+          designs: durableDesigns,
+          orderNote: orderNote.trim() || undefined,
+        },
+      });
+
+      toast.success("კალათაში დაემატა", { duration: 2500 });
+      setShowConfetti(true);
+      setSubmitted(true);
+
+      setTimeout(() => {
+        router.push("/cart");
+      }, 900);
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message === DESIGN_UNAVAILABLE_MESSAGE
+          ? DESIGN_UNAVAILABLE_MESSAGE
+          : DESIGN_UPLOAD_FAILED_MESSAGE
+      );
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -214,9 +307,10 @@ export function Step5Summary({
 
         <Button
           onClick={handleSubmit}
+          disabled={submitting || submitted}
           className="w-full h-11 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover transition-colors"
         >
-          კალათაში დამატება
+          {submitting ? "დიზაინი იტვირთება..." : "კალათაში დამატება"}
         </Button>
       </div>
     </div>

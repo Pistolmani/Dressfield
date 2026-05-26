@@ -46,6 +46,7 @@ interface CartState {
   addItem: (item: CartItem) => void;
   removeItem: (productId: number, variantId?: number) => void;
   updateQuantity: (productId: number, variantId: number | undefined, quantity: number) => void;
+  clearCustomItems: () => void;
   clearCart: () => void;
   totalItems: () => number;
   totalPrice: () => number;
@@ -110,6 +111,11 @@ export const useCartStore = create<CartState>()(
               ? { ...i, quantity }
               : i
           ),
+        })),
+
+      clearCustomItems: () =>
+        set((state) => ({
+          items: state.items.filter((item) => !item.customOrderData),
         })),
 
       clearCart: () => set({ items: [] }),

@@ -2,13 +2,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, type FileRejection } from "react-dropzone";
 import { Upload, Trash2, Plus, Copy, ChevronUp, ChevronDown, Undo2, Redo2, FlipHorizontal, FlipVertical, Eraser } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
 import { ImageToolbar } from "@/components/custom-order/ImageToolbar";
 import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanvas";
+import {
+  UPLOAD_ALLOWED_EXTENSIONS,
+  UPLOAD_MAX_SIZE_MB,
+  UPLOAD_MAX_SIZE_BYTES,
+  UploadValidationError,
+  validateDesignFile,
+} from "@/lib/upload";
 import type {
   DesignItem,
   DesignTransform,
@@ -40,6 +47,26 @@ interface Step3DesignUploadProps {
   onRedo?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+}
+
+const ACCEPTED_DESIGN_FILE_TYPES = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/webp": [".webp"],
+};
+
+function getRejectedFileMessage(rejection: FileRejection) {
+  const firstError = rejection.errors[0];
+
+  if (firstError?.code === "file-too-large") {
+    return `ფაილის ზომა არ უნდა აღემატებოდეს ${UPLOAD_MAX_SIZE_MB} MB-ს.`;
+  }
+
+  if (firstError?.code === "file-invalid-type") {
+    return `დასაშვებია მხოლოდ ${UPLOAD_ALLOWED_EXTENSIONS.join(", ")} ფაილები.`;
+  }
+
+  return firstError?.message || "ფაილის ატვირთვა ვერ მოხერხდა.";
 }
 
 export function Step3DesignUpload({
@@ -74,30 +101,69 @@ export function Step3DesignUpload({
   const [showDragHint, setShowDragHint] = useState(false);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    if (designs.length === 1) {
-      setShowDragHint(true);
-      hintTimerRef.current = setTimeout(() => setShowDragHint(false), 4000);
+  useEffect(
+    () => () => {
+      if (hintTimerRef.current) {
+        clearTimeout(hintTimerRef.current);
+      }
+    },
+    []
+  );
+
+  const showDragHintTemporarily = useCallback(() => {
+    if (hintTimerRef.current) {
+      clearTimeout(hintTimerRef.current);
     }
-    return () => { if (hintTimerRef.current) clearTimeout(hintTimerRef.current); };
-  }, [designs.length]);
+
+    setShowDragHint(true);
+    hintTimerRef.current = setTimeout(() => setShowDragHint(false), 4000);
+  }, []);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      acceptedFiles.forEach((file) => {
+      const validFiles = acceptedFiles.filter((file) => {
+        try {
+          validateDesignFile(file);
+          return true;
+        } catch (error) {
+          toast.error(
+            error instanceof UploadValidationError
+              ? error.message
+              : "ფაილის ატვირთვა ვერ მოხერხდა."
+          );
+          return false;
+        }
+      });
+
+      validFiles.forEach((file) => {
         const url = URL.createObjectURL(file);
         onDesignAdd(url);
       });
-      if (acceptedFiles.length > 0) {
+
+      if (validFiles.length > 0) {
+        if (designs.length === 0) {
+          showDragHintTemporarily();
+        }
         onDesignAdded?.();
       }
     },
-    [onDesignAdd, onDesignAdded]
+    [designs.length, onDesignAdd, onDesignAdded, showDragHintTemporarily]
+  );
+
+  const onDropRejected = useCallback(
+    (rejections: FileRejection[]) => {
+      for (const rejection of rejections) {
+        toast.error(getRejectedFileMessage(rejection));
+      }
+    },
+    []
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "image/*": [] },
+    onDropRejected,
+    accept: ACCEPTED_DESIGN_FILE_TYPES,
+    maxSize: UPLOAD_MAX_SIZE_BYTES,
     multiple: true,
     disabled: isRemovingBg,
   });
@@ -169,7 +235,7 @@ export function Step3DesignUpload({
           <span className="text-[11px] font-bold text-gray-900 truncate">
             {isDragActive ? "გაუშვი..." : "ატვირთე დიზაინი"}
           </span>
-          <span className="ml-auto text-[9px] text-gray-400 font-medium flex-shrink-0">PNG JPG SVG</span>
+          <span className="ml-auto text-[9px] text-gray-400 font-medium flex-shrink-0">PNG JPG WEBP</span>
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { PageTransition } from "@/components/ui/page-transition";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -77,9 +78,6 @@ export const metadata: Metadata = {
     "ქართული ნაქარგი",
     "ინდივიდუალური შეკვეთა",
   ],
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     siteName: "DressField",
     locale: "ka_GE",
@@ -96,10 +94,6 @@ export const metadata: Metadata = {
     title: "DressField — ქართული ნაქარგი, შენი სტილით",
     description:
       "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
-  },
-  robots: {
-    index: true,
-    follow: true,
   },
   verification: {
     google: googleSiteVerification,
@@ -139,6 +133,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
           <MetaPixel />
+          <GoogleAnalytics />
           <Header />
           <main className="flex-1">
             <PageTransition>{children}</PageTransition>

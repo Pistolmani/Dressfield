@@ -86,11 +86,46 @@ export interface OrderStatusLookupDto {
   updatedAt: string;
 }
 
+export interface OrderCustomDesignTransform {
+  left: number;
+  top: number;
+  scaleX: number;
+  scaleY: number;
+  angle: number;
+}
+
+export interface OrderCustomDesign {
+  url: string;
+  side: 'front' | 'back';
+  sortOrder: number;
+  transform?: OrderCustomDesignTransform;
+}
+
+export interface OrderCustomSelectedColor {
+  id: string;
+  label: string;
+  hex: string;
+}
+
+export interface OrderCustomOrderData {
+  productLabel?: string;
+  productTypeId?: string;
+  orderIntent?: 'own-product' | 'buy-product';
+  clothingSize?: string;
+  selectedColor?: OrderCustomSelectedColor;
+  embroiderySize?: string;
+  frontDesignCount?: number;
+  backDesignCount?: number;
+  designs?: OrderCustomDesign[];
+  orderNote?: string;
+  canvasPreviewUrl?: string;
+}
+
 export interface CartItemRequest {
   productId: number | string;
   variantId?: number;
   quantity: number;
-  customOrderData?: any;
+  customOrderData?: OrderCustomOrderData;
 }
 
 export interface CreateOrderRequest {

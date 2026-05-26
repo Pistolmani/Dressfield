@@ -2,6 +2,12 @@
 # Handles trailing-slash URLs → index.html
 
 RewriteEngine On
+ErrorDocument 404 /404.html
+
+# Redirect legacy product query URLs to canonical product detail pages
+RewriteCond %{QUERY_STRING} ^slug=([^&]+) [NC]
+RewriteRule ^product/?$ /products/%1/? [R=301,L,NE]
+RewriteRule ^product/?$ /products/ [R=301,L]
 
 # If the request is for an existing file or directory, serve it directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -18,10 +24,10 @@ RewriteCond %{REQUEST_URI} !/$
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f
 RewriteRule ^(.*)$ /$1/index.html [L]
 
-# Fallback to 404 page
+# Fallback to 404 page with a real HTTP 404 status
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ /404.html [L]
+RewriteRule ^ - [R=404,L]
 
 # Cache static assets for 1 year
 <IfModule mod_expires.c>

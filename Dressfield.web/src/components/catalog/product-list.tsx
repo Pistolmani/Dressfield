@@ -3,10 +3,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/catalog";
-import { trackAddToCart } from "@/lib/analytics";
-import { toast } from "sonner";
 import type { ProductSummaryDto } from "@/types/catalog";
 
 const fallbackImage = "/dressfield-fallback.jpg";
@@ -18,32 +15,6 @@ export function ProductList({
   products: ProductSummaryDto[];
   loading?: boolean;
 }) {
-  const addItem = useCartStore((state) => state.addItem);
-
-  function handleAddToCart(product: ProductSummaryDto) {
-    const displayPrice = product.effectivePrice ?? product.basePrice;
-
-    addItem({
-      productId: product.id,
-      productSlug: product.slug,
-      name: product.name,
-      price: displayPrice,
-      quantity: 1,
-      imageUrl: product.primaryImageUrl || undefined,
-    });
-
-    trackAddToCart({
-      contentId: String(product.id),
-      contentName: product.name,
-      value: displayPrice,
-      quantity: 1,
-    });
-
-    toast.success(`${product.name} კალათაში დაემატა`, {
-      duration: 2500,
-    });
-  }
-
   if (loading) {
     return (
       <div className="rounded-lg border border-black/8 bg-white shadow-sm overflow-hidden">
@@ -77,7 +48,7 @@ export function ProductList({
             className="flex gap-4 p-4 border-b border-black/8 last:border-b-0 hover:bg-black/2 transition-colors"
           >
           <Link
-            href={{ pathname: "/product", query: { slug: product.slug } }}
+            href={`/products/${product.slug}`}
             className="flex-shrink-0"
           >
             <img
@@ -97,7 +68,7 @@ export function ProductList({
 
           <div className="flex-1 min-w-0">
             <Link
-              href={{ pathname: "/product", query: { slug: product.slug } }}
+              href={`/products/${product.slug}`}
               className="block"
             >
               <h3 className="font-ui text-base font-semibold text-foreground truncate hover:underline">
@@ -125,13 +96,14 @@ export function ProductList({
                 {formatPrice(displayPrice)}
               </span>
             </div>
-            <Button
-              size="sm"
-              className="bg-accent text-xs text-white hover:bg-accent-hover whitespace-nowrap"
-              onClick={() => handleAddToCart(product)}
-            >
-              კალათაში
-            </Button>
+            <Link href={`/products/${product.slug}`}>
+              <Button
+                size="sm"
+                className="bg-accent text-xs text-white hover:bg-accent-hover whitespace-nowrap"
+              >
+                დეტალები
+              </Button>
+            </Link>
           </div>
           </div>
         );

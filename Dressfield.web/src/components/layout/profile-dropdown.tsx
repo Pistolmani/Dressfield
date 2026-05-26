@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { User, LogOut, Package, UserCircle, Settings } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import {
@@ -16,12 +16,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
+// Hydration gate without setState-in-effect, which React Compiler flags.
+function subscribeMounted() {
+  return () => {};
+}
+
+function getMountedSnapshot() {
+  return true;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 export function ProfileDropdown() {
   const { user, logout, isAdmin } = useAuth();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerSnapshot);
 
   if (!mounted || !user) {
     return (

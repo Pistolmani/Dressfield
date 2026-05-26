@@ -39,6 +39,14 @@ function isSameTransform(a: DesignTransform | undefined, b: DesignTransform) {
 
 type OrderIntent = "own-product" | "buy-product";
 
+const BUY_PRODUCT_HIDDEN_PRODUCT_IDS = new Set<ProductTypeId>(["jeans"]);
+
+function getVisibleProducts(intent: OrderIntent | null) {
+  return PRODUCT_TYPES.filter(
+    (product) => intent === "own-product" || !BUY_PRODUCT_HIDDEN_PRODUCT_IDS.has(product.id)
+  );
+}
+
 export default function CustomOrderPage() {
   const [step, setStep] = useState(1);
   const [orderIntent, setOrderIntent] = useState<OrderIntent | null>(null);
@@ -73,9 +81,12 @@ export default function CustomOrderPage() {
 
   // Snapshot after historyTick changes (design state has settled)
   const frontDesignsRef = useRef(frontDesigns);
-  frontDesignsRef.current = frontDesigns;
   const backDesignsRef = useRef(backDesigns);
-  backDesignsRef.current = backDesigns;
+
+  useEffect(() => {
+    frontDesignsRef.current = frontDesigns;
+    backDesignsRef.current = backDesigns;
+  }, [frontDesigns, backDesigns]);
 
   useEffect(() => {
     if (historyTick === 0) return;
@@ -117,7 +128,7 @@ export default function CustomOrderPage() {
   }, [handleUndo, handleRedo]);
 
   const visibleProducts = useMemo(
-    () => PRODUCT_TYPES.filter((product) => orderIntent === "own-product" || product.id !== "jeans"),
+    () => getVisibleProducts(orderIntent),
     [orderIntent],
   );
 
@@ -126,22 +137,6 @@ export default function CustomOrderPage() {
     () => (selectedProduct ? getSkippedSteps(selectedProduct) : []),
     [selectedProduct],
   );
-
-  useEffect(() => {
-    if (!selectedProduct) return;
-    const stillVisible = visibleProducts.some((product) => product.id === selectedProduct);
-    if (stillVisible) return;
-
-    setSelectedProduct(null);
-    setClothingSize(null);
-    setSelectedColor(null);
-    setFrontDesigns([]);
-    setBackDesigns([]);
-    setActiveSide("front");
-    setEmbroiderySize(null);
-    setOrderNote("");
-    setStep(1);
-  }, [selectedProduct, visibleProducts]);
 
   const getNextStep = (current: number): number => {
     let next = current + 1;
@@ -303,6 +298,27 @@ export default function CustomOrderPage() {
     setOrderNote("");
     setStep(3); // Auto-advance to unified editor
   };
+
+  function handleOrderIntentSelect(intent: OrderIntent) {
+    const selectedProductStillVisible =
+      !selectedProduct ||
+      getVisibleProducts(intent).some((product) => product.id === selectedProduct);
+
+    if (!selectedProductStillVisible) {
+      allDesigns.forEach((design) => revokeIfBlobUrl(design.url));
+      setSelectedProduct(null);
+      setClothingSize(null);
+      setSelectedColor(null);
+      setFrontDesigns([]);
+      setBackDesigns([]);
+      setActiveSide("front");
+      setEmbroiderySize(null);
+      setOrderNote("");
+      setStep(1);
+    }
+
+    setOrderIntent(intent);
+  }
 
   const handleSizeButtonClick = useCallback((fraction: number) => {
     setResizeRequest((prev) => ({ fraction, seq: (prev?.seq ?? 0) + 1 }));
@@ -576,7 +592,7 @@ export default function CustomOrderPage() {
             <div className="mt-6 grid gap-4">
               <button
                 type="button"
-                onClick={() => setOrderIntent("own-product")}
+                onClick={() => handleOrderIntentSelect("own-product")}
                 className="group flex w-full items-center gap-4 rounded-2xl border border-black/10 bg-white p-5 text-left transition-all hover:border-accent hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-transform group-hover:scale-110">
@@ -592,7 +608,7 @@ export default function CustomOrderPage() {
 
               <button
                 type="button"
-                onClick={() => setOrderIntent("buy-product")}
+                onClick={() => handleOrderIntentSelect("buy-product")}
                 className="group flex w-full items-center gap-4 rounded-2xl border border-black/10 bg-white p-5 text-left transition-all hover:border-accent hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-transform group-hover:scale-110">

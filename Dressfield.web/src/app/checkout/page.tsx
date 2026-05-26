@@ -20,6 +20,8 @@ type Step = "form" | "review";
 const TBILISI_SHIPPING_COST = 5;
 const OTHER_CITIES_SHIPPING_COST = 15;
 const CHECKOUT_PREFILL_STORAGE_KEY = "dressfield-checkout-prefill-v1";
+const LEGACY_DESIGN_UNAVAILABLE_MESSAGE =
+  "დიზაინის ფაილი აღარ არის ხელმისაწვდომი. გთხოვთ დაბრუნდეთ custom შეკვეთაში და თავიდან ატვირთოთ დიზაინი.";
 
 interface FormData {
   contactName: string;
@@ -532,9 +534,14 @@ export default function CheckoutPage() {
             let designImageUrl = source.url;
 
             if (designImageUrl.startsWith("blob:")) {
-              const response = await fetch(designImageUrl);
+              let response: Response;
+              try {
+                response = await fetch(designImageUrl);
+              } catch {
+                throw new Error(LEGACY_DESIGN_UNAVAILABLE_MESSAGE);
+              }
               if (!response.ok) {
-                throw new Error("დიზაინის ატვირთვა ვერ მოხერხდა.");
+                throw new Error(LEGACY_DESIGN_UNAVAILABLE_MESSAGE);
               }
 
               const blob = await response.blob();
@@ -643,8 +650,10 @@ export default function CheckoutPage() {
       const apiMessage = extractApiErrorMessage(error);
       if (apiMessage) {
         setSubmitError(apiMessage);
+      } else if (error instanceof Error && error.message === LEGACY_DESIGN_UNAVAILABLE_MESSAGE) {
+        setSubmitError(error.message);
       } else {
-      setSubmitError("შეკვეთის გაფორმება ვერ მოხერხდა. სცადეთ თავიდან.");
+        setSubmitError("შეკვეთის გაფორმება ვერ მოხერხდა. სცადეთ თავიდან.");
       }
     } finally {
       setSubmitting(false);

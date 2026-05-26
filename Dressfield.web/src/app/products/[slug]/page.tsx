@@ -6,6 +6,7 @@ import { getProducts, getStaticProductBySlug } from "@/lib/catalog";
 export const dynamicParams = false;
 
 const STATIC_FALLBACK_SLUG = "catalog-preview";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
 
 export async function generateStaticParams() {
   try {
@@ -38,6 +39,10 @@ export async function generateMetadata({
         title: "Catalog Preview - DressField",
         description:
           "Static preview route generated because product API was unavailable during build.",
+        robots: {
+          index: false,
+          follow: false,
+        },
       };
     }
 
@@ -49,19 +54,31 @@ export async function generateMetadata({
   const description =
     product.shortDescription ??
     `${product.name} - GEL ${effectivePrice.toFixed(2)} - DressField`;
+  const productPath = `/products/${product.slug}`;
+  const productUrl = `${siteUrl}${productPath}`;
 
   return {
     title: `${product.name} - DressField`,
     description,
+    alternates: {
+      canonical: productPath,
+    },
     openGraph: {
       title: `${product.name} - DressField`,
       description,
       siteName: "DressField",
       locale: "ka_GE",
       type: "website",
+      url: productUrl,
       images: primaryImage
         ? [{ url: primaryImage.imageUrl, alt: primaryImage.altText ?? product.name }]
         : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} - DressField`,
+      description,
+      images: primaryImage ? [primaryImage.imageUrl] : [],
     },
     other: {
       "product:price:amount": String(effectivePrice),
@@ -116,7 +133,7 @@ export default async function ProductDetailPage({
           }),
         }}
       />
-      <ProductDetailClient product={product} />
+      <ProductDetailClient key={product.slug} product={product} />
     </>
   );
 }

@@ -120,7 +120,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
       {/* ── Image ── */}
       <div className="relative block aspect-[3/4] overflow-hidden bg-gray-50 rounded-xl">
         <Link
-          href={{ pathname: "/product", query: { slug: product.slug } }}
+          href={`/products/${product.slug}`}
           className="block h-full w-full"
         >
           <img
@@ -191,7 +191,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         {/* Name & Price */}
         <div className="flex justify-between items-start gap-2">
           <Link
-            href={{ pathname: "/product", query: { slug: product.slug } }}
+            href={`/products/${product.slug}`}
             className="block flex-1"
           >
             <h3 className="font-ui text-sm font-medium text-gray-900 group-hover:text-accent transition-colors line-clamp-1">

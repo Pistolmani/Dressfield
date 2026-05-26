@@ -140,6 +140,7 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
     missingRequiredSize,
     product.id,
     product.name,
+    product.slug,
     quantity,
     selectedImage.imageUrl,
     selectedVariantItems,

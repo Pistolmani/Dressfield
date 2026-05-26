@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type FocusEvent,
 } from "react";
 import { ShoppingCart, Trash2 } from "lucide-react";
@@ -16,13 +17,26 @@ const MAX_PREVIEW_ITEMS = 4;
 const CLOSE_DELAY_MS = 120;
 const FALLBACK_IMAGE = "/dressfield-fallback.jpg";
 
+// Hydration gate without setState-in-effect, which React Compiler flags.
+function subscribeMounted() {
+  return () => {};
+}
+
+function getMountedSnapshot() {
+  return true;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 export function CartHoverPreview() {
   const items = useCartStore((state) => state.items);
   const totalItems = useCartStore((state) => state.totalItems());
   const totalPrice = useCartStore((state) => state.totalPrice());
   const removeItem = useCartStore((state) => state.removeItem);
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerSnapshot);
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -34,10 +48,6 @@ export function CartHoverPreview() {
     },
     []
   );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   function openPreview() {
     if (closeTimerRef.current) {
@@ -93,7 +103,7 @@ export function CartHoverPreview() {
                 const itemHref = isCustom
                   ? "/custom-order"
                   : item.productSlug
-                    ? `/product?slug=${encodeURIComponent(item.productSlug)}`
+                    ? `/products/${encodeURIComponent(item.productSlug)}`
                     : "/products";
                 const designUrl = item.customOrderData?.designs?.[0]?.url;
                 const canvasUrl = item.customOrderData?.canvasPreviewUrl;

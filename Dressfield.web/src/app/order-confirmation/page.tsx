@@ -60,6 +60,7 @@ function ConfirmationContent() {
   const canPoll = canPollAsUser || canPollAsGuest;
 
   const clearCart = useCartStore((state) => state.clearCart);
+  const clearCustomItems = useCartStore((state) => state.clearCustomItems);
   const pollStartRef = useRef<number | null>(null);
   const pollSessionRef = useRef<string>("");
   const hasTrackedPurchaseRef = useRef(false);
@@ -113,7 +114,8 @@ function ConfirmationContent() {
     if (!isCustomOrder || typeof window === "undefined") return;
     localStorage.removeItem("dressfield_pending_order_id");
     localStorage.removeItem("dressfield_pending_order_key");
-  }, [isCustomOrder]);
+    clearCustomItems();
+  }, [isCustomOrder, clearCustomItems]);
 
   const myOrderQuery = useQuery({
     queryKey: ["my-order", id, pollSessionKey],

@@ -78,7 +78,14 @@ function mapProductToForm(product: ProductDetailDto): ProductPayload {
               isPrimary: image.isPrimary,
             }))
         : [],
-    variants: [],
+    variants: product.variants.map((variant) => ({
+      name: variant.name,
+      value: variant.value,
+      sku: variant.sku,
+      priceAdjustment: variant.priceAdjustment,
+      stockQuantity: variant.stockQuantity,
+      isActive: variant.isActive,
+    })),
   };
 }
 
@@ -143,7 +150,14 @@ function normalizeForm(form: ProductPayload): ProductPayload {
       sortOrder: index,
       isPrimary: images.some((item) => item.isPrimary) ? image.isPrimary : index === 0,
     })),
-    variants: [],
+    variants: form.variants.map((variant) => ({
+      name: variant.name.trim(),
+      value: variant.value?.trim() || null,
+      sku: variant.sku?.trim() || null,
+      priceAdjustment: Number(variant.priceAdjustment),
+      stockQuantity: Number(variant.stockQuantity),
+      isActive: variant.isActive,
+    })),
   };
 }
 
