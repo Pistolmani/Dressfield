@@ -5,3 +5,6 @@ out*.txt
 # Local runtime artifacts
 node_modules/
 *.log
+
+# Build outputs
+/out/
