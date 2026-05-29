@@ -12,6 +12,10 @@ import { validatePromoCode } from "@/lib/promo-codes";
 import { submitCustomOrder } from "@/lib/custom-orders";
 import { uploadDesignImage } from "@/lib/upload";
 import { trackInitiateCheckout } from "@/lib/analytics";
+import {
+  getCartComposition,
+  SEPARATE_CHECKOUT_REQUIRED_MESSAGE,
+} from "@/lib/cart-composition";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import type { PromoCodeValidationResultDto } from "@/types/promo-code";
@@ -20,6 +24,8 @@ type Step = "form" | "review";
 const TBILISI_SHIPPING_COST = 5;
 const OTHER_CITIES_SHIPPING_COST = 15;
 const CHECKOUT_PREFILL_STORAGE_KEY = "dressfield-checkout-prefill-v1";
+const CUSTOM_ORDER_TOTAL_INVALID_MESSAGE =
+  "ინდივიდუალური შეკვეთის თანხა ვერ დამუშავდა. გთხოვთ გადაამოწმოთ კალათა და სცადოთ თავიდან.";
 const LEGACY_DESIGN_UNAVAILABLE_MESSAGE =
   "დიზაინის ფაილი აღარ არის ხელმისაწვდომი. გთხოვთ დაბრუნდეთ custom შეკვეთაში და თავიდან ატვირთოთ დიზაინი.";
 
@@ -249,8 +255,7 @@ export default function CheckoutPage() {
   const [appliedPromo, setAppliedPromo] = useState<PromoCodeValidationResultDto | null>(null);
   const hasTrackedInitiateCheckoutRef = useRef(false);
 
-  const regularItems = items.filter((item) => !item.customOrderData);
-  const customItems = items.filter((item) => Boolean(item.customOrderData));
+  const { customItems, regularItems, requiresSeparateCheckout } = getCartComposition(items);
   const promoEligible = items.length > 0;
   const shippingCost = getShippingCostByCity(form.shippingCity);
 
@@ -459,17 +464,13 @@ export default function CheckoutPage() {
 
   async function handleSubmit() {
     setSubmitError(null);
+    if (requiresSeparateCheckout) {
+      setSubmitError(SEPARATE_CHECKOUT_REQUIRED_MESSAGE);
+      return;
+    }
+
     setSubmitting(true);
     try {
-      if (regularItems.length > 0 && customItems.length > 0) {
-        setSubmitError("კალათაში გაქვთ custom და ჩვეულებრივი პროდუქტი ერთად. გთხოვთ, შეუკვეთეთ ცალ-ცალკე.");
-        return;
-      }
-      if (customItems.length > 1) {
-        setSubmitError("კალათაში რამდენიმე ინდ. შეკვეთაა. გთხოვთ, გააფორმეთ ეს შეკვეთები ცალ-ცალკე.");
-        return;
-      }
-
       const contactName = form.contactName.trim();
       const contactPhone = `+995${form.contactPhone}`;
       const contactEmail = form.contactEmail.trim().toLowerCase();
@@ -586,6 +587,11 @@ export default function CheckoutPage() {
           const itemTotalPrice = roundMoney(
             Math.max(0, (customItemSubtotals[itemIndex] ?? 0) - itemPromoDiscount) + itemShipping
           );
+
+          if (itemTotalPrice <= 0) {
+            setSubmitError(CUSTOM_ORDER_TOTAL_INVALID_MESSAGE);
+            return;
+          }
 
           const customOrder = await submitCustomOrder({
             baseProductId: null,
@@ -914,10 +920,16 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {requiresSeparateCheckout ? (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    {SEPARATE_CHECKOUT_REQUIRED_MESSAGE}
+                  </div>
+                ) : null}
+
                 <Button
                   className="w-full bg-accent text-white hover:bg-accent-hover h-12 text-base font-bold shadow-md"
                   onClick={handleSubmit}
-                  disabled={submitting}
+                  disabled={submitting || requiresSeparateCheckout}
                 >
                   {submitting ? (
                     <>

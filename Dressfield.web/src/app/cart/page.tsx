@@ -6,6 +6,10 @@ import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
+import {
+  getCartComposition,
+  SEPARATE_CHECKOUT_REQUIRED_MESSAGE,
+} from "@/lib/cart-composition";
 import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
@@ -32,6 +36,7 @@ export default function CartPage() {
   }
 
   const subtotal = totalPrice();
+  const { requiresSeparateCheckout } = getCartComposition(items);
 
   return (
     <div className="bg-background min-h-screen py-10">
@@ -134,9 +139,16 @@ export default function CartPage() {
               </div>
             </div>
 
+            {requiresSeparateCheckout ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                {SEPARATE_CHECKOUT_REQUIRED_MESSAGE}
+              </div>
+            ) : null}
+
             <Button
               className="w-full bg-accent text-white hover:bg-accent-hover h-11"
               onClick={() => router.push("/checkout")}
+              disabled={requiresSeparateCheckout}
             >
               გადახდაზე გადასვლა
             </Button>
