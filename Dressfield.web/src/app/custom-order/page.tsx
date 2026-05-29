@@ -65,6 +65,10 @@ export default function CustomOrderPage() {
   const [activeSide,   setActiveSide]   = useState<"front" | "back">("front");
   // Step 4
   const [embroiderySize, setEmbroiderySize] = useState<EmbroiderySizeId | null>(null);
+  // Once the user explicitly picks an embroidery size, that choice drives the price
+  // and the canvas auto-detector must not override it (otherwise a manual resize can
+  // silently downgrade the tier and charge less than the option the user selected).
+  const embroiderySizeLockedRef = useRef(false);
   // Summary note
   const [orderNote, setOrderNote] = useState("");
 
@@ -286,6 +290,7 @@ export default function CustomOrderPage() {
     setFrontDesigns([]);
     setBackDesigns([]);
     setActiveSide("front");
+    embroiderySizeLockedRef.current = false;
     // Auto-set embroidery size for fixed-zone products (e.g. cap).
     // Cap uses fixed 6x30cm placement and maps to L pricing.
     setEmbroiderySize(
@@ -313,6 +318,7 @@ export default function CustomOrderPage() {
       setBackDesigns([]);
       setActiveSide("front");
       setEmbroiderySize(null);
+      embroiderySizeLockedRef.current = false;
       setOrderNote("");
       setStep(1);
     }
@@ -324,7 +330,15 @@ export default function CustomOrderPage() {
     setResizeRequest((prev) => ({ fraction, seq: (prev?.seq ?? 0) + 1 }));
   }, []);
 
+  // Manual size selection (from the size buttons): authoritative for pricing.
+  const handleEmbroiderySizeManualChange = useCallback((sizeId: EmbroiderySizeId) => {
+    embroiderySizeLockedRef.current = true;
+    setEmbroiderySize(sizeId);
+  }, []);
+
   const handleEmbroiderySizeDetected = useCallback((sizeId: EmbroiderySizeId) => {
+    // The user's explicit pick wins — ignore canvas-derived sizes once locked.
+    if (embroiderySizeLockedRef.current) return;
     if (selectedProduct === "cap") {
       if (sizeId === "S" || sizeId === "M" || sizeId === "L") {
         setEmbroiderySize(sizeId);
@@ -452,7 +466,7 @@ export default function CustomOrderPage() {
                   <Step4Parameters
                     product={currentProduct}
                     embroiderySize={embroiderySize}
-                    onEmbroiderySizeChange={setEmbroiderySize}
+                    onEmbroiderySizeChange={handleEmbroiderySizeManualChange}
                     designCount={allDesigns.length}
                     isCompact
                     onSizeButtonClick={handleSizeButtonClick}
@@ -460,9 +474,8 @@ export default function CustomOrderPage() {
                   <div className="pt-8 border-t border-black/8">
                     <div className="flex items-center justify-between mb-5">
                       <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Pricing</span>
-                      <div className="text-right [&>p:nth-child(2)]:hidden">
+                      <div className="text-right">
                         <p className="text-3xl font-black text-gray-900 leading-none">GEL {totalPrice.toFixed(2)}</p>
-                        <p className="text-[10px] text-green-600 font-bold uppercase mt-1">უფასო მიწოდება</p>
                       </div>
                     </div>
                     <Button
@@ -537,7 +550,7 @@ export default function CustomOrderPage() {
                   <Step4Parameters
                     product={currentProduct}
                     embroiderySize={embroiderySize}
-                    onEmbroiderySizeChange={setEmbroiderySize}
+                    onEmbroiderySizeChange={handleEmbroiderySizeManualChange}
                     designCount={allDesigns.length}
                     isCompact
                     onSizeButtonClick={handleSizeButtonClick}

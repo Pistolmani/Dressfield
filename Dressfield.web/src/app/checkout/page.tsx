@@ -580,8 +580,11 @@ export default function CheckoutPage() {
           const mergedItemNotes = [itemNotes, promoNote]
             .filter((value): value is string => Boolean(value && value.trim()))
             .join("\n");
+          // Delivery is charged once per checkout. Add it to the first custom order so the
+          // amount sent to BOG matches the checkout total (subtotal − promo + shipping).
+          const itemShipping = itemIndex === 0 ? shippingCost : 0;
           const itemTotalPrice = roundMoney(
-            Math.max(0, (customItemSubtotals[itemIndex] ?? 0) - itemPromoDiscount)
+            Math.max(0, (customItemSubtotals[itemIndex] ?? 0) - itemPromoDiscount) + itemShipping
           );
 
           const customOrder = await submitCustomOrder({
