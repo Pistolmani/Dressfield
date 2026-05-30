@@ -16,13 +16,12 @@ import {
   getCartComposition,
   SEPARATE_CHECKOUT_REQUIRED_MESSAGE,
 } from "@/lib/cart-composition";
+import { getShippingCostByCity } from "@/lib/shipping";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import type { PromoCodeValidationResultDto } from "@/types/promo-code";
 
 type Step = "form" | "review";
-const TBILISI_SHIPPING_COST = 5;
-const OTHER_CITIES_SHIPPING_COST = 15;
 const CHECKOUT_PREFILL_STORAGE_KEY = "dressfield-checkout-prefill-v1";
 const CUSTOM_ORDER_TOTAL_INVALID_MESSAGE =
   "ინდივიდუალური შეკვეთის თანხა ვერ დამუშავდა. გთხოვთ გადაამოწმოთ კალათა და სცადოთ თავიდან.";
@@ -190,15 +189,6 @@ function mergeNotes(globalNote: string, itemNote?: string) {
     (value): value is string => Boolean(value)
   );
   return parts.length > 0 ? parts.join("\n\n") : null;
-}
-
-function getShippingCostByCity(city: string): number {
-  const normalized = city.trim().toLowerCase();
-  if (!normalized) return TBILISI_SHIPPING_COST;
-  if (normalized === "tbilisi" || normalized === "თბილისი") {
-    return TBILISI_SHIPPING_COST;
-  }
-  return OTHER_CITIES_SHIPPING_COST;
 }
 
 function loadCheckoutPrefill(): CheckoutPrefillSnapshot | null {
