@@ -17,6 +17,7 @@ import {
   SEPARATE_CHECKOUT_REQUIRED_MESSAGE,
 } from "@/lib/cart-composition";
 import { getShippingCostByCity } from "@/lib/shipping";
+import { CITY_OPTIONS } from "@/lib/georgian-cities";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import type { PromoCodeValidationResultDto } from "@/types/promo-code";
@@ -57,7 +58,6 @@ type CheckoutPrefillSnapshot = Pick<
 const NAME_REGEX = /^[\u10A0-\u10FFa-zA-Z\s\-']+$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_DIGITS_ONLY = /\D/g;
-const CITY_REGEX = /^[\u10A0-\u10FFa-zA-Z\s]+$/;
 
 function normalizeLocalPhone(phone: string | null | undefined): string {
   if (!phone) return "";
@@ -401,8 +401,6 @@ export default function CheckoutPage() {
 
     if (!form.shippingCity.trim()) {
       e.shippingCity = "ქალაქი სავალდებულოა";
-    } else if (!CITY_REGEX.test(form.shippingCity.trim())) {
-      e.shippingCity = "მხოლოდ ასოები დაშვებულია";
     }
 
     if (!form.shippingAddressLine1.trim()) {
@@ -788,13 +786,20 @@ export default function CheckoutPage() {
                   <h2 className="font-semibold text-base">მიწოდების მისამართი</h2>
 
                   <Field label="ქალაქი *" error={errors.shippingCity}>
-                    <input
-                      type="text"
+                    <select
                       value={form.shippingCity}
                       onChange={(e) => set("shippingCity", e.target.value)}
                       className={inputCls(!!errors.shippingCity)}
-                      placeholder="მაგ. თბილისი"
-                    />
+                    >
+                      <option value="" disabled>
+                        აირჩიეთ ქალაქი
+                      </option>
+                      {CITY_OPTIONS.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
                   </Field>
 
                   <Field label="მისამართი *" error={errors.shippingAddressLine1}>
