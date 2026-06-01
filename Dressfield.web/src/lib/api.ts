@@ -7,6 +7,7 @@ const api = axios.create({
 });
 
 let accessToken: string | null = null;
+let pendingRefresh: Promise<string> | null = null;
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
@@ -35,13 +36,22 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const { data } = await axios.post(
-          `${api.defaults.baseURL}/api/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-        setAccessToken(data.accessToken);
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        // Deduplicate concurrent refresh calls: all parallel 401s share one promise
+        // so only one POST /api/auth/refresh fires (the token is single-use).
+        if (!pendingRefresh) {
+          pendingRefresh = axios
+            .post(`${api.defaults.baseURL}/api/auth/refresh`, {}, { withCredentials: true })
+            .then(({ data }) => {
+              setAccessToken(data.accessToken);
+              return data.accessToken as string;
+            })
+            .finally(() => {
+              pendingRefresh = null;
+            });
+        }
+
+        const newToken = await pendingRefresh;
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch {
         setAccessToken(null);
