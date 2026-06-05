@@ -15,12 +15,13 @@ import {
 const statusOptions: Array<{ value: "all" | CustomOrderStatus; label: string }> = [
   { value: "all", label: "ყველა სტატუსი" },
   { value: 0, label: "მოლოდინში" },
-  { value: 1, label: "განხილვაში" },
-  { value: 2, label: "დამტკიცებულია" },
-  { value: 3, label: "წარმოებაში" },
-  { value: 4, label: "დასრულებულია" },
-  { value: 5, label: "უარყოფილია" },
-  { value: 6, label: "გაუქმებულია" },
+  { value: 1, label: "გადახდის მოლოდინში" },
+  { value: 2, label: "განხილვაში" },
+  { value: 3, label: "დამტკიცებულია" },
+  { value: 4, label: "წარმოებაში" },
+  { value: 5, label: "დასრულებულია" },
+  { value: 6, label: "უარყოფილია" },
+  { value: 7, label: "გაუქმებულია" },
 ];
 
 function getStatusBadgeClass(status: CustomOrderStatus) {
