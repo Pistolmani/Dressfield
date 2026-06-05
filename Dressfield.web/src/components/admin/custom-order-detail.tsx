@@ -21,6 +21,7 @@ import {
   type CustomOrderDetailDto,
   type CustomOrderStatus,
 } from "@/types/custom-order";
+import { CustomOrderPreview } from "@/components/admin/custom-order-preview";
 
 const statusOptions: CustomOrderStatus[] = [0, 1, 2, 3, 4, 5, 6];
 const API_BASE =
@@ -198,6 +199,27 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
             </div>
           </div>
 
+          {/* Visual composite for orders with captured canvas geometry. Renders
+              nothing for legacy orders, in which case the raw coords block below
+              still gives the admin enough info to act. */}
+          <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
+            <h2 className="font-ui text-3xl font-semibold">დიზაინის გადახედვა</h2>
+            <div className="mt-4">
+              <CustomOrderPreview
+                productTypeId={order.productTypeId}
+                colorHex={order.colorHex}
+                canvasWidth={order.canvasWidth}
+                canvasHeight={order.canvasHeight}
+                designs={order.designs}
+              />
+              {!order.productTypeId && (
+                <p className="text-sm text-muted-foreground">
+                  ვიზუალური გადახედვა მიუწვდომელია — შეკვეთა შესრულდა გადახედვის ფუნქციის დამატებამდე.
+                </p>
+              )}
+            </div>
+          </div>
+
           <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
             <h2 className="font-ui text-3xl font-semibold">დიზაინები</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -228,16 +250,20 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
                       )}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">სიგანე:</span> {design.width ?? "-"}%
+                      <span className="text-muted-foreground">სიგანე:</span>{" "}
+                      {design.width != null ? `${Math.round(design.width)}px` : "-"}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">სიმაღლე:</span> {design.height ?? "-"}%
+                      <span className="text-muted-foreground">სიმაღლე:</span>{" "}
+                      {design.height != null ? `${Math.round(design.height)}px` : "-"}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">X:</span> {design.positionX ?? "-"}%
+                      <span className="text-muted-foreground">X:</span>{" "}
+                      {design.positionX != null ? `${Math.round(design.positionX)}px` : "-"}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Y:</span> {design.positionY ?? "-"}%
+                      <span className="text-muted-foreground">Y:</span>{" "}
+                      {design.positionY != null ? `${Math.round(design.positionY)}px` : "-"}
                     </p>
                   </div>
                 </div>

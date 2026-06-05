@@ -24,10 +24,14 @@ export interface CustomOrderDesignDto {
   placement: string | null;
   size: string | null;
   threadColor: string | null;
+  side: string | null;
   width: number | null;
   height: number | null;
   positionX: number | null;
   positionY: number | null;
+  scaleX: number | null;
+  scaleY: number | null;
+  angle: number | null;
   sortOrder: number;
 }
 
@@ -47,6 +51,11 @@ export interface CustomOrderSummaryDto {
 export interface CustomOrderDetailDto extends CustomOrderSummaryDto {
   customerNotes: string | null;
   adminNotes: string | null;
+  productTypeId: string | null;
+  colorHex: string | null;
+  clothingSize: string | null;
+  canvasWidth: number | null;
+  canvasHeight: number | null;
   updatedAt: string;
   designs: CustomOrderDesignDto[];
 }
@@ -56,10 +65,14 @@ export interface CreateCustomOrderDesignRequest {
   placement: string | null;
   size: string | null;
   threadColor: string | null;
+  side: string | null;
   width: number | null;
   height: number | null;
   positionX: number | null;
   positionY: number | null;
+  scaleX: number | null;
+  scaleY: number | null;
+  angle: number | null;
   sortOrder: number;
 }
 
@@ -70,5 +83,10 @@ export interface CreateCustomOrderRequest {
   contactEmail: string;
   totalPrice: number;
   customerNotes: string | null;
+  productTypeId: string | null;
+  colorHex: string | null;
+  clothingSize: string | null;
+  canvasWidth: number | null;
+  canvasHeight: number | null;
   designs: CreateCustomOrderDesignRequest[];
 }
