@@ -1,5 +1,0 @@
-1:"$Sreact.fragment"
-2:I[484,[],"OutletBoundary"]
-3:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"mx-auto max-w-3xl px-4 py-16 text-center","children":[["$","h1",null,{"className":"text-3xl font-semibold tracking-tight","children":"Catalog Preview"}],["$","p",null,{"className":"mt-4 text-muted-foreground","children":"Product detail pages will be generated from live product slugs when the API is available during build."}]]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"tiHRAYffQLonLqyjsEnC6"}
-4:null
