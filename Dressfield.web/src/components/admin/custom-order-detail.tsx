@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +77,82 @@ function resolveImageSources(url: string) {
   }
 
   return Array.from(new Set(sources));
+}
+
+function guessFileName(url: string, orderId: number, designId: number) {
+  try {
+    const pathname = new URL(toAbsoluteUrl(url)).pathname;
+    const ext = pathname.includes(".") ? pathname.slice(pathname.lastIndexOf(".")) : ".png";
+    return `order-${orderId}-design-${designId}${ext}`;
+  } catch {
+    return `order-${orderId}-design-${designId}.png`;
+  }
+}
+
+/**
+ * Downloads the design image. The blob-fetch dance is required because the
+ * `download` attribute on <a> is ignored for cross-origin URLs (Azure Blob),
+ * which would otherwise just open the image in a new tab.
+ */
+async function downloadDesignImage(url: string, fileName: string) {
+  const sources = resolveImageSources(url);
+  for (const src of sources) {
+    try {
+      const response = await fetch(src);
+      if (!response.ok) continue;
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      return;
+    } catch {
+      // Try the next candidate source.
+    }
+  }
+  // Last resort — open in a new tab so the admin can save manually.
+  const fallback = sources[0];
+  if (fallback) {
+    window.open(fallback, "_blank", "noopener");
+  } else {
+    toast.error("სურათის ჩამოტვირთვა ვერ მოხერხდა");
+  }
+}
+
+function DesignDownloadButton({
+  url,
+  orderId,
+  designId,
+}: {
+  url: string;
+  orderId: number;
+  designId: number;
+}) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className="w-full"
+      disabled={isDownloading}
+      onClick={async () => {
+        setIsDownloading(true);
+        try {
+          await downloadDesignImage(url, guessFileName(url, orderId, designId));
+        } finally {
+          setIsDownloading(false);
+        }
+      }}
+    >
+      <Download className="mr-2 h-4 w-4" />
+      {isDownloading ? "იტვირთება..." : "ჩამოტვირთვა"}
+    </Button>
+  );
 }
 
 function DesignPreviewImage({ url }: { url: string }) {
@@ -226,6 +302,11 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
               {order.designs.map((design) => (
                 <div key={design.id} className="space-y-3 rounded-3xl border border-black/8 p-4">
                   <DesignPreviewImage url={design.designImageUrl} />
+                  <DesignDownloadButton
+                    url={design.designImageUrl}
+                    orderId={order.id}
+                    designId={design.id}
+                  />
                   <div className="space-y-1 text-sm">
                     <p>
                       <span className="text-muted-foreground">განთავსება:</span>{" "}
