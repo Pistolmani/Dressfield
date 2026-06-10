@@ -132,16 +132,6 @@ export const CAP_EMBROIDERY_PREVIEW = {
   L: { fraction: 0.68, note: "სიმაღლე 6სმ · სიგრძე 30სმ" },
 } as const;
 
-export const PLACEMENTS = [
-  { id: "chest-left",   label: "მკერდი (მარცხენა)" },
-  { id: "chest-center", label: "მკერდი (ცენტრი)" },
-  { id: "back",         label: "ზურგი" },
-  { id: "sleeve",       label: "სახელო" },
-] as const;
-export type PlacementId = (typeof PLACEMENTS)[number]["id"];
-
-export const ALL_STEPS = [1, 2, 3, 4, 5] as const;
-
 export function getSkippedSteps(productId: ProductTypeId): number[] {
   const product = PRODUCT_TYPES.find((p) => p.id === productId);
   if (!product) return [];

@@ -12,6 +12,18 @@ export const CustomOrderStatusLabels: Record<CustomOrderStatus, string> = {
   8: "გადახდის დამუშავება",
 };
 
+export const CustomOrderStatusBadgeClasses: Record<CustomOrderStatus, string> = {
+  0: "bg-amber-100 text-amber-700", // Pending
+  1: "bg-blue-100 text-blue-700", // AwaitingPayment
+  2: "bg-indigo-100 text-indigo-700", // Reviewing — paid, needs admin attention
+  3: "bg-green-100 text-green-700", // Approved
+  4: "bg-accent/15 text-accent", // InProduction
+  5: "bg-emerald-100 text-emerald-700", // Completed
+  6: "bg-red-100 text-red-700", // Rejected
+  7: "bg-gray-200 text-gray-700", // Cancelled
+  8: "bg-slate-100 text-slate-700", // PaymentProcessing (system-managed)
+};
+
 export interface CustomOrderCheckoutResponse {
   orderId: number;
   paymentRedirectUrl: string | null;

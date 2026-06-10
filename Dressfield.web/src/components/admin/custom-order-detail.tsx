@@ -17,33 +17,20 @@ import {
 } from "@/lib/custom-orders";
 import { formatPrice } from "@/lib/catalog";
 import {
+  CustomOrderStatusBadgeClasses,
   CustomOrderStatusLabels,
   type CustomOrderDetailDto,
   type CustomOrderStatus,
 } from "@/types/custom-order";
 import { CustomOrderPreview } from "@/components/admin/custom-order-preview";
 
-const statusOptions: CustomOrderStatus[] = [0, 1, 2, 3, 4, 5, 6];
+// Status 8 (PaymentProcessing) is system-managed — admins shouldn't set it manually.
+const statusOptions: CustomOrderStatus[] = [0, 1, 2, 3, 4, 5, 6, 7];
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function getStatusBadgeClass(status: CustomOrderStatus) {
-  switch (status) {
-    case 0:
-      return "bg-amber-100 text-amber-700";
-    case 1:
-      return "bg-blue-100 text-blue-700";
-    case 2:
-      return "bg-green-100 text-green-700";
-    case 3:
-      return "bg-accent/15 text-accent";
-    case 4:
-      return "bg-emerald-100 text-emerald-700";
-    case 5:
-      return "bg-red-100 text-red-700";
-    case 6:
-      return "bg-gray-200 text-gray-700";
-  }
+  return CustomOrderStatusBadgeClasses[status] ?? "bg-gray-200 text-gray-700";
 }
 
 function isAbsoluteUrl(url: string) {
