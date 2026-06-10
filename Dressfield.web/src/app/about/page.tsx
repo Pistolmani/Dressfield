@@ -105,7 +105,7 @@ export default function AboutPage() {
   return (
     <div className="bg-black text-white">
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
+      {/* -- HERO ----------------------------------------------- */}
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
           <Logo className="h-8 w-auto text-white mb-8" />
@@ -125,7 +125,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── STORY ────────────────────────────────────────────── */}
+      {/* -- STORY ---------------------------------------------- */}
       <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -160,7 +160,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── VALUES ───────────────────────────────────────────── */}
+      {/* -- VALUES --------------------------------------------- */}
       <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -186,7 +186,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── PROCESS ──────────────────────────────────────────── */}
+      {/* -- PROCESS -------------------------------------------- */}
       <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -229,7 +229,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────── */}
+      {/* -- CTA ------------------------------------------------ */}
       <section className="py-16 sm:py-20 bg-black">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="font-ui text-3xl sm:text-4xl font-bold text-white mb-4">

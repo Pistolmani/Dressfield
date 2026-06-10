@@ -22,7 +22,7 @@ interface CustomOrderPreviewProps {
  * Fabric.js geometry (PositionX/Y are center coords, Width/Height are final
  * rendered px on the saved canvas).
  *
- * Returns null when the order predates the geometry capture work — the caller
+ * Returns null when the order predates the geometry capture work - the caller
  * should fall back to displaying the raw coords block instead.
  */
 export function CustomOrderPreview({
@@ -40,7 +40,7 @@ export function CustomOrderPreview({
 
   // Without canvas dimensions we can't safely map saved coords into the viewport.
   // Without a product template we have no silhouette to draw behind the design.
-  // Either case ⇒ render nothing; the parent shows the legacy coords block.
+  // Either case => render nothing; the parent shows the legacy coords block.
   if (!product || !canvasWidth || !canvasHeight) return null;
 
   const designsWithGeometry = designs.filter(
@@ -127,7 +127,7 @@ function SidePreview({
         className="relative overflow-hidden rounded-2xl border border-black/8 bg-slate-50"
         style={{ width: viewportWidth, height: viewportHeight }}
       >
-        {/* Silhouette template — sits behind every design overlay. */}
+        {/* Silhouette template - sits behind every design overlay. */}
         <img
           src={templateUrl}
           alt={label}

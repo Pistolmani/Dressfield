@@ -205,7 +205,7 @@ export function Step3DesignUpload({
           ინსტრუმენტები
         </p>
 
-        {/* ImageToolbar — shown above upload once a design exists */}
+        {/* ImageToolbar - shown above upload once a design exists */}
         {designs.length > 0 && (
           <div className="mb-4">
             <ImageToolbar

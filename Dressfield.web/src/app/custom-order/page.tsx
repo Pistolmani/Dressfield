@@ -337,7 +337,7 @@ export default function CustomOrderPage() {
   }, []);
 
   const handleEmbroiderySizeDetected = useCallback((sizeId: EmbroiderySizeId) => {
-    // The user's explicit pick wins — ignore canvas-derived sizes once locked.
+    // The user's explicit pick wins - ignore canvas-derived sizes once locked.
     if (embroiderySizeLockedRef.current) return;
     if (selectedProduct === "cap") {
       if (sizeId === "S" || sizeId === "M" || sizeId === "L") {
@@ -373,7 +373,7 @@ export default function CustomOrderPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className={cn("max-w-7xl mx-auto px-4", step === 5 ? "py-4 lg:py-8" : "py-4 lg:py-12")}>
-        {/* Page header — compact on mobile when in editor */}
+        {/* Page header - compact on mobile when in editor */}
         <div className={cn(step === 3 ? "mb-4" : "mb-8", step === 5 && "mb-6")}>
           <h1 className={cn("font-extrabold tracking-tight text-gray-900 mb-1", step === 5 ? "text-2xl sm:text-4xl" : step === 3 ? "text-xl sm:text-5xl" : "text-3xl sm:text-5xl")}>
             {step === 1 ? "რომელ ტანსაცმელზე გინდა ნაქარგი?" : "შექმენი შენი დიზაინი"}
@@ -399,7 +399,7 @@ export default function CustomOrderPage() {
 
           {step === 3 && currentProduct && selectedProduct && (
             <>
-              {/* ── Desktop: 3-column layout ────────────────────────────── */}
+              {/* -- Desktop: 3-column layout ------------------------------ */}
               <div className="hidden lg:flex flex-row gap-5 items-start">
                 {/* Left Panel: Tools & Layers */}
                 <div className="w-44 space-y-5 sticky top-8 flex-shrink-0">

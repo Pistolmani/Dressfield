@@ -24,7 +24,7 @@ import {
 } from "@/types/custom-order";
 import { CustomOrderPreview } from "@/components/admin/custom-order-preview";
 
-// Status 8 (PaymentProcessing) is system-managed — admins shouldn't set it manually.
+// Status 8 (PaymentProcessing) is system-managed - admins shouldn't set it manually.
 const statusOptions: CustomOrderStatus[] = [0, 1, 2, 3, 4, 5, 6, 7];
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
@@ -101,7 +101,7 @@ async function downloadDesignImage(url: string, fileName: string) {
       // Try the next candidate source.
     }
   }
-  // Last resort — open in a new tab so the admin can save manually.
+  // Last resort - open in a new tab so the admin can save manually.
   const fallback = sources[0];
   if (fallback) {
     window.open(fallback, "_blank", "noopener");

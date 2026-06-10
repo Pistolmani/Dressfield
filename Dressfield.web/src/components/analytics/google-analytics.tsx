@@ -14,7 +14,7 @@ export function GoogleAnalytics() {
   useEffect(() => {
     if (!gaId) return;
 
-    // Skip the initial mount — gtag('config') in the inline script already
+    // Skip the initial mount - gtag('config') in the inline script already
     // tracks the first page view.
     if (isFirstRouteEffect.current) {
       isFirstRouteEffect.current = false;

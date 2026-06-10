@@ -15,7 +15,7 @@ export const CustomOrderStatusLabels: Record<CustomOrderStatus, string> = {
 export const CustomOrderStatusBadgeClasses: Record<CustomOrderStatus, string> = {
   0: "bg-amber-100 text-amber-700", // Pending
   1: "bg-blue-100 text-blue-700", // AwaitingPayment
-  2: "bg-indigo-100 text-indigo-700", // Reviewing — paid, needs admin attention
+  2: "bg-indigo-100 text-indigo-700", // Reviewing - paid, needs admin attention
   3: "bg-green-100 text-green-700", // Approved
   4: "bg-accent/15 text-accent", // InProduction
   5: "bg-emerald-100 text-emerald-700", // Completed
