@@ -83,10 +83,10 @@ function ProductsPageContent() {
           <div className="mb-8 flex flex-col gap-3 pb-0">
             <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">პროდუქტები</p>
             <h1 className="font-ui text-3xl sm:text-4xl font-semibold tracking-[0.03em]">
-              ნაქარგი პროდუქციის კატალოგი
+              ნაქარგების და ქარგვის კატალოგი
             </h1>
             <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-              დაათვალიერე მზა ნამუშევრები, ნახე დეტალები და დაამატე სასურველი ნივთები კალათაში.
+              დაათვალიერე მზა ნაქარგი ნამუშევრები, ნახე დეტალები და შეუკვეთე ქარგვა შენი დიზაინით.
             </p>
           </div>
 

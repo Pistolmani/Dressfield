@@ -58,42 +58,69 @@ const websiteSchemaJson = JSON.stringify({
   },
 });
 
+const localBusinessSchemaJson = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "ClothingStore",
+  name: "DressField",
+  url: siteUrl,
+  logo: `${siteUrl}/dressfield-logo.png`,
+  image: `${siteUrl}/dressfield-logo.png`,
+  description:
+    "ქარგვა და ნაქარგი თბილისში — ხელით და მანქანური ქარგვა, ლოგოს ქარგვა და ინდივიდუალური ნაქარგი შეკვეთით.",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "თბილისი",
+    addressCountry: "GE",
+  },
+  areaServed: {
+    "@type": "Country",
+    name: "Georgia",
+  },
+  sameAs: ["https://www.instagram.com/dressfield.stitch/"],
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "DressField — ქართული ნაქარგი, შენი სტილით",
+    default: "DressField — ქარგვა და ნაქარგი შენი სტილით",
     template: "%s — DressField",
   },
   description:
-    "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე შენი დიზაინი და შექმენი უნიკალური სტილი.",
+    "ქარგვა და ნაქარგი ონლაინ — ხელით და მანქანური ქარგვა, ლოგოს ქარგვა და ინდივიდუალური ნაქარგი შეკვეთით. ატვირთე შენი დიზაინი და შექმენი უნიკალური სტილი.",
   keywords: [
     "DressField",
     "dressfield",
     "dressfield.ge",
+    "ქარგვა",
+    "ნაქარგი",
+    "ნაქარგები",
+    "ქართული ნაქარგი",
+    "მანქანური ქარგვა",
+    "ხელით ქარგვა",
+    "ლოგოს ქარგვა",
+    "ქარგვა თბილისი",
+    "ქარგვა შეკვეთით",
+    "ინდივიდუალური შეკვეთა",
     "embroidery",
     "custom embroidery",
-    "custom order",
     "Georgian embroidery",
-    "ნაქარგი",
-    "ქართული ნაქარგი",
-    "ინდივიდუალური შეკვეთა",
   ],
   openGraph: {
     siteName: "DressField",
     locale: "ka_GE",
     type: "website",
-    title: "DressField — ქართული ნაქარგი, შენი სტილით",
+    title: "DressField — ქარგვა და ნაქარგი შენი სტილით",
     description:
-      "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+      "ქარგვა და ნაქარგი ონლაინ — მზა პროდუქცია, ლოგოს ქარგვა და ინდივიდუალური შეკვეთები.",
     url: siteUrl,
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "DressField" }],
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "DressField — ქარგვა და ნაქარგი" }],
   },
   manifest: "/manifest.webmanifest",
   twitter: {
     card: "summary_large_image",
-    title: "DressField — ქართული ნაქარგი, შენი სტილით",
+    title: "DressField — ქარგვა და ნაქარგი შენი სტილით",
     description:
-      "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+      "ქარგვა და ნაქარგი ონლაინ — მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
   },
   verification: {
     google: googleSiteVerification,
@@ -128,6 +155,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: websiteSchemaJson }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: localBusinessSchemaJson }}
         />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
