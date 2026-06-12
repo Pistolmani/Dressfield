@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteAdminOrder, getAdminOrders } from "@/lib/orders";
+import { deleteAdminOrder, deleteAllPendingOrders, getAdminOrders } from "@/lib/orders";
 import {
   OrderStatus,
   OrderStatusLabels,
@@ -60,6 +60,29 @@ export default function OrdersManager() {
     deleteMutation.mutate(id);
   };
 
+  // Bulk delete - wipes every Pending order in one call. Guarded by the same
+  // backend rule (only Pending can be removed), so this is safe to expose.
+  const bulkDeleteMutation = useMutation({
+    mutationFn: () => deleteAllPendingOrders(),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-summary"] });
+      if (result.deleted === 0) {
+        window.alert("Pending სტატუსის შეკვეთები არ მოიძებნა.");
+      } else {
+        window.alert(`წაიშალა ${result.deleted} შეკვეთა.`);
+      }
+    },
+    onError: () => {
+      window.alert("შეცდომა Pending შეკვეთების წაშლისას.");
+    },
+  });
+
+  const handleBulkDelete = () => {
+    if (!window.confirm("ნამდვილად გსურთ ყველა Pending სტატუსის შეკვეთის წაშლა?")) return;
+    bulkDeleteMutation.mutate();
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -68,19 +91,30 @@ export default function OrdersManager() {
           შეკვეთები
         </h1>
 
-        {/* Status filter */}
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "")}
-          className="rounded-xl border border-black/10 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 w-full sm:w-56"
-        >
-          <option value="">ყველა სტატუსი</option>
-          {ALL_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {OrderStatusLabels[s]}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          <button
+            type="button"
+            onClick={handleBulkDelete}
+            disabled={bulkDeleteMutation.isPending}
+            className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50 transition-colors"
+          >
+            {bulkDeleteMutation.isPending ? "იშლება..." : "ყველა Pending-ის წაშლა"}
+          </button>
+
+          {/* Status filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "")}
+            className="rounded-xl border border-black/10 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 w-full sm:w-56"
+          >
+            <option value="">ყველა სტატუსი</option>
+            {ALL_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {OrderStatusLabels[s]}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Table */}

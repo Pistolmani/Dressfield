@@ -55,3 +55,8 @@ export async function updateOrderStatus(
 export async function deleteAdminOrder(id: number): Promise<void> {
   await api.delete(`/api/orders/admin/${id}`);
 }
+
+export async function deleteAllPendingOrders(): Promise<{ deleted: number }> {
+  const { data } = await api.delete<{ deleted: number }>("/api/orders/admin/pending");
+  return data;
+}
