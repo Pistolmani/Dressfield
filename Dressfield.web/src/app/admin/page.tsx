@@ -68,9 +68,52 @@ export default function AdminDashboardPage() {
   // Pending (0), AwaitingPayment (1), and Reviewing (2) all require admin attention
   const pendingCustomOrders = customOrders.filter((co) => co.status === 0 || co.status === 1 || co.status === 2);
 
-  const recentOrders = [...orders]
+  // Merge regular + custom into a single "recent activity" feed. Each row
+  // carries a `kind` discriminator so the row renderer can pick the right
+  // detail URL, status label set, and badge color.
+  type RecentOrderRow =
+    | {
+        kind: "regular";
+        id: number;
+        contactName: string;
+        createdAt: string;
+        amount: number;
+        statusLabel: string;
+        statusClass: string;
+      }
+    | {
+        kind: "custom";
+        id: number;
+        contactName: string;
+        createdAt: string;
+        amount: number;
+        statusLabel: string;
+        statusClass: string;
+      };
+
+  const recentOrders: RecentOrderRow[] = [
+    ...orders.map<RecentOrderRow>((o) => ({
+      kind: "regular",
+      id: o.id,
+      contactName: o.contactName,
+      createdAt: o.createdAt,
+      amount: o.totalAmount,
+      statusLabel: OrderStatusLabels[o.status],
+      statusClass: OrderStatusColors[o.status],
+    })),
+    ...customOrders.map<RecentOrderRow>((co) => ({
+      kind: "custom",
+      id: co.id,
+      contactName: co.contactName,
+      createdAt: co.createdAt,
+      amount: co.totalPrice,
+      statusLabel: CustomOrderStatusLabels[co.status as keyof typeof CustomOrderStatusLabels],
+      // Reuse the orange palette already established for custom orders on this page.
+      statusClass: "bg-orange-100 text-orange-900 border border-orange-200",
+    })),
+  ]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
+    .slice(0, 8);
 
   const recentPendingCustom = [...pendingCustomOrders]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -158,29 +201,42 @@ export default function AdminDashboardPage() {
                 </div>
               ) : (
                 <div className="divide-y divide-border">
-                  {recentOrders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="flex items-center justify-between p-4 hover:bg-black/[0.02] transition-colors"
-                    >
-                      <div>
-                        <Link
-                          href={`/admin/orders/detail?id=${order.id}`}
-                          className="font-medium hover:underline text-foreground"
-                        >
-                          #{order.id} {order.contactName}
-                        </Link>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {formatDate(order.createdAt)} · {formatPrice(order.totalAmount)}
-                        </p>
-                      </div>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${OrderStatusColors[order.status]}`}
+                  {recentOrders.map((order) => {
+                    const href =
+                      order.kind === "custom"
+                        ? `/admin/custom-orders/detail?id=${order.id}`
+                        : `/admin/orders/detail?id=${order.id}`;
+                    return (
+                      <div
+                        key={`${order.kind}-${order.id}`}
+                        className="flex items-center justify-between p-4 hover:bg-black/[0.02] transition-colors"
                       >
-                        {OrderStatusLabels[order.status]}
-                      </span>
-                    </div>
-                  ))}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Link
+                              href={href}
+                              className="font-medium hover:underline text-foreground"
+                            >
+                              #{order.id} {order.contactName}
+                            </Link>
+                            {order.kind === "custom" && (
+                              <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-purple-700 border border-purple-200">
+                                Custom
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {formatDate(order.createdAt)} · {formatPrice(order.amount)}
+                          </p>
+                        </div>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${order.statusClass}`}
+                        >
+                          {order.statusLabel}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
