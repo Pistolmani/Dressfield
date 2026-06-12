@@ -53,6 +53,7 @@ export interface OrderSummaryDto {
   totalAmount: number;
   itemCount: number;
   createdAt: string;
+  customerNotes: string | null;
 }
 
 export interface OrderDetailDto {
