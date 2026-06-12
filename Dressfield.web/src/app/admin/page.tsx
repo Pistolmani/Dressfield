@@ -65,8 +65,8 @@ export default function AdminDashboardPage() {
   const paidTodayCount = summary?.paidTodayCount ?? 0;
   const pendingCustomCount = summary?.pendingCustomOrdersCount ?? 0;
 
-  // Pending + reviewing require admin attention
-  const pendingCustomOrders = customOrders.filter((co) => co.status === 0 || co.status === 1);
+  // Pending (0), AwaitingPayment (1), and Reviewing (2) all require admin attention
+  const pendingCustomOrders = customOrders.filter((co) => co.status === 0 || co.status === 1 || co.status === 2);
 
   const recentOrders = [...orders]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())

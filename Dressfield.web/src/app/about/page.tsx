@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 
 export const metadata: Metadata = {
-  title: "ჩვენ შესახებ",
+  title: "ჩვენ შესახებ — ქარგვა და ნაქარგი თბილისში",
   description:
-    "DressField — ქართული ნაქარგების ბრენდი თბილისიდან. ვქმნით ხელნაქარგ პროდუქტებს და ვიღებთ ინდივიდუალურ შეკვეთებს. გაიცანი ჩვენი ისტორია და შექმენი შენი სტილი.",
+    "DressField — ქარგვისა და ნაქარგების ბრენდი თბილისიდან. ხელით და მანქანური ქარგვა, ლოგოს ქარგვა და ინდივიდუალური ნაქარგი შეკვეთით. გაიცანი ჩვენი ისტორია და შექმენი შენი სტილი.",
   keywords: [
     "custom embroidery",
     "custom embroidered clothing",
@@ -105,7 +105,7 @@ export default function AboutPage() {
   return (
     <div className="bg-black text-white">
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
+      {/* -- HERO ----------------------------------------------- */}
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
           <Logo className="h-8 w-auto text-white mb-8" />
@@ -116,16 +116,16 @@ export default function AboutPage() {
           </nav>
           <p className="text-xs uppercase tracking-[0.24em] text-white/50 mb-4">ჩვენ შესახებ</p>
           <h1 className="font-ui text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight max-w-3xl leading-tight">
-            ქართული ნაქარგი,<br />
+            ქარგვა და ნაქარგი,<br />
             <span className="text-white">შენი სტილით</span>
           </h1>
           <p className="mt-6 text-lg text-white/70 max-w-xl leading-relaxed">
-            DressField — ნაქარგების ბრენდი, რომლის მიზანია აქციოს შენი იდეა რეალობად.
+            DressField — ქარგვისა და ნაქარგების ბრენდი თბილისიდან, რომლის მიზანია აქციოს შენი იდეა რეალობად.
           </p>
         </div>
       </section>
 
-      {/* ── STORY ────────────────────────────────────────────── */}
+      {/* -- STORY ---------------------------------------------- */}
       <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -136,9 +136,10 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-base text-white/75 leading-relaxed">
                 <p>
-                  DressField-ის ისტორია თბილისში დაიწყო, ერთი მარტივი იდეით — შეგვექმნა ადგილი, სადაც ნაქარგი
-                  და პატჩები გახდებოდა თვითგამოხატვის თანამედროვე ფორმა. ჩვენთვის ეს მხოლოდ დეკორი არ არის;
-                  ეს არის გზა, რომ ჩვეულებრივი ტანსაცმელი გადაიქცეს შენს იდენტობის სარკედ და გამოაჩინოს შენი უნიკალურობა.
+                  DressField-ის ისტორია თბილისში დაიწყო, ერთი მარტივი იდეით — შეგვექმნა ადგილი, სადაც ქარგვა,
+                  ნაქარგი და პატჩები გახდებოდა თვითგამოხატვის თანამედროვე ფორმა. ვაკეთებთ როგორც ხელით, ისე
+                  მანქანურ ქარგვას. ჩვენთვის ეს მხოლოდ დეკორი არ არის; ეს არის გზა, რომ ჩვეულებრივი ტანსაცმელი
+                  გადაიქცეს შენს იდენტობის სარკედ და გამოაჩინოს შენი უნიკალურობა.
                 </p>
                 <p>
                   ჩვენ ვხელმძღვანელობთ იმ რწმენით, რომ ტანსაცმელი არ არის მხოლოდ ვიზუალი — ის ამბავია. ყოველი
@@ -160,7 +161,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── VALUES ───────────────────────────────────────────── */}
+      {/* -- VALUES --------------------------------------------- */}
       <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -186,7 +187,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── PROCESS ──────────────────────────────────────────── */}
+      {/* -- PROCESS -------------------------------------------- */}
       <section className="py-16 sm:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -229,7 +230,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────── */}
+      {/* -- CTA ------------------------------------------------ */}
       <section className="py-16 sm:py-20 bg-black">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="font-ui text-3xl sm:text-4xl font-bold text-white mb-4">

@@ -109,7 +109,7 @@ export default function ProfilePage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <h1 className="font-ui text-2xl font-semibold">პროფილი</h1>
 
-      {/* ── Personal info ── */}
+      {/* -- Personal info -- */}
       <section className="rounded-2xl border border-black/8 bg-white p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -213,7 +213,7 @@ export default function ProfilePage() {
         )}
       </section>
 
-      {/* ── Payment methods ── */}
+      {/* -- Payment methods -- */}
       <section className="rounded-2xl border border-black/8 bg-white p-6 space-y-3">
         <div className="flex items-center gap-2">
           <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -224,7 +224,7 @@ export default function ProfilePage() {
         </p>
       </section>
 
-      {/* ── Actions ── */}
+      {/* -- Actions -- */}
       <section className="rounded-2xl border border-black/8 bg-white p-6 space-y-4">
         <div className="flex flex-wrap gap-3">
           <Link

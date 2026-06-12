@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/ui/logo";
+import { BUSINESS, BUSINESS_LEGAL_LINE } from "@/config/business";
 
 export function Footer() {
   return (
     <footer className="relative z-10 bg-footer-bg text-footer-text">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
             <Logo className="h-7 w-auto text-white mb-3" />
@@ -45,21 +46,46 @@ export function Footer() {
             </nav>
           </div>
 
+          {/* Information / policies */}
+          <div>
+            <h4 className="text-white text-xl font-semibold mb-3">ინფორმაცია</h4>
+            <nav className="flex flex-col gap-2 text-base">
+              <Link
+                href="/terms"
+                className="hover:text-white/70 transition-colors"
+              >
+                წესები და პირობები
+              </Link>
+              <Link
+                href="/privacy"
+                className="hover:text-white/70 transition-colors"
+              >
+                კონფიდენციალურობა
+              </Link>
+              <Link
+                href="/delivery-returns"
+                className="hover:text-white/70 transition-colors"
+              >
+                მიწოდება და დაბრუნება
+              </Link>
+            </nav>
+          </div>
+
           {/* Contact */}
           <div>
             <h4 className="text-white text-xl font-semibold mb-3">კონტაქტი</h4>
             <div className="flex flex-col gap-2.5 text-base">
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0" />
-                <a href="tel:+995511226148" className="hover:text-white/70 transition-colors">+995 511 226 148</a>
+                <a href={BUSINESS.phoneHref} className="hover:text-white/70 transition-colors">{BUSINESS.phone}</a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0" />
-                <a href="mailto:contact@dressfield.ge" className="hover:text-white/70 transition-colors">contact@dressfield.ge</a>
+                <a href={`mailto:${BUSINESS.email}`} className="hover:text-white/70 transition-colors">{BUSINESS.email}</a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 shrink-0" />
-                <span>თბილისი, საქართველო</span>
+                <span>{BUSINESS.locationLabel}</span>
               </div>
             </div>
 
@@ -83,10 +109,13 @@ export function Footer() {
 
         <Separator className="my-6 bg-white/10" />
 
-        <p className="text-center text-sm text-footer-text/70">
-          &copy; {new Date().getFullYear()} {" "}<span className="font-brand-text">DressField</span>. ყველა უფლება
-          დაცულია.
-        </p>
+        <div className="flex flex-col items-center gap-1 text-center text-sm text-footer-text/70">
+          <p>{BUSINESS.legalForm} {BUSINESS_LEGAL_LINE}</p>
+          <p>
+            &copy; {new Date().getFullYear()} {" "}<span className="font-brand-text">DressField</span>. ყველა უფლება
+            დაცულია.
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -4,16 +4,24 @@ import { ProductsPageClient } from "@/components/catalog/products-page-client";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
 
 export const metadata: Metadata = {
-  title: "პროდუქცია",
+  title: "ნაქარგების და ქარგვის კატალოგი",
   description:
-    "DressField-ის ნაქარგები — მზა პროდუქცია ონლაინ. დაათვალიერე ქართული ნაქარგების კოლექცია.",
+    "DressField-ის ნაქარგები — მზა პროდუქცია ონლაინ. დაათვალიერე ქართული ნაქარგების კოლექცია და შეუკვეთე ქარგვა შენი დიზაინით.",
+  keywords: [
+    "ქარგვა",
+    "ნაქარგი",
+    "ნაქარგები",
+    "ქართული ნაქარგი",
+    "ლოგოს ქარგვა",
+    "ქარგვა შეკვეთით",
+  ],
   alternates: {
     canonical: "/products",
   },
   openGraph: {
-    title: "პროდუქცია — DressField",
+    title: "ნაქარგების და ქარგვის კატალოგი — DressField",
     description:
-      "DressField-ის ნაქარგები — მზა პროდუქცია ონლაინ. დაათვალიერე ქართული ნაქარგების კოლექცია.",
+      "DressField-ის ნაქარგები — მზა პროდუქცია ონლაინ. დაათვალიერე ქართული ნაქარგების კოლექცია და შეუკვეთე ქარგვა.",
     type: "website",
     locale: "ka_GE",
     siteName: "DressField",
@@ -21,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "პროდუქცია — DressField",
+    title: "ნაქარგების და ქარგვის კატალოგი — DressField",
     description:
       "DressField-ის ნაქარგები — მზა პროდუქცია ონლაინ.",
   },

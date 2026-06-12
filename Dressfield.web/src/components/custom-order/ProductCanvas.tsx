@@ -144,7 +144,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
           const tl = Number(transform.left);
           const tt = Number(transform.top);
           if (tl <= 0 || tt <= 0) {
-            // Invalid position saved (likely uninitialized) — fall through to zone center
+            // Invalid position saved (likely uninitialized) - fall through to zone center
           } else {
             return { left: rawLeft, top: rawTop, scaleX: rawScaleX, scaleY: rawScaleY, angle };
           }
@@ -472,7 +472,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         if (canvasSessionRef.current !== sessionId || fabricRef.current !== fc) return;
 
         // Designs are added by the sync useEffect below once isLoading becomes false.
-        // Do NOT add them here — setIsLoading(false) fires before fromURL callbacks
+        // Do NOT add them here - setIsLoading(false) fires before fromURL callbacks
         // complete, causing the sync effect to double-add every design.
         setIsLoading(false);
       })();
@@ -500,8 +500,8 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
         }
       });
 
-      // Clamp position during drag — prevents design from flying off canvas
-      // on mobile where touch→canvas coordinate mapping can be slightly off.
+      // Clamp position during drag - prevents design from flying off canvas
+      // on mobile where touch->canvas coordinate mapping can be slightly off.
       fc.on("object:moving", (e) => {
         const obj = e.target;
         if (!obj) return;
@@ -710,7 +710,7 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
             const l = obj.left ?? 0;
             const t = obj.top ?? 0;
             // Only save if position looks valid (not at origin, not NaN)
-            // Skip positions where both coords are ≤ 0, as these are likely uninitialized
+            // Skip positions where both coords are <= 0, as these are likely uninitialized
             if (!Number.isFinite(l) || !Number.isFinite(t) || (l <= 0 && t <= 0)) {
               return;
             }

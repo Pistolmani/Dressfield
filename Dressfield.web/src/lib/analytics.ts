@@ -4,7 +4,7 @@ const CURRENCY = "GEL";
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-// ─── Meta Pixel helpers ───────────────────────────────────────────────────────
+// --- Meta Pixel helpers -------------------------------------------------------
 
 function trackMetaEvent(event: MetaEvent, params?: Record<string, unknown>) {
   if (!META_PIXEL_ID || typeof window === "undefined" || typeof window.fbq !== "function") {
@@ -13,7 +13,7 @@ function trackMetaEvent(event: MetaEvent, params?: Record<string, unknown>) {
   window.fbq("track", event, params);
 }
 
-// ─── GA4 helpers ─────────────────────────────────────────────────────────────
+// --- GA4 helpers -------------------------------------------------------------
 
 function trackGaEvent(eventName: string, params?: Record<string, unknown>) {
   if (!GA_ID || typeof window === "undefined" || typeof window.gtag !== "function") {
@@ -22,7 +22,7 @@ function trackGaEvent(eventName: string, params?: Record<string, unknown>) {
   window.gtag("event", eventName, params);
 }
 
-// ─── Public tracking functions ────────────────────────────────────────────────
+// --- Public tracking functions ------------------------------------------------
 
 export function trackPageView() {
   trackMetaEvent("PageView");

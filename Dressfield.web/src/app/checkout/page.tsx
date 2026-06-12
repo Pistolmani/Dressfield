@@ -155,6 +155,31 @@ function allocateDiscountByShare(subtotals: number[], totalDiscount: number): nu
   return discounts;
 }
 
+// The custom-order canvas is hard-coded to 500x500 in ProductCanvas.tsx. We persist
+// it so the admin renderer can scale the saved coords to any preview viewport size.
+const CUSTOM_ORDER_CANVAS_SIZE = 500;
+
+/**
+ * Reads the intrinsic dimensions of an image URL so we can compute the final
+ * rendered size (= natural x scale) the customer saw. Resolves to null on
+ * failure rather than throwing - losing one design's geometry shouldn't block
+ * checkout, and the admin renderer falls back to a coords-only block.
+ */
+function loadNaturalDimensions(url: string): Promise<{ width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve(null);
+      return;
+    }
+    const img = new window.Image();
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => resolve(null);
+    // crossOrigin must be set BEFORE src to avoid tainting; harmless if the URL is same-origin.
+    img.crossOrigin = "anonymous";
+    img.src = url;
+  });
+}
+
 function buildDesignSources(item: ReturnType<typeof useCartStore.getState>["items"][number]) {
   const fromPayload =
     item.customOrderData?.designs
@@ -544,15 +569,31 @@ export default function CheckoutPage() {
               designImageUrl = await uploadDesignImage(file);
             }
 
+            // Capture the full Fabric.js transform so the admin can re-render the
+            // composition. Width/height are the final on-canvas px (natural x scale),
+            // which is what the admin renderer needs to position the design without
+            // having to load the image itself first.
+            const naturalDims = await loadNaturalDimensions(designImageUrl);
+            const scaleX = source.transform?.scaleX ?? null;
+            const scaleY = source.transform?.scaleY ?? null;
+            const renderedWidth =
+              naturalDims && scaleX != null ? naturalDims.width * scaleX : null;
+            const renderedHeight =
+              naturalDims && scaleY != null ? naturalDims.height * scaleY : null;
+
             designs.push({
               designImageUrl,
               placement: source.side === "back" ? "back" : "chest",
               size: item.customOrderData?.embroiderySize ?? null,
               threadColor: null,
-              width: null,
-              height: null,
+              side: source.side ?? null,
+              width: renderedWidth,
+              height: renderedHeight,
               positionX: source.transform?.left ?? null,
               positionY: source.transform?.top ?? null,
+              scaleX,
+              scaleY,
+              angle: source.transform?.angle ?? null,
               sortOrder: source.sortOrder,
             });
           }
@@ -570,7 +611,7 @@ export default function CheckoutPage() {
             .filter((value): value is string => Boolean(value && value.trim()))
             .join("\n");
           // Delivery is charged once per checkout. Add it to the first custom order so the
-          // amount sent to BOG matches the checkout total (subtotal − promo + shipping).
+          // amount sent to BOG matches the checkout total (subtotal - promo + shipping).
           const itemShipping = itemIndex === 0 ? shippingCost : 0;
           const itemTotalPrice = roundMoney(
             Math.max(0, (customItemSubtotals[itemIndex] ?? 0) - itemPromoDiscount) + itemShipping
@@ -588,6 +629,13 @@ export default function CheckoutPage() {
             contactEmail,
             totalPrice: itemTotalPrice,
             customerNotes: mergeNotes(sharedCustomerNotes, mergedItemNotes),
+            // Garment context - lets the admin render the right silhouette + color
+            // behind the saved design overlays.
+            productTypeId: item.customOrderData?.productTypeId ?? null,
+            colorHex: item.customOrderData?.selectedColor?.hex ?? null,
+            clothingSize: item.customOrderData?.clothingSize ?? null,
+            canvasWidth: CUSTOM_ORDER_CANVAS_SIZE,
+            canvasHeight: CUSTOM_ORDER_CANVAS_SIZE,
             designs,
           });
 
@@ -597,7 +645,7 @@ export default function CheckoutPage() {
           localStorage.setItem("dressfield_pending_order_id", String(customOrder.orderId));
 
           // Redirect to BOG payment as soon as session is ready.
-          // Do NOT clear the cart here — clear it on the confirmation page after payment succeeds.
+          // Do NOT clear the cart here - clear it on the confirmation page after payment succeeds.
           // This way items are restored if the user cancels or payment fails.
           if (createdCustomOrderIds.length === 1 && customOrder.paymentRedirectUrl) {
             window.location.href = customOrder.paymentRedirectUrl;
@@ -628,14 +676,14 @@ export default function CheckoutPage() {
         })),
       });
 
-      // Persist orderId before leaving — lets the confirmation page recover
+      // Persist orderId before leaving - lets the confirmation page recover
       // if the tab closes between the redirect and BOG's return callback.
       if (result.orderId) {
         localStorage.setItem("dressfield_pending_order_id", String(result.orderId));
       }
 
       if (result.paymentRedirectUrl) {
-        // Do NOT clear the cart before the BOG redirect — the confirmation page
+        // Do NOT clear the cart before the BOG redirect - the confirmation page
         // will clear it once payment is confirmed. This restores items if the
         // user cancels or payment fails.
         window.location.href = result.paymentRedirectUrl;
@@ -665,7 +713,7 @@ export default function CheckoutPage() {
       : 0;
   const total = roundMoney(Math.max(0, subtotal - promoDiscount) + shippingCost);
 
-  // Order summary panel — shown on both steps
+  // Order summary panel - shown on both steps
   const OrderSummary = () => (
     <div className="rounded-2xl border border-black/8 bg-white p-5 space-y-4 sticky top-6">
       <h2 className="font-semibold text-base">შეკვეთის შეჯამება</h2>

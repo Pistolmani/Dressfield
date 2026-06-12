@@ -8,3 +8,21 @@ node_modules/
 
 # Build outputs
 /out/
+
+# Stale local copies — kept on disk, never in git
+Dressfield.web.bak/
+Dressfield.backend/
+
+# Archives & build artifacts
+*.zip
+tsconfig.tsbuildinfo
+
+# Notes & scratch
+.obsidian/
+Untitled.base
+Untitled.canvas
+codex-prompt*.md
+codex-prompts/
+
+# Claude Code worktrees
+.claude/

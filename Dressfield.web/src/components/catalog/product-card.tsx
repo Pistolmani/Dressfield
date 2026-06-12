@@ -27,7 +27,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
   const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
   const [addedFeedback, setAddedFeedback] = useState(false);
 
-  // Fetch product detail eagerly to get variants — cached per session
+  // Fetch product detail eagerly to get variants - cached per session
   const detailQuery = useQuery({
     queryKey: ["product-detail", product.slug],
     queryFn: () => getProductBySlug(product.slug),
@@ -117,7 +117,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => { setIsHovered(false); setCurrentIndex(0); }}
     >
-      {/* ── Image ── */}
+      {/* -- Image -- */}
       <div className="relative block aspect-[3/4] overflow-hidden bg-gray-50 rounded-xl">
         <Link
           href={`/products/${product.slug}`}
@@ -186,7 +186,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
         )}
       </div>
 
-      {/* ── Info ── */}
+      {/* -- Info -- */}
       <div className="flex flex-col pt-4 pb-2 px-1 gap-3">
         {/* Name & Price */}
         <div className="flex justify-between items-start gap-2">
@@ -210,7 +210,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
           </div>
         </div>
 
-        {/* ── Size chips ── */}
+        {/* -- Size chips -- */}
         {detailQuery.isLoading ? (
           <div className="flex gap-1.5">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -247,7 +247,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
           </p>
         ) : null}
 
-        {/* ── Add to Cart ── */}
+        {/* -- Add to Cart -- */}
         <Button
           size="default"
           className={cn(

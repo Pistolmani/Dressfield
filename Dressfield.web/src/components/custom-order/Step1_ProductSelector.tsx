@@ -45,7 +45,7 @@ export function Step1ProductSelector({
                   : "border-gray-200 hover:border-gray-300"
               )}
             >
-              {/* Price badge — hidden for custom */}
+              {/* Price badge - hidden for custom */}
               {product.id !== "custom" && (
                 <span className="pointer-events-none absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black text-[11px] font-bold leading-tight text-white shadow-sm">
                   {product.basePrice}₾

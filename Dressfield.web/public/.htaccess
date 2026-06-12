@@ -4,7 +4,8 @@
 RewriteEngine On
 ErrorDocument 404 /404.html
 
-# Redirect legacy product query URLs to canonical product detail pages
+# Redirect legacy product query URLs to canonical, indexable product detail pages.
+# /product/?slug=foo  ->  /products/foo/  (the statically pre-rendered, SEO-friendly route)
 RewriteCond %{QUERY_STRING} ^slug=([^&]+) [NC]
 RewriteRule ^product/?$ /products/%1/? [R=301,L,NE]
 RewriteRule ^product/?$ /products/ [R=301,L]

@@ -1,4 +1,4 @@
-export type CustomOrderStatus = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type CustomOrderStatus = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export const CustomOrderStatusLabels: Record<CustomOrderStatus, string> = {
   0: "მოლოდინში",
@@ -9,6 +9,19 @@ export const CustomOrderStatusLabels: Record<CustomOrderStatus, string> = {
   5: "დასრულებულია",
   6: "უარყოფილია",
   7: "გაუქმებულია",
+  8: "გადახდის დამუშავება",
+};
+
+export const CustomOrderStatusBadgeClasses: Record<CustomOrderStatus, string> = {
+  0: "bg-amber-100 text-amber-700", // Pending
+  1: "bg-blue-100 text-blue-700", // AwaitingPayment
+  2: "bg-indigo-100 text-indigo-700", // Reviewing - paid, needs admin attention
+  3: "bg-green-100 text-green-700", // Approved
+  4: "bg-accent/15 text-accent", // InProduction
+  5: "bg-emerald-100 text-emerald-700", // Completed
+  6: "bg-red-100 text-red-700", // Rejected
+  7: "bg-gray-200 text-gray-700", // Cancelled
+  8: "bg-slate-100 text-slate-700", // PaymentProcessing (system-managed)
 };
 
 export interface CustomOrderCheckoutResponse {
@@ -23,10 +36,14 @@ export interface CustomOrderDesignDto {
   placement: string | null;
   size: string | null;
   threadColor: string | null;
+  side: string | null;
   width: number | null;
   height: number | null;
   positionX: number | null;
   positionY: number | null;
+  scaleX: number | null;
+  scaleY: number | null;
+  angle: number | null;
   sortOrder: number;
 }
 
@@ -46,6 +63,11 @@ export interface CustomOrderSummaryDto {
 export interface CustomOrderDetailDto extends CustomOrderSummaryDto {
   customerNotes: string | null;
   adminNotes: string | null;
+  productTypeId: string | null;
+  colorHex: string | null;
+  clothingSize: string | null;
+  canvasWidth: number | null;
+  canvasHeight: number | null;
   updatedAt: string;
   designs: CustomOrderDesignDto[];
 }
@@ -55,10 +77,14 @@ export interface CreateCustomOrderDesignRequest {
   placement: string | null;
   size: string | null;
   threadColor: string | null;
+  side: string | null;
   width: number | null;
   height: number | null;
   positionX: number | null;
   positionY: number | null;
+  scaleX: number | null;
+  scaleY: number | null;
+  angle: number | null;
   sortOrder: number;
 }
 
@@ -69,5 +95,10 @@ export interface CreateCustomOrderRequest {
   contactEmail: string;
   totalPrice: number;
   customerNotes: string | null;
+  productTypeId: string | null;
+  colorHex: string | null;
+  clothingSize: string | null;
+  canvasWidth: number | null;
+  canvasHeight: number | null;
   designs: CreateCustomOrderDesignRequest[];
 }
