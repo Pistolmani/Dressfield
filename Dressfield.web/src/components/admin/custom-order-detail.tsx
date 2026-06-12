@@ -296,12 +296,22 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
             </div>
           </div>
 
-          {order.customerNotes ? (
-            <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-              <h2 className="font-ui text-3xl font-semibold">მომხმარებლის შენიშვნა</h2>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground">{order.customerNotes}</p>
-            </div>
-          ) : null}
+          {/* Always render so admins can confirm at a glance whether the customer
+              left a note. Previously the whole section was hidden when notes
+              were empty, which made it look like the data wasn't coming through
+              even when it was. */}
+          <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
+            <h2 className="font-ui text-3xl font-semibold">მომხმარებლის შენიშვნა</h2>
+            {order.customerNotes && order.customerNotes.trim().length > 0 ? (
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">
+                {order.customerNotes}
+              </p>
+            ) : (
+              <p className="mt-3 text-sm italic text-muted-foreground">
+                შენიშვნა არ არის დატოვებული.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm h-fit">
