@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getAdminOrders } from "@/lib/orders";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteAdminOrder, getAdminOrders } from "@/lib/orders";
 import {
   OrderStatus,
   OrderStatusLabels,
@@ -32,11 +32,33 @@ const ALL_STATUSES: OrderStatus[] = [
 
 export default function OrdersManager() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "">("");
+  const queryClient = useQueryClient();
 
   const { data: orders, isLoading, isError } = useQuery({
     queryKey: ["admin-orders", statusFilter],
     queryFn: () => getAdminOrders(statusFilter || undefined),
   });
+
+  // Only Pending orders can be hard-deleted; the backend enforces the same rule.
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteAdminOrder(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-summary"] });
+    },
+    onError: (err: unknown) => {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "შეცდომა შეკვეთის წაშლისას.";
+      window.alert(message);
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (!window.confirm(`დარწმუნებული ხართ, რომ შეკვეთა #${id}-ის წაშლა გსურთ?`)) return;
+    deleteMutation.mutate(id);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -140,12 +162,27 @@ export default function OrdersManager() {
                   {formatDate(order.createdAt)}
                 </td>
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/orders/detail?id=${order.id}`}
-                    className="text-accent hover:underline text-xs font-medium"
-                  >
-                    დეტალები
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/orders/detail?id=${order.id}`}
+                      className="text-accent hover:underline text-xs font-medium"
+                    >
+                      დეტალები
+                    </Link>
+                    {order.status === "Pending" && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(order.id)}
+                        disabled={deleteMutation.isPending}
+                        className="text-red-600 hover:underline text-xs font-medium disabled:opacity-50"
+                        title="წაშლა (მხოლოდ Pending)"
+                      >
+                        {deleteMutation.isPending && deleteMutation.variables === order.id
+                          ? "იშლება..."
+                          : "წაშლა"}
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

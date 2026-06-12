@@ -51,3 +51,7 @@ export async function updateOrderStatus(
 ): Promise<void> {
   await api.put(`/api/orders/admin/${id}/status`, req);
 }
+
+export async function deleteAdminOrder(id: number): Promise<void> {
+  await api.delete(`/api/orders/admin/${id}`);
+}
