@@ -68,18 +68,24 @@ export default function OrdersManager() {
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-summary"] });
       if (result.deleted === 0) {
-        window.alert("Pending სტატუსის შეკვეთები არ მოიძებნა.");
+        window.alert("გადაუხდელი შეკვეთები არ მოიძებნა.");
       } else {
         window.alert(`წაიშალა ${result.deleted} შეკვეთა.`);
       }
     },
     onError: () => {
-      window.alert("შეცდომა Pending შეკვეთების წაშლისას.");
+      window.alert("შეცდომა გადაუხდელი შეკვეთების წაშლისას.");
     },
   });
 
   const handleBulkDelete = () => {
-    if (!window.confirm("ნამდვილად გსურთ ყველა Pending სტატუსის შეკვეთის წაშლა?")) return;
+    if (
+      !window.confirm(
+        "ნამდვილად გსურთ ყველა გადაუხდელი შეკვეთის წაშლა?\n\n" +
+          "(Pending, AwaitingPayment, PaymentProcessing, Cancelled)"
+      )
+    )
+      return;
     bulkDeleteMutation.mutate();
   };
 
@@ -98,7 +104,7 @@ export default function OrdersManager() {
             disabled={bulkDeleteMutation.isPending}
             className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50 transition-colors"
           >
-            {bulkDeleteMutation.isPending ? "იშლება..." : "ყველა Pending-ის წაშლა"}
+            {bulkDeleteMutation.isPending ? "იშლება..." : "ყველა გადაუხდელის წაშლა"}
           </button>
 
           {/* Status filter */}
