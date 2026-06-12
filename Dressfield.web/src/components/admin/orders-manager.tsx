@@ -72,6 +72,7 @@ export default function OrdersManager() {
               <th className="px-4 py-3 font-medium">სტატუსი</th>
               <th className="px-4 py-3 font-medium">ჯამი</th>
               <th className="px-4 py-3 font-medium">პოზ.</th>
+              <th className="px-4 py-3 font-medium">შენიშვნა</th>
               <th className="px-4 py-3 font-medium">თარიღი</th>
               <th className="px-4 py-3 font-medium">ქმედება</th>
             </tr>
@@ -79,21 +80,21 @@ export default function OrdersManager() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={9} className="px-4 py-10 text-center text-muted-foreground">
                   იტვირთება...
                 </td>
               </tr>
             )}
             {isError && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-red-500">
+                <td colSpan={9} className="px-4 py-10 text-center text-red-500">
                   შეცდომა მონაცემების ჩატვირთვისას.
                 </td>
               </tr>
             )}
             {!isLoading && !isError && orders?.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={9} className="px-4 py-10 text-center text-muted-foreground">
                   შეკვეთები არ მოიძებნა.
                 </td>
               </tr>
@@ -125,6 +126,15 @@ export default function OrdersManager() {
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">
                   {order.itemCount}
+                </td>
+                <td className="px-4 py-3 text-muted-foreground max-w-[16rem]">
+                  {order.customerNotes ? (
+                    <span className="block truncate" title={order.customerNotes}>
+                      {order.customerNotes}
+                    </span>
+                  ) : (
+                    <span className="text-black/25">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">
                   {formatDate(order.createdAt)}

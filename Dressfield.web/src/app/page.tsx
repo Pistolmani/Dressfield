@@ -6,30 +6,37 @@ import { Eye, ShoppingBag, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HomeHeroGalleryClient } from "@/components/home/home-hero-gallery-client";
 import { HomeShowcaseClient } from "@/components/home/home-showcase-client";
+import { EmbroideryFaq } from "@/components/home/embroidery-faq";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
 
 export const metadata: Metadata = {
-  title: "DressField — ქართული ნაქარგი, შენი სტილით",
+  title: "DressField — ქარგვა და ნაქარგი შენი სტილით",
   description:
-    "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე შენი დიზაინი და შექმენი უნიკალური სტილი.",
+    "ქარგვა და ნაქარგი ონლაინ — ხელით და მანქანური ქარგვა, ლოგოს ქარგვა და ინდივიდუალური ნაქარგი შეკვეთით. ატვირთე შენი დიზაინი და შექმენი უნიკალური სტილი.",
   keywords: [
     "DressField",
     "dressfield",
     "dressfield.ge",
+    "ქარგვა",
+    "ნაქარგი",
+    "ნაქარგები",
+    "ქართული ნაქარგი",
+    "მანქანური ქარგვა",
+    "ხელით ქარგვა",
+    "ლოგოს ქარგვა",
+    "ქარგვა თბილისი",
+    "ქარგვა შეკვეთით",
     "embroidery",
     "custom embroidery",
-    "custom order",
-    "ნაქარგი",
-    "ქართული ნაქარგი",
   ],
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "DressField — ქართული ნაქარგი, შენი სტილით",
+    title: "DressField — ქარგვა და ნაქარგი შენი სტილით",
     description:
-      "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე დიზაინი და შეუკვეთე.",
+      "ქარგვა და ნაქარგი ონლაინ — ლოგოს ქარგვა და ინდივიდუალური შეკვეთები. ატვირთე დიზაინი და შეუკვეთე.",
     url: siteUrl,
     type: "website",
     siteName: "DressField",
@@ -39,16 +46,16 @@ export const metadata: Metadata = {
         url: `${siteUrl}/dressfield-logo.png`,
         width: 1024,
         height: 1024,
-        alt: "DressField logo",
+        alt: "DressField — ქარგვა და ნაქარგი",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     images: [`${siteUrl}/dressfield-logo.png`],
-    title: "DressField — ქართული ნაქარგი, შენი სტილით",
+    title: "DressField — ქარგვა და ნაქარგი შენი სტილით",
     description:
-      "ქართული ნაქარგების ონლაინ მაღაზია. ატვირთე დიზაინი და შეუკვეთე.",
+      "ქარგვა და ნაქარგი ონლაინ — ლოგოს ქარგვა და ინდივიდუალური შეკვეთები.",
   },
 };
 
@@ -60,7 +67,7 @@ const organizationSchema = {
   logo: `${siteUrl}/dressfield-logo.png`,
   image: `${siteUrl}/dressfield-logo.png`,
   description:
-    "ქართული ნაქარგების ონლაინ მაღაზია. მზა პროდუქცია და ინდივიდუალური შეკვეთები.",
+    "ქარგვა და ნაქარგი ონლაინ — მზა პროდუქცია, ლოგოს ქარგვა და ინდივიდუალური შეკვეთები.",
   sameAs: ["https://www.instagram.com/dressfield.stitch/"],
 };
 
@@ -96,7 +103,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <img
             src="/hero-main-bg.jpg"
-            alt="Georgian embroidery collection"
+            alt="ქართული ქარგვა და ნაქარგი — DressField კოლექცია"
             className="h-full w-full object-cover opacity-40 pointer-events-none"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 pointer-events-none" />
@@ -105,10 +112,11 @@ export default function HomePage() {
 
         <div className="pointer-events-none relative z-30 mx-auto flex min-h-[80vh] max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
           <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-7xl">
-            ქართული ნაქარგი, შენი სტილით
+            ქარგვა და ნაქარგი, შენი სტილით
           </h1>
 
           <p className="mx-auto mt-8 max-w-lg text-lg leading-relaxed text-white/90 sm:text-xl">
+            ხელით და მანქანური ქარგვა, ლოგოს ქარგვა და ინდივიდუალური ნაქარგი.
             ატვირთე შენი დიზაინი, ნახე live preview და შეუკვეთე.
           </p>
 
@@ -176,6 +184,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <EmbroideryFaq />
     </div>
   );
 }
