@@ -114,13 +114,23 @@ function OrderDetailContent() {
               <tr key={item.id} className="border-b border-black/5 last:border-0">
                 <td className="px-5 py-3">
                   <div className="h-10 w-10 rounded-lg overflow-hidden bg-gray-100">
-                    {item.productImageUrl && (
-                      <img
-                        src={item.productImageUrl}
-                        alt={item.productName}
-                        className="h-full w-full object-cover"
-                      />
-                    )}
+                    <img
+                      src={item.productImageUrl || "/dressfield-fallback.jpg"}
+                      alt={item.productName}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(event) => {
+                        // Product images are snapshots taken at order time. If the
+                        // underlying product (or Azure Blob) was later removed, the
+                        // URL 404s — swap in our local fallback so the row stays
+                        // visually intact instead of showing a broken-image icon.
+                        const img = event.currentTarget;
+                        if (img.dataset.fallbackApplied === "1") return;
+                        img.dataset.fallbackApplied = "1";
+                        img.src = "/dressfield-fallback.jpg";
+                      }}
+                    />
                   </div>
                 </td>
                 <td className="px-3 py-3">

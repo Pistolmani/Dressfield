@@ -55,15 +55,19 @@ export default function CartPage() {
               >
                 {/* Image */}
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-full w-full bg-gray-200" />
-                  )}
+                  <img
+                    src={item.imageUrl || "/dressfield-fallback.jpg"}
+                    alt={item.name}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(event) => {
+                      const img = event.currentTarget;
+                      if (img.dataset.fallbackApplied === "1") return;
+                      img.dataset.fallbackApplied = "1";
+                      img.src = "/dressfield-fallback.jpg";
+                    }}
+                  />
                 </div>
 
                 {/* Info */}

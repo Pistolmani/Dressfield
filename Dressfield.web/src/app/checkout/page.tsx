@@ -722,9 +722,19 @@ export default function CheckoutPage() {
         {items.map((item) => (
           <div key={`${item.productId}-${item.variantId ?? 0}`} className="flex items-center gap-3 text-sm">
             <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-              {item.imageUrl && (
-                <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
-              )}
+              <img
+                src={item.imageUrl || "/dressfield-fallback.jpg"}
+                alt={item.name}
+                className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
+                onError={(event) => {
+                  const img = event.currentTarget;
+                  if (img.dataset.fallbackApplied === "1") return;
+                  img.dataset.fallbackApplied = "1";
+                  img.src = "/dressfield-fallback.jpg";
+                }}
+              />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{item.name}</p>

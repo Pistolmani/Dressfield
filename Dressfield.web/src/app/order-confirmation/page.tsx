@@ -305,13 +305,19 @@ function ConfirmationContent() {
             {myOrderQuery.data.items.map((item) => (
               <div key={item.id} className="px-4 py-3 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                  {item.productImageUrl && (
-                    <img
-                      src={item.productImageUrl}
-                      alt={item.productName}
-                      className="h-full w-full object-cover"
-                    />
-                  )}
+                  <img
+                    src={item.productImageUrl || "/dressfield-fallback.jpg"}
+                    alt={item.productName}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(event) => {
+                      const img = event.currentTarget;
+                      if (img.dataset.fallbackApplied === "1") return;
+                      img.dataset.fallbackApplied = "1";
+                      img.src = "/dressfield-fallback.jpg";
+                    }}
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{item.productName}</p>

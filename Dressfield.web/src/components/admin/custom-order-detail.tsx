@@ -9,9 +9,6 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  getPlacementLabel,
-  getSizeLabel,
-  getThreadColorLabel,
   getAdminCustomOrderById,
   updateCustomOrderStatus,
 } from "@/lib/custom-orders";
@@ -294,46 +291,6 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
                     orderId={order.id}
                     designId={design.id}
                   />
-                  <div className="space-y-1 text-sm">
-                    <p>
-                      <span className="text-muted-foreground">განთავსება:</span>{" "}
-                      {getPlacementLabel(design.placement)}
-                    </p>
-                    <p>
-                      <span className="text-muted-foreground">ზომა:</span>{" "}
-                      {getSizeLabel(design.size)}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <span className="text-muted-foreground">ძაფის ფერი:</span>
-                      {design.threadColor ? (
-                        <>
-                          <span
-                            className="h-4 w-4 rounded-full border border-black/8"
-                            style={{ backgroundColor: design.threadColor }}
-                          />
-                          {getThreadColorLabel(design.threadColor)}
-                        </>
-                      ) : (
-                        "-"
-                      )}
-                    </p>
-                    <p>
-                      <span className="text-muted-foreground">სიგანე:</span>{" "}
-                      {design.width != null ? `${Math.round(design.width)}px` : "-"}
-                    </p>
-                    <p>
-                      <span className="text-muted-foreground">სიმაღლე:</span>{" "}
-                      {design.height != null ? `${Math.round(design.height)}px` : "-"}
-                    </p>
-                    <p>
-                      <span className="text-muted-foreground">X:</span>{" "}
-                      {design.positionX != null ? `${Math.round(design.positionX)}px` : "-"}
-                    </p>
-                    <p>
-                      <span className="text-muted-foreground">Y:</span>{" "}
-                      {design.positionY != null ? `${Math.round(design.positionY)}px` : "-"}
-                    </p>
-                  </div>
                 </div>
               ))}
             </div>
