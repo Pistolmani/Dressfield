@@ -10,16 +10,21 @@ import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Toaster } from "sonner";
 
+// Only ship weights actually used in the UI. Dropped 800 ("extrabold") and 900
+// ("black") — they appear under 10 times in the codebase and gracefully fall
+// back to 700 in the browser. Each dropped weight saves ~25KB of WOFF2.
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 const notoGeorgianFallback = Noto_Sans_Georgian({
   subsets: ["georgian"],
   weight: ["400", "700"],
   variable: "--font-georgian-fallback",
+  display: "swap",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dressfield.ge";
