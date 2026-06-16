@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/catalog";
 import { getAdminCustomOrders } from "@/lib/custom-orders";
+import { PRODUCT_TYPES } from "@/config/custom-order";
 import {
   CustomOrderStatusBadgeClasses,
   CustomOrderStatusLabels,
+  isPaidCustomOrderStatus,
   type CustomOrderStatus,
+  type CustomOrderSummaryDto,
 } from "@/types/custom-order";
 
 const statusOptions: Array<{ value: "all" | CustomOrderStatus; label: string }> = [
@@ -27,6 +30,17 @@ const statusOptions: Array<{ value: "all" | CustomOrderStatus; label: string }> 
 
 function getStatusBadgeClass(status: CustomOrderStatus) {
   return CustomOrderStatusBadgeClasses[status] ?? "bg-gray-200 text-gray-700";
+}
+
+// Custom orders never reference a catalog product, so baseProductName is always
+// null. The real label is the configured garment type; fall back to a neutral
+// "custom order" wording instead of the misleading "empty canvas".
+function getProductLabel(order: CustomOrderSummaryDto) {
+  if (order.productTypeId) {
+    const product = PRODUCT_TYPES.find((p) => p.id === order.productTypeId);
+    if (product) return product.label;
+  }
+  return order.baseProductName || "ინდ. შეკვეთა";
 }
 
 export function CustomOrdersManager() {
@@ -77,6 +91,7 @@ export function CustomOrdersManager() {
                 <th className="px-5 py-4 font-medium">ელ-ფოსტა</th>
                 <th className="px-5 py-4 font-medium">პროდუქტი</th>
                 <th className="px-5 py-4 font-medium">ფასი</th>
+                <th className="px-5 py-4 font-medium">გადახდა</th>
                 <th className="px-5 py-4 font-medium">სტატუსი</th>
                 <th className="px-5 py-4 font-medium">თარიღი</th>
                 <th className="px-5 py-4 font-medium text-right">ჩვენება</th>
@@ -85,19 +100,19 @@ export function CustomOrdersManager() {
             <tbody>
               {ordersQuery.isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-5 py-10 text-center text-muted-foreground">
                     იტვირთება...
                   </td>
                 </tr>
               ) : ordersQuery.isError ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-destructive">
+                  <td colSpan={9} className="px-5 py-10 text-center text-destructive">
                     შეკვეთების ჩატვირთვა ვერ მოხერხდა.
                   </td>
                 </tr>
               ) : ordersQuery.data?.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-5 py-10 text-center text-muted-foreground">
                     შეკვეთები არ მოიძებნა.
                   </td>
                 </tr>
@@ -108,8 +123,19 @@ export function CustomOrdersManager() {
                   <td className="px-5 py-4">#{order.id}</td>
                   <td className="px-5 py-4">{order.contactName}</td>
                   <td className="px-5 py-4">{order.contactEmail}</td>
-                  <td className="px-5 py-4">{order.baseProductName || "ცარიელი ტილო"}</td>
+                  <td className="px-5 py-4">{getProductLabel(order)}</td>
                   <td className="px-5 py-4 text-accent">{formatPrice(order.totalPrice)}</td>
+                  <td className="px-5 py-4">
+                    {isPaidCustomOrderStatus(order.status) ? (
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800 border border-green-200">
+                        გადახდილია
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500 border border-gray-200">
+                        გადაუხდელი
+                      </span>
+                    )}
+                  </td>
                   <td className="px-5 py-4">
                     <Badge className={getStatusBadgeClass(order.status)}>
                       {CustomOrderStatusLabels[order.status]}

@@ -24,6 +24,18 @@ export const CustomOrderStatusBadgeClasses: Record<CustomOrderStatus, string> = 
   8: "bg-slate-100 text-slate-700", // PaymentProcessing (system-managed)
 };
 
+// Custom orders have no dedicated "Paid" status. A successful BOG payment moves
+// the order from AwaitingPayment(1)/PaymentProcessing(8) to Reviewing(2), so any
+// status >= Reviewing means the customer has paid (except the terminal
+// Rejected(6)/Cancelled(7)). The admin uses this to know real money came in.
+export const PAID_CUSTOM_ORDER_STATUSES: CustomOrderStatus[] = [2, 3, 4, 5];
+
+export function isPaidCustomOrderStatus(
+  status: CustomOrderStatus | undefined | null
+): boolean {
+  return status != null && PAID_CUSTOM_ORDER_STATUSES.includes(status);
+}
+
 export interface CustomOrderCheckoutResponse {
   orderId: number;
   paymentRedirectUrl: string | null;
@@ -52,6 +64,11 @@ export interface CustomOrderSummaryDto {
   userId: string | null;
   baseProductId: number | null;
   baseProductName: string | null;
+  // Garment type the customer configured (e.g. "hoodie"). Custom orders never
+  // reference a catalog product, so baseProductName is always null - this is the
+  // meaningful label to show. Optional: only present once the admin-list endpoint
+  // includes it; the UI falls back gracefully when absent.
+  productTypeId?: string | null;
   contactName: string;
   contactPhone: string;
   contactEmail: string;

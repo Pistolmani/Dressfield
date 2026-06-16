@@ -19,6 +19,20 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
   Refunded:        'დაბრუნებულია',
 };
 
+// A payment is "successful" once the backend (via the BOG callback) moves the
+// order past AwaitingPayment. Refunded/Cancelled are excluded - money is not
+// currently held. The admin main panel uses this to surface only real sales.
+export const PAID_ORDER_STATUSES: OrderStatus[] = [
+  'Paid',
+  'Processing',
+  'Shipped',
+  'Delivered',
+];
+
+export function isPaidOrderStatus(status: OrderStatus | undefined | null): boolean {
+  return status != null && PAID_ORDER_STATUSES.includes(status);
+}
+
 export const OrderStatusColors: Record<OrderStatus, string> = {
   Pending:         'bg-yellow-100 text-yellow-800',
   AwaitingPayment: 'bg-orange-100 text-orange-800',

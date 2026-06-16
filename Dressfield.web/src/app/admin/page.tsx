@@ -16,8 +16,8 @@ import type { LucideIcon } from "lucide-react";
 import { getAdminOrders } from "@/lib/orders";
 import { getAdminCustomOrders } from "@/lib/custom-orders";
 import { getAdminDashboardSummary } from "@/lib/admin-dashboard";
-import { OrderStatusLabels, OrderStatusColors } from "@/types/order";
-import { CustomOrderStatusLabels } from "@/types/custom-order";
+import { OrderStatusLabels, OrderStatusColors, isPaidOrderStatus } from "@/types/order";
+import { CustomOrderStatusLabels, isPaidCustomOrderStatus } from "@/types/custom-order";
 import { formatPrice } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -65,8 +65,13 @@ export default function AdminDashboardPage() {
   const paidTodayCount = summary?.paidTodayCount ?? 0;
   const pendingCustomCount = summary?.pendingCustomOrdersCount ?? 0;
 
-  // Pending (0), AwaitingPayment (1), and Reviewing (2) all require admin attention
-  const pendingCustomOrders = customOrders.filter((co) => co.status === 0 || co.status === 1 || co.status === 2);
+  // The main panel surfaces only orders the customer actually paid for, so that
+  // seeing a row here means money came in. Paid custom orders that still need
+  // fulfilment (Reviewing/Approved/InProduction) are the actionable ones; unpaid
+  // requests sit quietly in the Custom orders list until paid.
+  const paidCustomOrders = customOrders.filter(
+    (co) => isPaidCustomOrderStatus(co.status) && co.status !== 5
+  );
 
   // Merge regular + custom into a single "recent activity" feed. Each row
   // carries a `kind` discriminator so the row renderer can pick the right
@@ -92,30 +97,34 @@ export default function AdminDashboardPage() {
       };
 
   const recentOrders: RecentOrderRow[] = [
-    ...orders.map<RecentOrderRow>((o) => ({
-      kind: "regular",
-      id: o.id,
-      contactName: o.contactName,
-      createdAt: o.createdAt,
-      amount: o.totalAmount,
-      statusLabel: OrderStatusLabels[o.status],
-      statusClass: OrderStatusColors[o.status],
-    })),
-    ...customOrders.map<RecentOrderRow>((co) => ({
-      kind: "custom",
-      id: co.id,
-      contactName: co.contactName,
-      createdAt: co.createdAt,
-      amount: co.totalPrice,
-      statusLabel: CustomOrderStatusLabels[co.status as keyof typeof CustomOrderStatusLabels],
-      // Reuse the orange palette already established for custom orders on this page.
-      statusClass: "bg-orange-100 text-orange-900 border border-orange-200",
-    })),
+    ...orders
+      .filter((o) => isPaidOrderStatus(o.status))
+      .map<RecentOrderRow>((o) => ({
+        kind: "regular",
+        id: o.id,
+        contactName: o.contactName,
+        createdAt: o.createdAt,
+        amount: o.totalAmount,
+        statusLabel: OrderStatusLabels[o.status],
+        statusClass: OrderStatusColors[o.status],
+      })),
+    ...customOrders
+      .filter((co) => isPaidCustomOrderStatus(co.status))
+      .map<RecentOrderRow>((co) => ({
+        kind: "custom",
+        id: co.id,
+        contactName: co.contactName,
+        createdAt: co.createdAt,
+        amount: co.totalPrice,
+        statusLabel: CustomOrderStatusLabels[co.status as keyof typeof CustomOrderStatusLabels],
+        // Reuse the orange palette already established for custom orders on this page.
+        statusClass: "bg-orange-100 text-orange-900 border border-orange-200",
+      })),
   ]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 8);
 
-  const recentPendingCustom = [...pendingCustomOrders]
+  const recentPendingCustom = [...paidCustomOrders]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
@@ -172,8 +181,8 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-8">
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold font-ui">ბოლო შეკვეთები</h2>
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-xl font-semibold font-ui">ბოლო გადახდილი შეკვეთები</h2>
               <Link
                 href="/admin/orders"
                 className="text-sm text-accent hover:underline flex items-center gap-1"
@@ -181,6 +190,9 @@ export default function AdminDashboardPage() {
                 ყველა ნახვა <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              ნაჩვენებია მხოლოდ წარმატებით გადახდილი შეკვეთები.
+            </p>
 
             <div className="rounded-2xl border border-border bg-white overflow-hidden shadow-sm">
               {isLoading ? (
@@ -197,7 +209,7 @@ export default function AdminDashboardPage() {
                 </div>
               ) : recentOrders.length === 0 ? (
                 <div className="p-10 text-center text-muted-foreground text-sm">
-                  შეკვეთები არ მოიძებნა
+                  გადახდილი შეკვეთები ჯერ არ არის
                 </div>
               ) : (
                 <div className="divide-y divide-border">
@@ -229,11 +241,17 @@ export default function AdminDashboardPage() {
                             {formatDate(order.createdAt)} · {formatPrice(order.amount)}
                           </p>
                         </div>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${order.statusClass}`}
-                        >
-                          {order.statusLabel}
-                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800 border border-green-200">
+                            <DollarSign className="h-3 w-3" />
+                            გადახდილია
+                          </span>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${order.statusClass}`}
+                          >
+                            {order.statusLabel}
+                          </span>
+                        </div>
                       </div>
                     );
                   })}
@@ -243,8 +261,8 @@ export default function AdminDashboardPage() {
           </section>
 
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold font-ui">ყურადღება (Custom)</h2>
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-xl font-semibold font-ui">გადახდილი Custom — დასამუშავებელი</h2>
               <Link
                 href="/admin/custom-orders"
                 className="text-sm text-accent hover:underline flex items-center gap-1"
@@ -252,6 +270,9 @@ export default function AdminDashboardPage() {
                 ყველა მართვა <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              გადახდილი ინდივიდუალური შეკვეთები, რომლებიც ჯერ არ დასრულებულა.
+            </p>
 
             <div className="rounded-2xl border border-orange-200 bg-orange-50/30 overflow-hidden shadow-sm">
               {isLoading ? (
@@ -261,7 +282,7 @@ export default function AdminDashboardPage() {
                 </div>
               ) : recentPendingCustom.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground text-sm">
-                  მოლოდინში მყოფი შეკვეთები არ არის
+                  გადახდილი დასამუშავებელი შეკვეთები არ არის
                 </div>
               ) : (
                 <div className="divide-y divide-orange-200">
