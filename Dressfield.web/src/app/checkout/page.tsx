@@ -174,8 +174,10 @@ function loadNaturalDimensions(url: string): Promise<{ width: number; height: nu
     const img = new window.Image();
     img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
     img.onerror = () => resolve(null);
-    // crossOrigin must be set BEFORE src to avoid tainting; harmless if the URL is same-origin.
-    img.crossOrigin = "anonymous";
+    // NOTE: do NOT set crossOrigin here. Reading naturalWidth/Height does not need
+    // CORS (only reading pixel data does), and design images are served from a
+    // cross-origin API that may not send CORS headers - setting crossOrigin would
+    // make the load fail and silently drop the geometry. Plain load is enough.
     img.src = url;
   });
 }

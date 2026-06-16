@@ -115,18 +115,19 @@ async function downloadDesignImage(url: string, fileName: string) {
  */
 function orderHasPlacement(order: CustomOrderDetailDto) {
   if (!order.productTypeId || !order.canvasWidth || !order.canvasHeight) return false;
-  return order.designs.some(
-    (d) => d.positionX != null && d.positionY != null && d.width != null && d.height != null
-  );
+  return order.designs.some(designHasGeometry);
 }
 
+// We can place a design from its center coords plus either the saved rendered
+// size (width/height) OR the scale factors - the viewer measures the image at
+// render time and multiplies by scale when width/height weren't captured. Older
+// width/height capture failed silently on cross-origin images, so requiring it
+// here would wrongly hide every placement.
 function designHasGeometry(design: CustomOrderDesignDto) {
-  return (
-    design.positionX != null &&
-    design.positionY != null &&
-    design.width != null &&
-    design.height != null
-  );
+  if (design.positionX == null || design.positionY == null) return false;
+  const hasSize = design.width != null && design.height != null;
+  const hasScale = design.scaleX != null && design.scaleY != null;
+  return hasSize || hasScale;
 }
 
 function ViewPlacementButton({ onClick }: { onClick: () => void }) {

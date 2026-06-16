@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { PRODUCT_TYPES } from "@/config/custom-order";
 import type { CustomOrderDesignDto } from "@/types/custom-order";
 
@@ -46,12 +46,14 @@ export function CustomOrderPreview({
   // Either case => render nothing; the parent shows the legacy coords block.
   if (!product || !canvasWidth || !canvasHeight) return null;
 
+  // A design is placeable when it has center coords plus either a saved rendered
+  // size or scale factors (size is then measured from the image at render time).
   const designsWithGeometry = designs.filter(
     (d) =>
       d.positionX != null &&
       d.positionY != null &&
-      d.width != null &&
-      d.height != null
+      ((d.width != null && d.height != null) ||
+        (d.scaleX != null && d.scaleY != null))
   );
 
   if (designsWithGeometry.length === 0) return null;
@@ -140,37 +142,77 @@ function SidePreview({
           alt={label}
           className="pointer-events-none absolute inset-0 h-full w-full object-contain"
         />
-        {designs.map((d) => {
-          // Fabric stores center coords; CSS expects top-left. Translate via
-          // half-width/half-height offsets, scaled into viewport space.
-          const width = (d.width ?? 0) * scale;
-          const height = (d.height ?? 0) * scale;
-          const centerX = (d.positionX ?? 0) * scale;
-          const centerY = (d.positionY ?? 0) * scale;
-          const left = centerX - width / 2;
-          const top = centerY - height / 2;
-          const angle = d.angle ?? 0;
-          const isHighlighted = highlightDesignId != null && d.id === highlightDesignId;
-          return (
-            <img
-              key={d.id}
-              src={d.designImageUrl}
-              alt={`Design ${d.id}`}
-              className={`pointer-events-none absolute${
-                isHighlighted ? " outline outline-2 outline-offset-2 outline-accent" : ""
-              }`}
-              style={{
-                left,
-                top,
-                width,
-                height,
-                transform: `rotate(${angle}deg)`,
-                transformOrigin: "center center",
-              }}
-            />
-          );
-        })}
+        {designs.map((d) => (
+          <DesignOverlay
+            key={d.id}
+            design={d}
+            scale={scale}
+            isHighlighted={highlightDesignId != null && d.id === highlightDesignId}
+          />
+        ))}
       </div>
     </div>
+  );
+}
+
+/**
+ * One design overlaid on the silhouette. Fabric stores center coords; CSS expects
+ * top-left, so we translate via half-width/half-height. When the checkout failed
+ * to capture the rendered size (width/height null), we measure the image's natural
+ * size on load and multiply by the saved scale - this needs no CORS, so it works
+ * for cross-origin design images that the checkout-time measurement could not read.
+ */
+function DesignOverlay({
+  design: d,
+  scale,
+  isHighlighted,
+}: {
+  design: CustomOrderDesignDto;
+  scale: number;
+  isHighlighted: boolean;
+}) {
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
+  const needsMeasure = d.width == null || d.height == null;
+
+  // Rendered size in canvas px: prefer the saved value, else natural x scale.
+  let renderedW = d.width ?? null;
+  let renderedH = d.height ?? null;
+  if (needsMeasure && natural) {
+    renderedW = natural.w * (d.scaleX ?? 1);
+    renderedH = natural.h * (d.scaleY ?? 1);
+  }
+
+  const ready = renderedW != null && renderedH != null;
+  const width = (renderedW ?? 0) * scale;
+  const height = (renderedH ?? 0) * scale;
+  const left = (d.positionX ?? 0) * scale - width / 2;
+  const top = (d.positionY ?? 0) * scale - height / 2;
+  const angle = d.angle ?? 0;
+
+  return (
+    <img
+      src={d.designImageUrl}
+      alt={`Design ${d.id}`}
+      onLoad={(event) => {
+        if (!needsMeasure) return;
+        const img = event.currentTarget;
+        if (img.naturalWidth > 0) {
+          setNatural({ w: img.naturalWidth, h: img.naturalHeight });
+        }
+      }}
+      className={`pointer-events-none absolute${
+        isHighlighted ? " outline outline-2 outline-offset-2 outline-accent" : ""
+      }`}
+      style={{
+        left,
+        top,
+        width,
+        height,
+        // Hide until we know the size to avoid a flash at the wrong dimensions.
+        opacity: ready ? 1 : 0,
+        transform: `rotate(${angle}deg)`,
+        transformOrigin: "center center",
+      }}
+    />
   );
 }
