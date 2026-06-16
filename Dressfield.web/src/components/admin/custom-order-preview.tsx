@@ -13,6 +13,8 @@ interface CustomOrderPreviewProps {
   designs: CustomOrderDesignDto[];
   /** Rendered viewport width in CSS px. Height matches the canvas aspect ratio. */
   viewportSize?: number;
+  /** When set, the matching design is outlined so the admin can tell which one they opened. */
+  highlightDesignId?: number | null;
 }
 
 /**
@@ -32,6 +34,7 @@ export function CustomOrderPreview({
   canvasHeight,
   designs,
   viewportSize = 480,
+  highlightDesignId = null,
 }: CustomOrderPreviewProps) {
   const product = useMemo(
     () => PRODUCT_TYPES.find((p) => p.id === productTypeId),
@@ -75,6 +78,7 @@ export function CustomOrderPreview({
           scale={scale}
           viewportWidth={viewportSize}
           viewportHeight={viewportHeight}
+          highlightDesignId={highlightDesignId}
         />
       )}
       {backDesigns.length > 0 && (
@@ -86,6 +90,7 @@ export function CustomOrderPreview({
           scale={scale}
           viewportWidth={viewportSize}
           viewportHeight={viewportHeight}
+          highlightDesignId={highlightDesignId}
         />
       )}
     </div>
@@ -100,6 +105,7 @@ interface SidePreviewProps {
   scale: number;
   viewportWidth: number;
   viewportHeight: number;
+  highlightDesignId?: number | null;
 }
 
 function SidePreview({
@@ -110,6 +116,7 @@ function SidePreview({
   scale,
   viewportWidth,
   viewportHeight,
+  highlightDesignId = null,
 }: SidePreviewProps) {
   return (
     <div className="space-y-2">
@@ -143,12 +150,15 @@ function SidePreview({
           const left = centerX - width / 2;
           const top = centerY - height / 2;
           const angle = d.angle ?? 0;
+          const isHighlighted = highlightDesignId != null && d.id === highlightDesignId;
           return (
             <img
               key={d.id}
               src={d.designImageUrl}
               alt={`Design ${d.id}`}
-              className="pointer-events-none absolute"
+              className={`pointer-events-none absolute${
+                isHighlighted ? " outline outline-2 outline-offset-2 outline-accent" : ""
+              }`}
               style={{
                 left,
                 top,

@@ -3,9 +3,9 @@
 
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, MapPin, X } from "lucide-react";
 import { toast } from "sonner";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import { formatPrice } from "@/lib/catalog";
 import {
   CustomOrderStatusBadgeClasses,
   CustomOrderStatusLabels,
+  type CustomOrderDesignDto,
   type CustomOrderDetailDto,
   type CustomOrderStatus,
 } from "@/types/custom-order";
@@ -105,6 +106,111 @@ async function downloadDesignImage(url: string, fileName: string) {
   } else {
     toast.error("სურათის ჩამოტვირთვა ვერ მოხერხდა");
   }
+}
+
+/**
+ * True when the order carries enough Fabric geometry for {@link CustomOrderPreview}
+ * to reconstruct the placement composite. Mirrors that component's own guards so the
+ * "view placement" affordance only appears when it will actually render something.
+ */
+function orderHasPlacement(order: CustomOrderDetailDto) {
+  if (!order.productTypeId || !order.canvasWidth || !order.canvasHeight) return false;
+  return order.designs.some(
+    (d) => d.positionX != null && d.positionY != null && d.width != null && d.height != null
+  );
+}
+
+function designHasGeometry(design: CustomOrderDesignDto) {
+  return (
+    design.positionX != null &&
+    design.positionY != null &&
+    design.width != null &&
+    design.height != null
+  );
+}
+
+function ViewPlacementButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className="w-full border-accent/40 text-accent hover:bg-accent/10 hover:text-accent"
+      onClick={onClick}
+    >
+      <MapPin className="mr-2 h-4 w-4" />
+      ნახე განთავსება
+    </Button>
+  );
+}
+
+/**
+ * Full-screen re-render of the customer's canvas, opened from a design's "view
+ * placement" button. Reconstructs the composition from the saved coordinates -
+ * no screenshot needed - and rings the design the admin clicked.
+ */
+function PlacementModal({
+  order,
+  highlightDesignId,
+  onClose,
+}: {
+  order: CustomOrderDetailDto;
+  highlightDesignId: number | null;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    // Lock body scroll while the overlay is open.
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-ui text-3xl font-semibold">დიზაინის განთავსება</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              ზუსტად ისე, როგორც მომხმარებელმა განათავსა ტილოზე.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full p-2 text-muted-foreground hover:bg-black/5 hover:text-foreground"
+            aria-label="დახურვა"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <CustomOrderPreview
+          productTypeId={order.productTypeId}
+          colorHex={order.colorHex}
+          canvasWidth={order.canvasWidth}
+          canvasHeight={order.canvasHeight}
+          designs={order.designs}
+          viewportSize={520}
+          highlightDesignId={highlightDesignId}
+        />
+      </div>
+    </div>
+  );
 }
 
 function DesignDownloadButton({
@@ -197,6 +303,15 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<CustomOrderStatus>(order.status);
   const [adminNotes, setAdminNotes] = useState(order.adminNotes || "");
+  // null = modal closed. A design id opens the placement view with that design ringed.
+  const [placementDesignId, setPlacementDesignId] = useState<number | null>(null);
+  const [placementOpen, setPlacementOpen] = useState(false);
+  const canShowPlacement = useMemo(() => orderHasPlacement(order), [order]);
+
+  const openPlacement = (designId: number | null) => {
+    setPlacementDesignId(designId);
+    setPlacementOpen(true);
+  };
 
   const updateMutation = useMutation({
     mutationFn: () => updateCustomOrderStatus(order.id, status, adminNotes || null),
@@ -263,18 +378,38 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
               nothing for legacy orders, in which case the raw coords block below
               still gives the admin enough info to act. */}
           <div className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm">
-            <h2 className="font-ui text-3xl font-semibold">დიზაინის გადახედვა</h2>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-ui text-3xl font-semibold">დიზაინის განთავსება</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  ნაჩვენებია სად განათავსა მომხმარებელმა დიზაინი ტილოზე.
+                </p>
+              </div>
+              {canShowPlacement && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-accent/40 text-accent hover:bg-accent/10 hover:text-accent"
+                  onClick={() => openPlacement(null)}
+                >
+                  <MapPin className="mr-2 h-4 w-4" />
+                  გადიდება
+                </Button>
+              )}
+            </div>
             <div className="mt-4">
-              <CustomOrderPreview
-                productTypeId={order.productTypeId}
-                colorHex={order.colorHex}
-                canvasWidth={order.canvasWidth}
-                canvasHeight={order.canvasHeight}
-                designs={order.designs}
-              />
-              {!order.productTypeId && (
+              {canShowPlacement ? (
+                <CustomOrderPreview
+                  productTypeId={order.productTypeId}
+                  colorHex={order.colorHex}
+                  canvasWidth={order.canvasWidth}
+                  canvasHeight={order.canvasHeight}
+                  designs={order.designs}
+                />
+              ) : (
                 <p className="text-sm text-muted-foreground">
-                  ვიზუალური გადახედვა მიუწვდომელია — შეკვეთა შესრულდა გადახედვის ფუნქციის დამატებამდე.
+                  ვიზუალური გადახედვა მიუწვდომელია — შეკვეთა შესრულდა გადახედვის ფუნქციის
+                  დამატებამდე. იხილეთ დიზაინის ფაილები ქვემოთ.
                 </p>
               )}
             </div>
@@ -291,6 +426,9 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
                     orderId={order.id}
                     designId={design.id}
                   />
+                  {canShowPlacement && designHasGeometry(design) && (
+                    <ViewPlacementButton onClick={() => openPlacement(design.id)} />
+                  )}
                 </div>
               ))}
             </div>
@@ -356,6 +494,14 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
           </div>
         </div>
       </div>
+
+      {placementOpen && (
+        <PlacementModal
+          order={order}
+          highlightDesignId={placementDesignId}
+          onClose={() => setPlacementOpen(false)}
+        />
+      )}
     </div>
   );
 }
