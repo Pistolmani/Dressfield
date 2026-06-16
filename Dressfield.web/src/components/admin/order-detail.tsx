@@ -13,6 +13,7 @@ import {
   OrderStatusColors,
 } from "@/types/order";
 import { formatPrice } from "@/lib/utils";
+import { handleImageError, imageSrc } from "@/lib/image";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("ka-GE");
@@ -139,17 +140,12 @@ export default function OrderDetail({ orderId }: { orderId: number }) {
                 <td className="px-5 py-3">
                   <div className="h-10 w-10 rounded-lg overflow-hidden bg-gray-100">
                     <img
-                      src={item.productImageUrl || "/dressfield-fallback.jpg"}
+                      src={imageSrc(item.productImageUrl)}
                       alt={item.productName}
                       className="h-full w-full object-cover"
                       loading="lazy"
                       decoding="async"
-                      onError={(event) => {
-                        const img = event.currentTarget;
-                        if (img.dataset.fallbackApplied === "1") return;
-                        img.dataset.fallbackApplied = "1";
-                        img.src = "/dressfield-fallback.jpg";
-                      }}
+                      onError={handleImageError}
                     />
                   </div>
                 </td>

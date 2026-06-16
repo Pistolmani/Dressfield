@@ -11,11 +11,11 @@ import {
 import { ShoppingCart, Trash2 } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/utils";
+import { FALLBACK_IMAGE, handleImageError } from "@/lib/image";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const MAX_PREVIEW_ITEMS = 4;
 const CLOSE_DELAY_MS = 120;
-const FALLBACK_IMAGE = "/dressfield-fallback.jpg";
 
 // Hydration gate without setState-in-effect, which React Compiler flags.
 function subscribeMounted() {
@@ -127,12 +127,7 @@ export function CartHoverPreview() {
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"
                             decoding="async"
-                            onError={(event) => {
-                              const image = event.currentTarget;
-                              if (image.dataset.fallbackApplied === "1") return;
-                              image.dataset.fallbackApplied = "1";
-                              image.src = FALLBACK_IMAGE;
-                            }}
+                            onError={handleImageError}
                           />
                         ) : (
                           <img

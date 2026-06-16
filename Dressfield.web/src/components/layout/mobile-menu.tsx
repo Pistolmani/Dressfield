@@ -9,7 +9,8 @@ import {
   Wand2,
   UserCircle,
   LogOut,
-  ListOrdered
+  ListOrdered,
+  Settings
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Logo } from "@/components/ui/logo";
@@ -19,7 +20,7 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ onClose }: MobileMenuProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
 
   return (
     <div className="flex relative h-full flex-col bg-[#050505] text-white overflow-hidden selection:bg-white/20">
@@ -98,6 +99,19 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
                     </div>
                     <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-white/60 transition-colors" />
                   </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={onClose}
+                      className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-amber-500/10 border-b border-white/5 group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <Settings className="h-5 w-5 text-amber-400/70 group-hover:text-amber-400 transition-colors" />
+                        <span className="font-ui text-lg tracking-wide text-amber-400/90 group-hover:text-amber-400 font-semibold">ადმინ პანელი</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-amber-400/60 transition-colors" />
+                    </Link>
+                  )}
                   <button
                     onClick={() => { logout(); onClose(); }}
                     className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-red-500/10 group w-full text-left"

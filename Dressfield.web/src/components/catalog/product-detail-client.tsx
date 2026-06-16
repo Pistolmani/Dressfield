@@ -8,10 +8,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import { formatPrice } from "@/lib/catalog";
+import { FALLBACK_IMAGE, handleImageError, healBrokenImages, imageSrc } from "@/lib/image";
 import { useCartStore } from "@/stores/cart-store";
 import type { ProductDetailDto } from "@/types/catalog";
 
-const fallbackImage = "/dressfield-fallback.jpg";
+const fallbackImage = FALLBACK_IMAGE;
 
 function groupVariants(product: ProductDetailDto) {
   const groups = new Map<string, ProductDetailDto["variants"]>();
@@ -89,6 +90,15 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
     });
   }, [product.id, product.name, effectiveBasePrice]);
 
+  // These pages are statically pre-rendered, so the gallery <img>s can fail
+  // (e.g. a since-deleted image URL) before React hydrates and attaches onError.
+  // The browser won't re-fire that error, so recover such images on mount.
+  useEffect(() => {
+    healBrokenImages();
+    const timer = setTimeout(() => healBrokenImages(), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleVariantSelect = useCallback(
     (groupName: string, variantId: number) => {
       const next = { ...selectedVariants, [groupName]: variantId };
@@ -154,9 +164,10 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
           <section className="space-y-4">
             <div className="overflow-hidden rounded-3xl border border-black/8 bg-white">
               <img
-                src={selectedImage.imageUrl}
+                src={imageSrc(selectedImage.imageUrl)}
                 alt={selectedImage.altText || product.name}
                 className="aspect-[4/5] h-full w-full object-cover"
+                onError={handleImageError}
               />
             </div>
             <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
@@ -172,9 +183,10 @@ export function ProductDetailClient({ product }: { product: ProductDetailDto }) 
                   }`}
                 >
                   <img
-                    src={image.imageUrl}
+                    src={imageSrc(image.imageUrl)}
                     alt={image.altText || product.name}
                     className="aspect-square h-full w-full object-cover"
+                    onError={handleImageError}
                   />
                 </button>
               ))}

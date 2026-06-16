@@ -147,6 +147,11 @@ function normalizeProductDetail(product: ProductDetailDto): ProductDetailDto {
 }
 
 export async function getStaticProducts(): Promise<ProductSummaryDto[]> {
+  // force-cache is required for static export (no-store makes the fetch dynamic,
+  // which breaks build-time prerendering). Freshness is guaranteed instead by
+  // always building clean — `npm run clean` clears .next/cache/fetch-cache so a
+  // previous build's stale (since-deleted) image URLs can't be reused. See the
+  // "clean" + build pipeline in deploy:hostinger.
   const response = await fetch(`${getApiBaseUrl()}/api/products`, {
     cache: "force-cache",
   });

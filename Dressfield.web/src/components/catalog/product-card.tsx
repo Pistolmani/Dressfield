@@ -11,9 +11,8 @@ import { formatPrice, getProductBySlug } from "@/lib/catalog";
 import { trackAddToCart } from "@/lib/analytics";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { handleImageError, imageSrc } from "@/lib/image";
 import type { ProductSummaryDto, ProductVariantDto } from "@/types/catalog";
-
-const fallbackImage = "/dressfield-fallback.jpg";
 
 function isSizeVariant(variant: ProductVariantDto): boolean {
   const n = variant.name?.trim().toLowerCase() ?? "";
@@ -39,9 +38,10 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
       ? [...detailQuery.data.images].sort((a, b) => a.sortOrder - b.sortOrder)
       : null;
 
-  const currentImageUrl = images
-    ? (images[currentIndex]?.imageUrl ?? product.primaryImageUrl ?? fallbackImage)
-    : (product.primaryImageUrl ?? fallbackImage);
+  const currentImageUrl = imageSrc(
+    images ? images[currentIndex]?.imageUrl : undefined,
+    product.primaryImageUrl,
+  );
 
   const imageCount = images?.length ?? 1;
   const displayPrice = product.effectivePrice ?? product.basePrice;
@@ -129,12 +129,7 @@ export function ProductCard({ product }: { product: ProductSummaryDto }) {
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             loading="lazy"
             decoding="async"
-            onError={(event) => {
-              const img = event.currentTarget;
-              if (img.dataset.fallbackApplied === "1") return;
-              img.dataset.fallbackApplied = "1";
-              img.src = fallbackImage;
-            }}
+            onError={handleImageError}
           />
         </Link>
 

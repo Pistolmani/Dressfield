@@ -13,6 +13,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { trackPurchase } from "@/lib/analytics";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { formatPrice } from "@/lib/utils";
+import { handleImageError, imageSrc } from "@/lib/image";
 import type { OrderStatus } from "@/types/order";
 
 type PollPhase = "polling" | "slow" | "timedOut";
@@ -306,17 +307,12 @@ function ConfirmationContent() {
               <div key={item.id} className="px-4 py-3 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                   <img
-                    src={item.productImageUrl || "/dressfield-fallback.jpg"}
+                    src={imageSrc(item.productImageUrl)}
                     alt={item.productName}
                     className="h-full w-full object-cover"
                     loading="lazy"
                     decoding="async"
-                    onError={(event) => {
-                      const img = event.currentTarget;
-                      if (img.dataset.fallbackApplied === "1") return;
-                      img.dataset.fallbackApplied = "1";
-                      img.src = "/dressfield-fallback.jpg";
-                    }}
+                    onError={handleImageError}
                   />
                 </div>
                 <div className="flex-1 min-w-0">

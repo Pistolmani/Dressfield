@@ -11,6 +11,7 @@ import {
   SEPARATE_CHECKOUT_REQUIRED_MESSAGE,
 } from "@/lib/cart-composition";
 import { formatPrice } from "@/lib/utils";
+import { handleImageError, imageSrc } from "@/lib/image";
 
 export default function CartPage() {
   const router = useRouter();
@@ -56,17 +57,12 @@ export default function CartPage() {
                 {/* Image */}
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
                   <img
-                    src={item.imageUrl || "/dressfield-fallback.jpg"}
+                    src={imageSrc(item.imageUrl)}
                     alt={item.name}
                     className="h-full w-full object-cover"
                     loading="lazy"
                     decoding="async"
-                    onError={(event) => {
-                      const img = event.currentTarget;
-                      if (img.dataset.fallbackApplied === "1") return;
-                      img.dataset.fallbackApplied = "1";
-                      img.src = "/dressfield-fallback.jpg";
-                    }}
+                    onError={handleImageError}
                   />
                 </div>
 

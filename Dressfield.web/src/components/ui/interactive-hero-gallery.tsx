@@ -4,6 +4,7 @@
 import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { handleImageError, imageSrc } from "@/lib/image";
 
 interface InteractiveHeroGalleryProps {
   images: string[];
@@ -228,7 +229,7 @@ export function InteractiveHeroGallery({
             >
               <div className="w-full h-full relative rounded-lg overflow-hidden border border-gray-100/50 bg-gray-50 pointer-events-none">
                 <img
-                  src={card.url}
+                  src={imageSrc(card.url)}
                   alt=""
                   aria-hidden="true"
                   className="w-full h-full object-cover"
@@ -236,12 +237,7 @@ export function InteractiveHeroGallery({
                   fetchPriority={index < 2 ? "high" : "auto"}
                   decoding="async"
                   draggable={false}
-                  onError={(event) => {
-                    const image = event.currentTarget;
-                    if (image.dataset.fallbackApplied === "1") return;
-                    image.dataset.fallbackApplied = "1";
-                    image.src = "/dressfield-fallback.jpg";
-                  }}
+                  onError={handleImageError}
                 />
               </div>
             </motion.div>

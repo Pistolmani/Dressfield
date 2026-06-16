@@ -4,9 +4,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/catalog";
+import { handleImageError, imageSrc } from "@/lib/image";
 import type { ProductSummaryDto } from "@/types/catalog";
-
-const fallbackImage = "/dressfield-fallback.jpg";
 
 export function ProductList({
   products,
@@ -52,17 +51,12 @@ export function ProductList({
             className="flex-shrink-0"
           >
             <img
-              src={product.primaryImageUrl || fallbackImage}
+              src={imageSrc(product.primaryImageUrl)}
               alt={product.name}
               className="h-24 w-24 object-cover rounded-md"
               loading="lazy"
               decoding="async"
-              onError={(event) => {
-                const img = event.currentTarget;
-                if (img.dataset.fallbackApplied === "1") return;
-                img.dataset.fallbackApplied = "1";
-                img.src = fallbackImage;
-              }}
+              onError={handleImageError}
             />
           </Link>
 

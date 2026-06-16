@@ -21,6 +21,7 @@ import {
   type CustomOrderStatus,
 } from "@/types/custom-order";
 import { CustomOrderPreview } from "@/components/admin/custom-order-preview";
+import { EMBROIDERY_SIZES, PRODUCT_TYPES } from "@/config/custom-order";
 
 // Status 8 (PaymentProcessing) is system-managed - admins shouldn't set it manually.
 const statusOptions: CustomOrderStatus[] = [0, 1, 2, 3, 4, 5, 6, 7];
@@ -29,6 +30,25 @@ const API_BASE =
 
 function getStatusBadgeClass(status: CustomOrderStatus) {
   return CustomOrderStatusBadgeClasses[status] ?? "bg-gray-200 text-gray-700";
+}
+
+// Custom orders never reference a catalog product, so baseProductName is always
+// null. The real label is the configured garment type; fall back to a neutral
+// "custom order" wording instead of the misleading "empty canvas".
+function getProductLabel(order: CustomOrderDetailDto) {
+  if (order.productTypeId) {
+    const product = PRODUCT_TYPES.find((p) => p.id === order.productTypeId);
+    if (product) return product.label;
+  }
+  return order.baseProductName || "ინდ. შეკვეთა";
+}
+
+// Designs store the embroidery size as the EMBROIDERY_SIZES id (e.g. "M").
+// Expand it to "M · 8×8სმ" so the admin sees the real-world dimensions.
+function formatEmbroiderySize(size: string | null) {
+  if (!size) return null;
+  const match = EMBROIDERY_SIZES.find((s) => s.id === size);
+  return match ? `${match.label} · ${match.note}` : size;
 }
 
 function isAbsoluteUrl(url: string) {
@@ -366,8 +386,14 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
               </div>
               <div>
                 <p className="text-muted-foreground">პროდუქტი</p>
-                <p>{order.baseProductName || "ცარიელი ტილო"}</p>
+                <p>{getProductLabel(order)}</p>
               </div>
+              {order.clothingSize && (
+                <div>
+                  <p className="text-muted-foreground">ტანსაცმლის ზომა</p>
+                  <p>{order.clothingSize}</p>
+                </div>
+              )}
               <div>
                 <p className="text-muted-foreground">ფასი</p>
                 <p className="text-accent">{formatPrice(order.totalPrice)}</p>
@@ -422,6 +448,12 @@ function CustomOrderDetailContent({ order }: { order: CustomOrderDetailDto }) {
               {order.designs.map((design) => (
                 <div key={design.id} className="space-y-3 rounded-3xl border border-black/8 p-4">
                   <DesignPreviewImage url={design.designImageUrl} />
+                  {formatEmbroiderySize(design.size) && (
+                    <div className="flex items-center justify-between gap-2 text-sm">
+                      <span className="text-muted-foreground">ნაქარგის ზომა</span>
+                      <span className="font-medium">{formatEmbroiderySize(design.size)}</span>
+                    </div>
+                  )}
                   <DesignDownloadButton
                     url={design.designImageUrl}
                     orderId={order.id}

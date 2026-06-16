@@ -10,6 +10,8 @@
     "start": "next start",
     "lint": "eslint",
     "prepare:hostinger": "node scripts/prepare-hostinger-deploy.mjs",
+    "upload:hostinger": "node scripts/upload-hostinger.mjs",
+    "deploy:hostinger": "npm run clean && npm run build && npm run prepare:hostinger && npm run upload:hostinger",
     "serve:static": "npx -y serve out",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -46,6 +48,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "basic-ftp": "^6.0.1",
     "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",

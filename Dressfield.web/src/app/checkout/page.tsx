@@ -19,6 +19,7 @@ import {
 import { getShippingCostByCity } from "@/lib/shipping";
 import { CITY_OPTIONS } from "@/lib/georgian-cities";
 import { formatPrice } from "@/lib/utils";
+import { handleImageError, imageSrc } from "@/lib/image";
 import { useAuth } from "@/lib/auth";
 import type { PromoCodeValidationResultDto } from "@/types/promo-code";
 
@@ -725,17 +726,12 @@ export default function CheckoutPage() {
           <div key={`${item.productId}-${item.variantId ?? 0}`} className="flex items-center gap-3 text-sm">
             <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
               <img
-                src={item.imageUrl || "/dressfield-fallback.jpg"}
+                src={imageSrc(item.imageUrl)}
                 alt={item.name}
                 className="h-full w-full object-cover"
                 loading="lazy"
                 decoding="async"
-                onError={(event) => {
-                  const img = event.currentTarget;
-                  if (img.dataset.fallbackApplied === "1") return;
-                  img.dataset.fallbackApplied = "1";
-                  img.src = "/dressfield-fallback.jpg";
-                }}
+                onError={handleImageError}
               />
             </div>
             <div className="flex-1 min-w-0">

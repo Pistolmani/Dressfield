@@ -24,6 +24,7 @@ import {
   uploadDesignImage,
   validateDesignFile,
 } from "@/lib/upload";
+import { handleImageError } from "@/lib/image";
 import type {
   ProductDetailDto,
   ProductImagePayload,
@@ -173,12 +174,7 @@ function ProductImageUploader({ image, index, isUploading, onChange, onRemove }:
                 src={image.imageUrl}
                 alt={image.altText || `Product image ${index + 1}`}
                 className="h-36 w-full rounded-xl object-cover"
-                onError={(event) => {
-                  const img = event.currentTarget;
-                  if (img.dataset.fallbackApplied === "1") return;
-                  img.dataset.fallbackApplied = "1";
-                  img.src = "/dressfield-fallback.jpg";
-                }}
+                onError={handleImageError}
               />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
