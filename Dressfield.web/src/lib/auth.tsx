@@ -11,7 +11,7 @@ import {
 import api, { setAccessToken } from "./api";
 import { getServerCart, syncServerCart } from "@/lib/cart-api";
 import { mapServerCartToLocal, mergeCarts } from "@/lib/cart-merge";
-import { setCartSyncSuppressed, useCartStore } from "@/stores/cart-store";
+import { markCartSynced, setCartSyncSuppressed, useCartStore } from "@/stores/cart-store";
 import type { User, LoginRequest, RegisterRequest, AuthResponse, UpdateProfileRequest } from "@/types/auth";
 
 interface AuthContextType {
@@ -47,12 +47,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (mode === "replace") {
         useCartStore.getState().setItems(serverItemsAsLocal);
+        // Baseline the change-detector to the server state so a later removal
+        // (esp. emptying the cart) is recognized and pushed, not skipped.
+        markCartSynced(serverItemsAsLocal);
         return;
       }
 
       const merged = mergeCarts(localItems, serverCart.items);
       useCartStore.getState().setItems(merged);
       await syncServerCart(merged);
+      markCartSynced(merged);
     } catch {
       // Keep local cart as the fallback source of truth when sync fails.
     } finally {

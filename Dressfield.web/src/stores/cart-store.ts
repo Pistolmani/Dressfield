@@ -69,6 +69,29 @@ export function setCartSyncSuppressed(value: boolean) {
   }
 }
 
+// Snapshot of the syncable items, used to detect real changes worth pushing to
+// the server. Custom-order items are excluded (no server counterpart).
+function computeSyncSnapshot(items: CartItem[]) {
+  return JSON.stringify(
+    items
+      .filter((item) => !item.customOrderData)
+      .map((item) => ({
+        productId: item.productId,
+        variantId: item.variantId ?? null,
+        quantity: item.quantity,
+      }))
+  );
+}
+
+// Record the just-loaded server cart as the synced baseline. Must be called
+// after replacing the local cart with the server's (login/refresh hydration);
+// otherwise the baseline stays "[]" and the first removal back to an empty cart
+// matches it and is wrongly skipped, so the server keeps the deleted item and it
+// reappears on the next refresh.
+export function markCartSynced(items: CartItem[]) {
+  lastSyncedSnapshot = computeSyncSnapshot(items);
+}
+
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
@@ -133,15 +156,7 @@ useCartStore.subscribe((state, prevState) => {
   if (suppressSync) return;
   if (!getAccessToken()) return;
 
-  // Exclude custom order items (they have timestamp productIds and no server counterpart)
-  const syncableItems = state.items.filter((item) => !item.customOrderData);
-  const snapshot = JSON.stringify(
-    syncableItems.map((item) => ({
-      productId: item.productId,
-      variantId: item.variantId ?? null,
-      quantity: item.quantity,
-    }))
-  );
+  const snapshot = computeSyncSnapshot(state.items);
 
   if (snapshot === lastSyncedSnapshot) return;
 
