@@ -175,8 +175,18 @@ export const ProductCanvas = forwardRef<ProductCanvasHandle, ProductCanvasProps>
 
       const allDesignObjs = fc.getObjects().filter((o) => (o as FabricCanvasObject)._designId);
       const activeObj = fc.getActiveObject() as FabricCanvasObject | undefined;
-      const obj = (activeObj?._designId ? activeObj : allDesignObjs.at(-1)) as FabricCanvasObject | undefined;
-      if (!obj) return;
+      // Resize the selected design. If nothing is selected, only fall back to the
+      // sole design when there is exactly one — never guess with multiple designs.
+      // This also stops the hidden (desktop/mobile) twin canvas, which has no active
+      // selection, from resizing the wrong design and writing it into shared state.
+      let obj: FabricCanvasObject | undefined;
+      if (activeObj?._designId) {
+        obj = activeObj;
+      } else if (allDesignObjs.length === 1) {
+        obj = allDesignObjs[0] as FabricCanvasObject;
+      } else {
+        return;
+      }
 
       const objW = obj.width || 1;
       const objH = obj.height || 1;

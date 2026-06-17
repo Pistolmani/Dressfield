@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ProductCanvas } from "@/components/custom-order/ProductCanvas";
 import { ImageToolbar } from "@/components/custom-order/ImageToolbar";
+import { TextDesignTool } from "@/components/custom-order/TextDesignTool";
 import type { ProductCanvasHandle } from "@/components/custom-order/ProductCanvas";
 import {
   UPLOAD_ALLOWED_EXTENSIONS,
@@ -236,6 +237,18 @@ export function Step3DesignUpload({
             {isDragActive ? "გაუშვი..." : "ატვირთე დიზაინი"}
           </span>
           <span className="ml-auto text-[9px] text-gray-400 font-medium flex-shrink-0">PNG JPG WEBP</span>
+        </div>
+
+        {/* Text / monogram: rasterizes to an image and reuses the design pipeline. */}
+        <div className="mt-2">
+          <TextDesignTool
+            onAdd={(url) => {
+              onDesignAdd(url);
+              onDesignAdded?.();
+            }}
+            garmentColorHex={_selectedColor?.hex ?? null}
+            disabled={isRemovingBg}
+          />
         </div>
       </div>
 

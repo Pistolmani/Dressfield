@@ -4,29 +4,29 @@ import Link from "next/link";
 // Doubles as crawlable keyword-rich content and a FAQPage rich-result source.
 const faqs = [
   {
-    question: "რა არის ქარგვა?",
+    question: "რატომ უნდა ავირჩიო ნაქარგი და არა პრინტი?",
     answer:
-      "ქარგვა არის ქსოვილზე ძაფით ნახატის, ლოგოს ან წარწერის შესრულება. DressField გთავაზობთ როგორც ხელით ქარგვას, ისე მანქანურ ქარგვას ტანსაცმელზე, ქუდებსა და აქსესუარებზე.",
+      "ნაქარგი არ ხუნდება, არ სკდება და არ ძვრება გარეცხვის შემდეგ. DressField-ში ჩვენ ვიყენებთ პრემიუმ ხარისხის მყარ ძაფებს, რაც უზრუნველყოფს, რომ შენი დიზაინი წლების განმავლობაში შეინარჩუნებს თავდაპირველ ფაქტურასა და ფერს. ეს არის პირდაპირი ინვესტიცია ხარისხსა და გამძლეობაში.",
+  },
+  {
+    question: "როგორ მუშაობს ონლაინ-პრევიუ (Live-Preview) ფუნქცია?",
+    answer:
+      "ეს ჩვენი მთავარი უპირატესობაა! ნაცვლად ბრმად შეკვეთისა, უბრალოდ ატვირთე შენი დიზაინი (ლოგო, წარწერა თუ ილუსტრაცია) ჩვენს საიტზე და რეალურ დროში დაინახავ, ზუსტად როგორ დაჯდება ის შერჩეულ სამოსზე. რასაც ხედავ ეკრანზე, ზუსტად იმ ხარისხს იღებ რეალობაში.",
+  },
+  {
+    question: "როგორ დგინდება ინდივიდუალური შეკვეთის ფასი?",
+    answer:
+      "არანაირი ფარული ხარჯი და ფასის ლოდინი. ღირებულება ავტომატურად ითვლება ჩვენი სისტემის მიერ დიზაინის ზომის, სირთულისა და ნაკერების რაოდენობის მიხედვით. როგორც კი ატვირთავ დიზაინს ჩვენს პლატფორმაზე, ეკრანზე მაშინვე გამოჩნდება ზუსტი ფასი.",
   },
   {
     question: "რა განსხვავებაა მანქანურ და ხელით ქარგვას შორის?",
     answer:
-      "მანქანური ქარგვა სწრაფი და ზუსტია, იდეალურია ლოგოს ქარგვისა და სერიული შეკვეთებისთვის. ხელით ქარგვა უფრო დეტალური და უნიკალურია. ორივე შემთხვევაში ვიყენებთ მაღალი ხარისხის ძაფებს.",
+      "მანქანური ქარგვა უზრუნველყოფს მილიმეტრულ სიზუსტეს, რაც იდეალურია დეტალური ვექტორული დიზაინების, ლოგოებისა და კორპორაციული შეკვეთებისთვის. ხელით ქარგვა კი ექსკლუზიური პროცესია — ის საუკეთესოა უნიკალური, სენტიმენტალური საჩუქრებისთვის, სადაც ადამიანის ხელის შეხება და ავთენტურობა ფასობს.",
   },
   {
-    question: "როგორ შევუკვეთო ლოგოს ქარგვა ჩემს დიზაინზე?",
+    question: "რომელ პროდუქტებზეა შესაძლებელი დიზაინის დატანა?",
     answer:
-      "ატვირთე შენი ლოგო ან დიზაინი ჩვენს პლატფორმაზე, ნახე live preview პროდუქტზე და დაადასტურე შეკვეთა. ჩვენ ამოვქარგავთ და მოგიტანთ მზა ნაქარგ პროდუქტს.",
-  },
-  {
-    question: "რა ღირს ქარგვა შეკვეთით?",
-    answer:
-      "ქარგვის ფასი დამოკიდებულია დიზაინის ზომაზე, ფერების რაოდენობასა და პროდუქტზე. ზუსტი ფასის სანახავად ატვირთე დიზაინი ინდივიდუალური შეკვეთის გვერდზე.",
-  },
-  {
-    question: "რა პროდუქტებზე შემიძლია ქარგვის შეკვეთა?",
-    answer:
-      "ვაკეთებთ ნაქარგს ჰუდიებზე, სვიტერებზე, მაისურებზე, ქუდებზე და სხვა ტანსაცმელზე. დაათვალიერე მზა ნაქარგების კოლექცია ან შექმენი ინდივიდუალური შეკვეთა.",
+      "ჩვენ გთავაზობთ მაღალი ხარისხის საბაზისო ტანსაცმელს, რომელიც სპეციალურად არის შერჩეული ნაქარგის ფაქტურისთვის. შეგიძლია აირჩიო პრემიუმ ხარისხის ჰუდები, სვიტერები, მაისურები და კეპები.",
   },
 ];
 
@@ -45,7 +45,7 @@ const faqSchema = {
 
 export function EmbroideryFaq() {
   return (
-    <section className="bg-white py-16 sm:py-20">
+    <section className="bg-gradient-to-b from-white to-slate-50 py-16 sm:py-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -53,35 +53,47 @@ export function EmbroideryFaq() {
         }}
       />
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.24em] text-black/50 mb-4">
-          ხშირად დასმული კითხვები
-        </p>
-        <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight mb-10 text-black">
-          ქარგვა და ნაქარგი — რა უნდა იცოდე
-        </h2>
+        <div className="text-center">
+          <p className="text-xs uppercase tracking-[0.24em] text-black/50 mb-4">
+            ხშირად დასმული კითხვები
+          </p>
+          <h2 className="font-ui text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-black">
+            რა უნდა იცოდე
+          </h2>
+          <p className="text-base text-black/55 mb-12">
+            ყველაფერი ნაქარგზე, ფასებსა და შეკვეთის პროცესზე — ერთ ადგილას.
+          </p>
+        </div>
 
-        <div className="divide-y divide-black/10">
+        <div className="space-y-3">
           {faqs.map((faq) => (
-            <details key={faq.question} className="group py-5">
-              <summary className="cursor-pointer list-none text-lg font-semibold text-black flex items-center justify-between">
+            <details
+              key={faq.question}
+              className="group rounded-2xl border border-black/10 bg-white px-5 sm:px-6 shadow-sm transition-colors open:border-black/20 open:shadow-md hover:border-black/20"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-base sm:text-lg font-semibold text-black [&::-webkit-details-marker]:hidden">
                 {faq.question}
-                <span className="ml-4 text-black/40 transition-transform group-open:rotate-45">
+                <span
+                  aria-hidden
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-black/5 text-lg leading-none text-black/50 transition-all duration-300 group-open:rotate-45 group-open:bg-black group-open:text-white"
+                >
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-base leading-relaxed text-black/70">
+              <p className="pb-5 pr-10 text-[15px] leading-relaxed text-black/65">
                 {faq.answer}
               </p>
             </details>
           ))}
         </div>
 
-        <div className="mt-10">
+        <div className="mt-12 text-center">
           <Link
             href="/custom-order"
-            className="text-sm font-semibold text-black underline underline-offset-4 hover:no-underline"
+            className="inline-flex items-center gap-2 rounded-full bg-black px-8 py-4 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:bg-black/90"
           >
-            შეუკვეთე ქარგვა შენი დიზაინით →
+            აქციე შენი იდეა რეალობად
+            <span aria-hidden>→</span>
           </Link>
         </div>
       </div>
