@@ -15,8 +15,8 @@ export function HomeShowcaseClient() {
   });
 
   const products = productsQuery.data ?? [];
-  const featuredProducts = products.filter((product) => product.isFeatured).slice(0, 6);
-  const showcaseProducts = (featuredProducts.length > 0 ? featuredProducts : products).slice(0, 6);
+  const featuredProducts = products.filter((product) => product.isFeatured).slice(0, 8);
+  const showcaseProducts = (featuredProducts.length > 0 ? featuredProducts : products).slice(0, 8);
 
   return (
     <section className="bg-white py-14 sm:py-16">
@@ -40,8 +40,8 @@ export function HomeShowcaseClient() {
         </div>
 
         {productsQuery.isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
-            {Array.from({ length: 6 }).map((_, index) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={`home-skeleton-${index}`}
                 className="aspect-[3/4] rounded-xl bg-black/5 animate-pulse"
@@ -51,7 +51,7 @@ export function HomeShowcaseClient() {
         ) : null}
 
         {!productsQuery.isLoading && showcaseProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {showcaseProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
