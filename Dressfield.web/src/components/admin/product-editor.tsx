@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
-import { ArrowLeft, LoaderCircle, Trash2, UploadCloud } from "lucide-react";
+import { ArrowLeft, LoaderCircle, Plus, Trash2, UploadCloud } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import type {
   ProductDetailDto,
   ProductImagePayload,
   ProductPayload,
+  ProductVariantPayload,
 } from "@/types/catalog";
 
 type ProductEditorProps = {
@@ -265,6 +266,34 @@ function ProductEditorForm({
     });
   }
 
+  // Variants are sizes (S/M/L…). The storefront detects size variants by a name
+  // containing "ზომ"/"size", so new rows default to "ზომა" to stay selectable.
+  function addVariant() {
+    setForm((current) => ({
+      ...current,
+      variants: [
+        ...current.variants,
+        { name: "ზომა", value: "", sku: null, priceAdjustment: 0, stockQuantity: 0, isActive: true },
+      ],
+    }));
+  }
+
+  function updateVariant(index: number, patch: Partial<ProductVariantPayload>) {
+    setForm((current) => ({
+      ...current,
+      variants: current.variants.map((variant, currentIndex) =>
+        currentIndex === index ? { ...variant, ...patch } : variant
+      ),
+    }));
+  }
+
+  function removeVariant(index: number) {
+    setForm((current) => ({
+      ...current,
+      variants: current.variants.filter((_, currentIndex) => currentIndex !== index),
+    }));
+  }
+
   async function uploadImages(files: File[]) {
     if (files.length === 0) return;
 
@@ -486,7 +515,7 @@ function ProductEditorForm({
               rows={5}
               maxLength={300}
               value={form.shortDescription || ""}
-              onChange={(event) => setForm((current) => ({ ...current, shortDescription: event.target.value, description: event.target.value }))}
+              onChange={(event) => setForm((current) => ({ ...current, shortDescription: event.target.value }))}
               className="w-full rounded-xl border border-input px-3 py-2 text-sm outline-none focus:border-accent"
               placeholder="მოკლე ტექსტი, რომელიც გამოჩნდება ბარათზე და პროდუქტის ზედა ნაწილში"
             />
@@ -546,6 +575,80 @@ function ProductEditorForm({
               ))
             )}
           </div>
+        </section>
+
+        <section className="space-y-5 rounded-3xl border border-black/8 bg-white p-5 shadow-sm xl:col-span-2">
+          <div className="flex items-center justify-between gap-3">
+            <div className="space-y-2">
+              <h2 className="font-ui text-3xl font-semibold">ზომები</h2>
+              <p className="text-sm text-muted-foreground">
+                დაამატე ხელმისაწვდომი ზომები (მაგ: S, M, L). ისინი მომხმარებელს გამოუჩნდება პროდუქტის ბარათზე.
+              </p>
+            </div>
+            <Button variant="outline" onClick={addVariant} type="button">
+              <Plus className="h-4 w-4" />
+              ზომის დამატება
+            </Button>
+          </div>
+
+          {form.variants.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-black/12 bg-white px-6 py-10 text-center text-sm text-muted-foreground">
+              ზომები არ არის დამატებული — პროდუქტი გაიყიდება ერთი ზომით.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {form.variants.map((variant, index) => (
+                <div
+                  key={index}
+                  className="grid items-end gap-3 rounded-2xl border border-black/8 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]"
+                >
+                  <div className="space-y-2">
+                    <Label>ზომა</Label>
+                    <Input
+                      value={variant.value || ""}
+                      placeholder="მაგ: M"
+                      onChange={(event) => updateVariant(index, { value: event.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>ფასის კორექცია (GEL)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={variant.priceAdjustment}
+                      onChange={(event) =>
+                        updateVariant(index, { priceAdjustment: Number(event.target.value) || 0 })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>მარაგი</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={variant.stockQuantity}
+                      onChange={(event) =>
+                        updateVariant(index, { stockQuantity: Number(event.target.value) || 0 })
+                      }
+                    />
+                  </div>
+                  <label className="flex h-10 items-center gap-2 rounded-xl border border-black/8 px-3 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={variant.isActive}
+                      onChange={(event) => updateVariant(index, { isActive: event.target.checked })}
+                      className="h-4 w-4 accent-accent"
+                    />
+                    აქტიური
+                  </label>
+                  <Button variant="outline" type="button" onClick={() => removeVariant(index)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
 

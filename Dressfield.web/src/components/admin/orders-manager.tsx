@@ -82,7 +82,7 @@ export default function OrdersManager() {
     if (
       !window.confirm(
         "ნამდვილად გსურთ ყველა გადაუხდელი შეკვეთის წაშლა?\n\n" +
-          "(Pending, AwaitingPayment, PaymentProcessing, Cancelled)"
+          "წაიშლება მხოლოდ გადაუხდელი შეკვეთები — გადახდილ შეკვეთებს ეს არ შეეხება."
       )
     )
       return;

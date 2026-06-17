@@ -48,11 +48,11 @@ function toPayload(form: PromoFormState) {
   const discountPercentage = Number.parseFloat(form.discountPercentage);
 
   if (!code) {
-    throw new Error("Promo code is required.");
+    throw new Error("პრომო კოდი სავალდებულოა.");
   }
 
   if (!Number.isFinite(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
-    throw new Error("Discount must be between 0 and 100.");
+    throw new Error("ფასდაკლება უნდა იყოს 0-100%-ის ფარგლებში.");
   }
 
   return {
@@ -73,10 +73,10 @@ function mapPromoToForm(promo: PromoCodeDto): PromoFormState {
 }
 
 function formatDateTime(iso: string | null) {
-  if (!iso) return "No expiry";
+  if (!iso) return "ვადის გარეშე";
 
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "Invalid date";
+  if (Number.isNaN(date.getTime())) return "არასწორი თარიღი";
 
   return date.toLocaleString("ka-GE", {
     year: "numeric",
@@ -103,10 +103,10 @@ export function PromoCodesManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-promo-codes"] });
       setCreateForm(emptyForm);
-      toast.success("Promo code created.");
+      toast.success("პრომო კოდი დაემატა.");
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "Could not create promo code.";
+      const message = error instanceof Error ? error.message : "პრომო კოდის დამატება ვერ მოხერხდა.";
       toast.error(message);
     },
   });
@@ -118,10 +118,10 @@ export function PromoCodesManager() {
       queryClient.invalidateQueries({ queryKey: ["admin-promo-codes"] });
       setEditingId(null);
       setEditForm(emptyForm);
-      toast.success("Promo code updated.");
+      toast.success("პრომო კოდი განახლდა.");
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "Could not update promo code.";
+      const message = error instanceof Error ? error.message : "პრომო კოდის განახლება ვერ მოხერხდა.";
       toast.error(message);
     },
   });
@@ -130,10 +130,10 @@ export function PromoCodesManager() {
     mutationFn: deletePromoCode,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-promo-codes"] });
-      toast.success("Promo code deleted.");
+      toast.success("პრომო კოდი წაიშალა.");
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "Could not delete promo code.";
+      const message = error instanceof Error ? error.message : "პრომო კოდის წაშლა ვერ მოხერხდა.";
       toast.error(message);
     },
   });
@@ -148,12 +148,12 @@ export function PromoCodesManager() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       <div>
-        <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Admin</p>
-        <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">Promo Codes</h1>
+        <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">ადმინისტრატორი</p>
+        <h1 className="font-ui text-5xl font-semibold tracking-[0.04em]">პრომო კოდები</h1>
       </div>
 
       <section className="rounded-3xl border border-black/8 bg-white p-5 shadow-sm space-y-4">
-        <h2 className="font-ui text-2xl font-semibold">Create Promo Code</h2>
+        <h2 className="font-ui text-2xl font-semibold">ახალი პრომო კოდი</h2>
 
         <div className="grid gap-3 md:grid-cols-4">
           <Input
@@ -161,7 +161,7 @@ export function PromoCodesManager() {
             onChange={(event) =>
               setCreateForm((current) => ({ ...current, code: event.target.value.toUpperCase() }))
             }
-            placeholder="Code (e.g. SPRING20)"
+            placeholder="კოდი (მაგ: SPRING20)"
           />
           <Input
             type="number"
@@ -172,7 +172,7 @@ export function PromoCodesManager() {
             onChange={(event) =>
               setCreateForm((current) => ({ ...current, discountPercentage: event.target.value }))
             }
-            placeholder="Discount %"
+            placeholder="ფასდაკლება %"
           />
           <Input
             type="datetime-local"
@@ -190,7 +190,7 @@ export function PromoCodesManager() {
               }
               className="h-4 w-4 accent-accent"
             />
-            Active
+            აქტიური
           </label>
         </div>
 
@@ -201,13 +201,13 @@ export function PromoCodesManager() {
             try {
               createMutation.mutate(toPayload(createForm));
             } catch (error) {
-              const message = error instanceof Error ? error.message : "Invalid promo code data.";
+              const message = error instanceof Error ? error.message : "პრომო კოდის მონაცემები არასწორია.";
               toast.error(message);
             }
           }}
         >
           <Plus className="h-4 w-4" />
-          Add Promo Code
+          დამატება
         </Button>
       </section>
 
@@ -216,30 +216,30 @@ export function PromoCodesManager() {
           <table className="min-w-full text-sm">
             <thead className="bg-black/[0.03] text-left">
               <tr>
-                <th className="px-4 py-3 font-medium">Code</th>
-                <th className="px-4 py-3 font-medium">Discount</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Expires</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 font-medium">კოდი</th>
+                <th className="px-4 py-3 font-medium">ფასდაკლება</th>
+                <th className="px-4 py-3 font-medium">სტატუსი</th>
+                <th className="px-4 py-3 font-medium">ვადა</th>
+                <th className="px-4 py-3 font-medium text-right">მოქმედებები</th>
               </tr>
             </thead>
             <tbody>
               {promoCodesQuery.isLoading ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                    Loading...
+                    იტვირთება...
                   </td>
                 </tr>
               ) : promoCodesQuery.isError ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-destructive">
-                    Could not load promo codes.
+                    პრომო კოდების ჩატვირთვა ვერ მოხერხდა.
                   </td>
                 </tr>
               ) : sortedPromoCodes.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                    No promo codes yet.
+                    პრომო კოდები ჯერ არ არის.
                   </td>
                 </tr>
               ) : null}
@@ -296,15 +296,15 @@ export function PromoCodesManager() {
                             }
                             className="h-4 w-4 accent-accent"
                           />
-                          Active
+                          აქტიური
                         </label>
                       ) : promo.isActive ? (
                         <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
-                          Active
+                          აქტიური
                         </span>
                       ) : (
                         <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-700">
-                          Inactive
+                          არააქტიური
                         </span>
                       )}
                     </td>
@@ -339,13 +339,13 @@ export function PromoCodesManager() {
                                   });
                                 } catch (error) {
                                   const message =
-                                    error instanceof Error ? error.message : "Invalid promo code data.";
+                                    error instanceof Error ? error.message : "პრომო კოდის მონაცემები არასწორია.";
                                   toast.error(message);
                                 }
                               }}
                             >
                               <Save className="h-4 w-4" />
-                              Save
+                              შენახვა
                             </Button>
                             <Button
                               size="sm"
@@ -356,7 +356,7 @@ export function PromoCodesManager() {
                               }}
                             >
                               <X className="h-4 w-4" />
-                              Cancel
+                              გაუქმება
                             </Button>
                           </>
                         ) : (
@@ -370,7 +370,7 @@ export function PromoCodesManager() {
                               }}
                             >
                               <Pencil className="h-4 w-4" />
-                              Edit
+                              რედაქტირება
                             </Button>
                             <Button
                               size="sm"
@@ -378,12 +378,12 @@ export function PromoCodesManager() {
                               className="text-destructive"
                               disabled={isBusy}
                               onClick={() => {
-                                if (!window.confirm(`Delete promo code ${promo.code}?`)) return;
+                                if (!window.confirm(`წავშალოთ პრომო კოდი ${promo.code}?`)) return;
                                 deleteMutation.mutate(promo.id);
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
-                              Delete
+                              წაშლა
                             </Button>
                           </>
                         )}

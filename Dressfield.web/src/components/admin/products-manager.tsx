@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { deleteProduct, formatPrice, getAdminProducts } from "@/lib/catalog";
+import { handleImageError, imageSrc } from "@/lib/image";
 
 function useDebouncedValue<T>(value: T, delay = 300) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -20,9 +21,6 @@ function useDebouncedValue<T>(value: T, delay = 300) {
 
   return debouncedValue;
 }
-
-const fallbackImage =
-  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=320&q=80";
 
 export function ProductsManager() {
   const queryClient = useQueryClient();
@@ -91,7 +89,7 @@ export function ProductsManager() {
               {productsQuery.data?.map((product) => (
                 <tr key={product.id} className="border-t border-black/6">
                   <td className="px-5 py-4">
-                    <img src={product.primaryImageUrl || fallbackImage} alt={product.name} className="h-10 w-10 rounded-lg object-cover" />
+                    <img src={imageSrc(product.primaryImageUrl)} alt={product.name} className="h-10 w-10 rounded-lg object-cover" onError={handleImageError} />
                   </td>
                   <td className="px-5 py-4">{product.name}</td>
                   <td className="px-5 py-4">
