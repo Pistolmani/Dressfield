@@ -5,7 +5,7 @@ interface LogoProps {
 export function Logo({ className }: LogoProps) {
   return (
     <svg
-      viewBox="0 0 220 32"
+      viewBox="0 0 178 32"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-label="DressField"
