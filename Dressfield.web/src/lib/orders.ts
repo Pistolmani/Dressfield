@@ -9,8 +9,17 @@ import type {
   UpdateOrderStatusRequest,
 } from '@/types/order';
 
-export async function createOrder(req: CreateOrderRequest): Promise<CheckoutResponse> {
-  const { data } = await api.post<CheckoutResponse>('/api/orders', req);
+export async function createOrder(
+  req: CreateOrderRequest,
+  idempotencyKey?: string,
+): Promise<CheckoutResponse> {
+  // The Idempotency-Key (a per-attempt UUID) lets the backend return the original order
+  // instead of creating a duplicate if the same submit is retried after a timeout.
+  const { data } = await api.post<CheckoutResponse>(
+    '/api/orders',
+    req,
+    idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : undefined,
+  );
   return data;
 }
 

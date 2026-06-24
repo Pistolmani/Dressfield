@@ -267,6 +267,9 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Stable across retries of the same checkout attempt; reset after a successful order so a
+  // fresh checkout gets a new key. Sent as Idempotency-Key so a retried submit can't duplicate.
+  const idempotencyKeyRef = useRef<string | null>(null);
   const [promoCodeInput, setPromoCodeInput] = useState("");
   const [promoApplyError, setPromoApplyError] = useState<string | null>(null);
   const [promoApplying, setPromoApplying] = useState(false);
@@ -663,21 +666,31 @@ export default function CheckoutPage() {
         return;
       }
 
-      const result = await createOrder({
-        contactName,
-        contactPhone,
-        contactEmail,
-        shippingCity,
-        shippingAddressLine1,
-        shippingAddressLine2,
-        promoCode: appliedPromo?.code ?? undefined,
-        customerNotes: sharedCustomerNotes || undefined,
-        items: regularItems.map((item) => ({
-          productId: item.productId,
-          variantId: item.variantId,
-          quantity: item.quantity,
-        })),
-      });
+      // Reuse the same key across retries of this attempt; a failed createOrder leaves it set
+      // so a resubmit dedupes, while a successful one clears it (below) for the next checkout.
+      idempotencyKeyRef.current ??= crypto.randomUUID();
+
+      const result = await createOrder(
+        {
+          contactName,
+          contactPhone,
+          contactEmail,
+          shippingCity,
+          shippingAddressLine1,
+          shippingAddressLine2,
+          promoCode: appliedPromo?.code ?? undefined,
+          customerNotes: sharedCustomerNotes || undefined,
+          items: regularItems.map((item) => ({
+            productId: item.productId,
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
+        },
+        idempotencyKeyRef.current,
+      );
+
+      // Order is persisted server-side now; release the key so a brand-new checkout gets a fresh one.
+      idempotencyKeyRef.current = null;
 
       // Persist orderId before leaving - lets the confirmation page recover
       // if the tab closes between the redirect and BOG's return callback.
