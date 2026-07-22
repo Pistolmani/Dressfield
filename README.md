@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dressfield
 
-## Getting Started
+E-commerce site for a Georgian embroidery business. Customers browse pre-made embroidered products or order custom embroidery by uploading a design and previewing it live on the product. Checkout runs through Bank of Georgia iPay.
 
-First, run the development server:
+This repo is the Next.js frontend. The backend lives at [Pistolmani/Dressfield-api](https://github.com/Pistolmani/Dressfield-api).
+
+## Tech stack
+
+- **Frontend:** Next.js 16 + React 19, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query, Zustand
+- **Backend:** ASP.NET Core 8 Web API — [separate repo](https://github.com/Pistolmani/Dressfield-api)
+- **Database:** MySQL 8 + Entity Framework Core
+- **Payments:** Bank of Georgia iPay (redirect-based)
+- **Analytics:** Meta Pixel
+- **Hosting:** Static export → Hostinger (frontend), Azure App Service (API)
+- **Language:** Georgian (MVP)
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Opens on [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Other scripts:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build          # production build (static export)
+npm run serve:static   # serve the exported ./out locally
+npm test               # vitest
+npm run lint
+```
 
-## Learn More
+## Deploy
 
-To learn more about Next.js, take a look at the following resources:
+Hostinger is shared hosting with no Node.js runtime, so the site ships as a static export.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run deploy:hostinger   # clean → build → prepare → upload
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Individual steps live in `Dressfield.web/scripts/` (`prepare-hostinger-deploy.mjs`, `upload-hostinger.mjs`).
 
-## Deploy on Vercel
+## Constraints worth knowing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Static export only — no SSR, no ISR, no Next.js API routes, no `next/image`, no middleware.
+- Payment flow is redirect-based (user leaves for BOG, returns via callback); status updates come through webhooks handled by the API.
+- All pages pre-render at build time; anything dynamic goes through the API.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Repo layout
+
+- `Dressfield.web/` — Next.js app (the deployable frontend)
+- `Dressfield.docs/` — architecture docs and references
+- `Dressfield.BussinesStrategy/` — business strategy notes
+- `.planning/` — GSD workflow artifacts (`PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, `STATE.md`)
